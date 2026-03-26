@@ -131,19 +131,43 @@ class AiController extends Controller
             }
 
             $updatedCompletion = false;
-            if ($verdict === 'yes' && $challengeId && $userId) {
-                DB::table('user_challenges')->updateOrInsert(
-                    ['user_id' => $userId, 'challenge_id' => $challengeId],
-                    ['attempts' => DB::raw('attempts + 1'), 'completed' => 1,
-                     'best_score' => DB::raw("GREATEST(COALESCE(best_score,0), {$challengePoints})"),
-                     'last_attempted' => now()]
-                );
-                $updatedCompletion = true;
-            } elseif ($challengeId && $userId) {
-                DB::table('user_challenges')->updateOrInsert(
-                    ['user_id' => $userId, 'challenge_id' => $challengeId],
-                    ['attempts' => DB::raw('attempts + 1'), 'last_attempted' => now()]
-                );
+            if ($challengeId && $userId) {
+                $existingProgress = DB::table('user_challenges')
+                    ->where('user_id', $userId)
+                    ->where('challenge_id', $challengeId)
+                    ->first();
+
+                if ($existingProgress) {
+                    $newAttempts = ((int) ($existingProgress->attempts ?? 0)) + 1;
+                    $updateData = [
+                        'attempts' => $newAttempts,
+                        'last_attempted' => now(),
+                    ];
+
+                    if ($verdict === 'yes') {
+                        $updateData['completed'] = 1;
+                        $updateData['best_score'] = max((int) ($existingProgress->best_score ?? 0), $challengePoints);
+                        $updatedCompletion = true;
+                    }
+
+                    DB::table('user_challenges')
+                        ->where('user_id', $userId)
+                        ->where('challenge_id', $challengeId)
+                        ->update($updateData);
+                } else {
+                    DB::table('user_challenges')->insert([
+                        'user_id' => $userId,
+                        'challenge_id' => $challengeId,
+                        'attempts' => 1,
+                        'completed' => $verdict === 'yes' ? 1 : 0,
+                        'best_score' => $verdict === 'yes' ? $challengePoints : 0,
+                        'last_attempted' => now(),
+                    ]);
+
+                    if ($verdict === 'yes') {
+                        $updatedCompletion = true;
+                    }
+                }
             }
 
             $aiText = $verdict === 'yes'

@@ -15,20 +15,24 @@ class ChallengeController extends Controller
     {
         $userId = $request->session()->get('user_id');
 
+        $userCompletionSubquery = DB::table('user_challenges')
+            ->select('challenge_id', DB::raw('MAX(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as user_completed'))
+            ->where('user_id', $userId)
+            ->groupBy('challenge_id');
+
         $challenges = DB::table('challenges as c')
             ->select(
                 'c.*',
                 DB::raw('COALESCE(SUM(uc.attempts), 0) as total_attempts'),
                 DB::raw('COALESCE(COUNT(CASE WHEN uc.completed = 1 THEN 1 END), 0) as total_completions'),
-                DB::raw('CASE WHEN uc_user.completed = 1 THEN 1 ELSE 0 END as user_completed')
+                DB::raw('COALESCE(ucu.user_completed, 0) as user_completed')
             )
             ->leftJoin('user_challenges as uc', 'c.id', '=', 'uc.challenge_id')
-            ->leftJoin('user_challenges as uc_user', function ($join) use ($userId) {
-                $join->on('c.id', '=', 'uc_user.challenge_id')
-                     ->where('uc_user.user_id', '=', $userId);
+            ->leftJoinSub($userCompletionSubquery, 'ucu', function ($join) {
+                $join->on('c.id', '=', 'ucu.challenge_id');
             })
             ->where('c.is_active', 1)
-            ->groupBy('c.id', 'uc_user.completed')
+            ->groupBy('c.id', 'ucu.user_completed')
             ->orderBy('c.created_at', 'desc')
             ->get();
 
