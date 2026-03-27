@@ -1,0 +1,3546 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مواقع حل المشاكل البرمجية - أكاديمية البرمجة المتكاملة</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+        display: block;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .login-btn {
+        background-color: var(--accent);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+      }
+
+      .login-btn:hover {
+        background-color: #3ab0d9;
+      }
+
+      /* User Profile Dropdown */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-profile:hover .user-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-small);
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* ============================================
+         MOBILE MENU STYLES
+         ============================================ */
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        margin: 3px 0;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-dropdown-toggle:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-right: 1rem;
+      }
+
+      .mobile-dropdown-menu.active {
+        max-height: 500px;
+      }
+
+      .mobile-dropdown-menu a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+        text-decoration: none;
+        display: block;
+      }
+
+      .mobile-dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      /* User Profile Styles */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+        background-size: cover;
+        background-position: center;
+        text-indent: -9999px;
+        overflow: hidden;
+      }
+
+      .user-info .user-avatar-small {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* Mobile User Profile */
+      .user-profile-mobile {
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .user-info-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-info-mobile .user-avatar-small {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-title {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .hero-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      /* Interactive Background Animation */
+      .floating-shapes {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 15s infinite linear;
+      }
+
+      .shape-1 {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+      }
+
+      .shape-2 {
+        width: 150px;
+        height: 150px;
+        top: 60%;
+        right: 20%;
+        animation-delay: 3s;
+      }
+
+      .shape-3 {
+        width: 80px;
+        height: 80px;
+        top: 30%;
+        right: 70%;
+        animation-delay: 6s;
+      }
+
+      .shape-4 {
+        width: 120px;
+        height: 120px;
+        top: 70%;
+        right: 60%;
+        animation-delay: 9s;
+      }
+
+      .shape-5 {
+        width: 90px;
+        height: 90px;
+        top: 20%;
+        right: 40%;
+        animation-delay: 12s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0.7;
+        }
+        33% {
+          transform: translateY(-30px) rotate(120deg);
+          opacity: 0.9;
+        }
+        66% {
+          transform: translateY(20px) rotate(240deg);
+          opacity: 0.5;
+        }
+      }
+
+      /* Platforms Section */
+      .platforms-section {
+        padding: 80px 0;
+        background-color: var(--light);
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--dark);
+        position: relative;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+      }
+
+      /* Interactive Filter Tabs */
+      .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        padding: 0.8rem 1.5rem;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dark);
+      }
+
+      .filter-tab:hover {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      .filter-tab.active {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .platforms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        align-items: stretch; /* ensure children stretch to same row height */
+      }
+
+      /* Compact grid for recommendations */
+      .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        align-items: stretch;
+      }
+
+      .platform-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        /* ensure cards align in grid and keep consistent inner layout */
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .platform-card:hover {
+        transform: translateY(-10px) rotateX(5deg) scale(1.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .platform-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .platform-logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .platform-rating {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+      }
+
+      .rating-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .platform-rating-stars {
+        display: flex;
+        gap: 0.1rem;
+      }
+
+      .rating-star {
+        color: var(--gray);
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.9rem;
+      }
+
+      .rating-star.active {
+        color: var(--warning);
+      }
+
+      .rating-star:hover {
+        color: var(--warning);
+        transform: scale(1.1);
+      }
+
+      .rating-score {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 1rem;
+      }
+
+      .rating-count {
+        color: var(--gray);
+        font-size: 0.8rem;
+      }
+
+      .platform-bookmark {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: var(--transition);
+        z-index: 10;
+      }
+
+      .platform-bookmark:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .platform-bookmark.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .platform-bookmark i {
+        font-size: 1.2rem;
+      }
+
+      .platform-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        /* let body expand so footer stays at the bottom */
+        flex: 1 1 auto;
+        min-height: 160px;
+      }
+
+      .platform-title {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--dark);
+      }
+
+      .platform-description {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        /* keep descriptions short so card heights don't vary too much */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-height: 4.8rem;
+      }
+
+      .platform-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        min-height: 34px; /* reserve space so footer is anchored consistently */
+      }
+
+      .platform-feature {
+        background: #f0f4ff;
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .platform-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        /* push footer to bottom when body expands */
+        margin-top: auto;
+      }
+
+      .platform-link {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .platform-link:hover {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+      }
+
+      .platform-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: var(--gray);
+      }
+
+      .platform-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* Loading State */
+      .loading-state {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        color: var(--gray);
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--light);
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Load More Button */
+      .load-more-container {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .load-more-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .load-more-btn:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+      }
+
+      /* Interactive Comparison Section */
+      .comparison-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+      }
+
+      .comparison-container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .comparison-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      .comparison-header {
+        background: var(--primary);
+        color: white;
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr repeat(4, 1fr);
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .comparison-row {
+        display: grid;
+        grid-template-columns: 1fr repeat(4, 1fr);
+        gap: 1rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: var(--transition);
+        align-items: center;
+      }
+
+      .comparison-row:hover {
+        background: #f8fafc;
+      }
+
+      .comparison-row:last-child {
+        border-bottom: none;
+      }
+
+      .feature-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .feature-value {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .feature-yes {
+        color: var(--success);
+        font-weight: 600;
+      }
+
+      .comparison-mobile-cards {
+        display: none;
+      }
+
+      /* Interactive Features Section */
+      .features-section {
+        padding: 80px 0;
+        background-color: white;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        z-index: -1;
+        transition: var(--transition);
+      }
+
+      .feature-card:hover,
+      .feature-card:active {
+        transform: translateY(-10px);
+      }
+
+      .feature-card:hover::before,
+      .feature-card:active::before {
+        height: 100%;
+        opacity: 0.05;
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+      }
+
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--dark);
+      }
+
+      .feature-card p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+      }
+
+      /* Interactive Recommendation Tool */
+      .recommendation-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+      }
+
+      .recommendation-container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .recommendation-title {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .recommendation-description {
+        font-size: 1.2rem;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+      }
+
+      .recommendation-tool {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .tool-question {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .tool-options {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+
+      .tool-option {
+        padding: 0.8rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+      }
+
+      .tool-option:hover,
+      .tool-option.active {
+        background: white;
+        color: var(--primary);
+      }
+
+      .tool-result {
+        background: white;
+        color: var(--dark);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: none;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .tool-result.active {
+        display: block;
+      }
+
+      .tool-progress {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .progress-bar {
+        width: 200px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-bar::after {
+        content: "";
+        display: block;
+        height: 100%;
+        background: white;
+        width: var(--progress, 25%);
+        transition: width 0.3s ease;
+      }
+
+      .tool-navigation {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .recommendation-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: right;
+        transition: var(--transition);
+      }
+
+      .recommendation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .recommendation-card h4 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .recommendation-card p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .match-reason {
+        background: var(--light);
+        padding: 0.5rem;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+      }
+
+      .recommendation-explanation {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .result-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+      }
+
+      .primary-btn:hover {
+        background: linear-gradient(135deg, var(--secondary), var(--primary));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+      }
+
+      .secondary-btn {
+        background: linear-gradient(135deg, var(--accent), var(--warning));
+        color: white;
+      }
+
+      .secondary-btn:hover {
+        background: linear-gradient(135deg, var(--warning), var(--accent));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Floating Action Button */
+      .floating-action {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        width: 60px;
+        height: 60px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        z-index: 1000;
+        transition: var(--transition);
+        animation: pulse 2s infinite;
+      }
+
+      .floating-action:hover {
+        background: var(--secondary);
+        transform: scale(1.1);
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .platforms-grid {
+          grid-template-columns: 1fr;
+        }
+
+        /* relax fixed min-heights for narrow viewports */
+        .platform-body {
+          min-height: auto;
+        }
+
+        .recommendations-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .tool-options {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.8rem;
+        }
+
+        .tool-option {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .filter-tabs {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .comparison-mobile-cards {
+          display: grid;
+        }
+
+        .comparison-table {
+          display: none;
+        }
+
+        .comparison-mobile-card {
+          background: white;
+          border-radius: 15px;
+          padding: 1.5rem;
+          box-shadow: var(--shadow);
+          text-align: center;
+          transition: var(--transition);
+        }
+
+        .comparison-mobile-card:hover {
+          transform: translateY(-5px);
+        }
+
+        .platform-name-mobile {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: var(--primary);
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid var(--accent);
+        }
+
+        .platform-features-mobile {
+          display: flex;
+          flex-direction: column;
+          gap: 0.8rem;
+        }
+
+        .feature-item-mobile {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem;
+          background: #f8fafc;
+          border-radius: 8px;
+        }
+
+        .feature-label-mobile {
+          font-weight: 500;
+          color: var(--dark);
+        }
+
+        .feature-value-mobile {
+          font-weight: 600;
+          color: var(--primary);
+        }
+
+        .feature-yes-mobile {
+          color: var(--success) !important;
+        }
+
+        .feature-no-mobile {
+          color: var(--danger) !important;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section {
+          padding: 120px 0 60px;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .platform-card {
+          margin: 0 1rem;
+        }
+
+        .platform-bookmark {
+          top: 4rem;
+        }
+
+        .platform-header {
+          padding: 1rem;
+        }
+
+        .platform-body {
+          padding: 1rem;
+        }
+
+        .platform-footer {
+          padding: 1rem;
+        }
+
+        .recommendations-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .tool-options {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.8rem;
+        }
+
+        .tool-option {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        .platform-footer {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+      }
+
+      /* Navbar Responsive Design */
+      @media (max-width: 992px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .logo h1 {
+          font-size: 1.2rem;
+        }
+
+        .nav-links {
+          gap: 1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+
+        .logo h1 {
+          font-size: 1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section {
+          padding: 120px 0 60px;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .animated-text {
+          font-size: 1.8rem;
+        }
+
+        .btn {
+          padding: 0.7rem 1.5rem;
+        }
+
+        .hero-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+      /* Footer */
+      footer {
+        background: var(--dark);
+        color: white;
+        padding: 3rem 0 1.5rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent);
+        padding-right: 5px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .social-links a:hover {
+        background: var(--accent);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #334155;
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header & Navbar -->
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+          <button id="aiChatFab" class="ai-chat-fab" title="اطلب من الذكاء الاصطناعي">
+            <i class="fas fa-robot"></i>
+          </button>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.html?path=frontend">مسار Frontend Developer</a>
+              <a href="path.html?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li class="user-profile" id="userProfile" style="display: none">
+            <div class="user-avatar-small" id="userAvatarSmall">م</div>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar-small" id="dropdownAvatar">م</div>
+                <div>
+                  <div class="user-name" id="dropdownUserName"></div>
+                  <div class="user-email" id="dropdownUserEmail"></div>
+                </div>
+              </div>
+              <a
+                href="profile.html"
+                class="nav-link"
+                style="
+                  display: block;
+                  text-align: right;
+                  margin-bottom: 0.5rem;
+                  color: black;
+                  font-size: large;
+                "
+                ><i
+                  class="fas fa-user-circle profile-icon"
+                  style="margin-left: 10%"
+                ></i
+                >الملف الشخصي</a
+              >
+              <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+            </div>
+          </li>
+          <li id="loginButton">
+            <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.html?path=frontend">مسار Frontend Developer</a>
+            <a href="path.html?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li><a href="project.html" class="nav-link">التكليفات والمشاريع</a></li>
+        <li
+          class="user-profile-mobile"
+          id="userProfileMobile"
+          style="display: none"
+        >
+          <div class="user-info-mobile">
+            <div class="user-avatar-small" id="mobileAvatar"></div>
+            <div>
+              <div class="user-name" id="mobileUserName"></div>
+              <div class="user-email" id="mobileUserEmail"></div>
+            </div>
+          </div>
+          <a href="profile.html" class="nav-link">
+            <i class="fas fa-user-circle"></i> الملف الشخصي
+          </a>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+        <li id="loginButtonMobile">
+          <a href="login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+      </div>
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">مواقع حل المشاكل البرمجية</h1>
+          <p class="hero-description">
+            اكتشف أفضل المنصات العالمية والعربية لحل المشاكل البرمجية، واختبر
+            مهاراتك، وتعلم من خلال التحديات التفاعلية
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platforms Section -->
+    <section class="platforms-section">
+      <div class="container">
+        <h2 class="section-title">أفضل منصات حل المشاكل البرمجية</h2>
+
+        <!-- Interactive Filter Tabs -->
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">
+            <i class="fas fa-th-large"></i>
+            الكل
+          </div>
+          <div class="filter-tab" data-filter="favorites">
+            <i class="fas fa-heart"></i>
+            المفضلة
+          </div>
+          <div class="filter-tab" data-filter="global">
+            <i class="fas fa-globe"></i>
+            العالمية
+          </div>
+          <div class="filter-tab" data-filter="arabic">
+            <i class="fas fa-language"></i>
+            العربية
+          </div>
+          <div class="filter-tab" data-filter="beginner">
+            <i class="fas fa-user-graduate"></i>
+            للمبتدئين
+          </div>
+          <div class="filter-tab" data-filter="advanced">
+            <i class="fas fa-user-tie"></i>
+            للمتقدمين
+          </div>
+        </div>
+
+        <!-- Platforms Grid -->
+        <div class="platforms-grid" id="platformsGrid">
+          <!-- Platforms will be loaded dynamically -->
+          <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل المنصات...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Comparison Section -->
+    <section class="comparison-section">
+      <div class="container">
+        <h2 class="section-title">مقارنة بين المنصات</h2>
+
+        <div class="comparison-container">
+          <div class="comparison-table">
+            <div class="comparison-header">
+              <div>الميزة</div>
+              <div>LeetCode</div>
+              <div>HackerRank</div>
+              <div>برمج</div>
+              <div>Codeforces</div>
+            </div>
+            <div class="comparison-row">
+              <div class="feature-name">اللغة</div>
+              <div class="feature-value feature-no">إنجليزي</div>
+              <div class="feature-value feature-no">إنجليزي</div>
+              <div class="feature-value feature-yes">عربي</div>
+              <div class="feature-value feature-no">إنجليزي</div>
+            </div>
+            <div class="comparison-row">
+              <div class="feature-name">المستوى</div>
+              <div class="feature-value">متقدم</div>
+              <div class="feature-value">جميع المستويات</div>
+              <div class="feature-value">مبتدئ - متوسط</div>
+              <div class="feature-value">متقدم</div>
+            </div>
+            <div class="comparison-row">
+              <div class="feature-name">المسابقات</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+            </div>
+            <div class="comparison-row">
+              <div class="feature-name">المجتمع</div>
+              <div class="feature-value feature-yes">نشط</div>
+              <div class="feature-value feature-yes">نشط</div>
+              <div class="feature-value feature-yes">نشط</div>
+              <div class="feature-value feature-yes">نشط</div>
+            </div>
+            <div class="comparison-row">
+              <div class="feature-name">مجاني</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+              <div class="feature-value feature-yes">نعم</div>
+            </div>
+          </div>
+
+          <!-- Mobile Cards (hidden on desktop, shown on mobile) -->
+          <div class="comparison-mobile-cards">
+            <div class="comparison-mobile-card">
+              <div class="platform-name-mobile">LeetCode</div>
+              <div class="platform-features-mobile">
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">اللغة:</span>
+                  <span class="feature-value-mobile feature-no-mobile"
+                    >إنجليزي</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المستوى:</span>
+                  <span class="feature-value-mobile">متقدم</span>
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المسابقات:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المجتمع:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نشط</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">مجاني:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-mobile-card">
+              <div class="platform-name-mobile">HackerRank</div>
+              <div class="platform-features-mobile">
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">اللغة:</span>
+                  <span class="feature-value-mobile feature-no-mobile"
+                    >إنجليزي</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المستوى:</span>
+                  <span class="feature-value-mobile">جميع المستويات</span>
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المسابقات:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المجتمع:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نشط</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">مجاني:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-mobile-card">
+              <div class="platform-name-mobile">برمج</div>
+              <div class="platform-features-mobile">
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">اللغة:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >عربي</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المستوى:</span>
+                  <span class="feature-value-mobile">مبتدئ - متوسط</span>
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المسابقات:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المجتمع:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نشط</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">مجاني:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-mobile-card">
+              <div class="platform-name-mobile">Codeforces</div>
+              <div class="platform-features-mobile">
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">اللغة:</span>
+                  <span class="feature-value-mobile feature-no-mobile"
+                    >إنجليزي</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المستوى:</span>
+                  <span class="feature-value-mobile">متقدم</span>
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المسابقات:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">المجتمع:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نشط</span
+                  >
+                </div>
+                <div class="feature-item-mobile">
+                  <span class="feature-label-mobile">مجاني:</span>
+                  <span class="feature-value-mobile feature-yes-mobile"
+                    >نعم</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Features Section -->
+    <section class="features-section">
+      <div class="container">
+        <h2 class="section-title">لماذا تستخدم منصات حل المشاكل؟</h2>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h3>تطوير التفكير الخوارزمي</h3>
+            <p>
+              تعلم كيفية تحليل المشكلات المعقدة وتصميم حلول فعالة باستخدام
+              الخوارزميات المناسبة.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h3>تحسين سرعة البرمجة</h3>
+            <p>
+              زيادة سرعتك في كتابة الكود وتنفيذ الحلول من خلال الممارسة المنتظمة
+              على التحديات البرمجية.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3>التعلم من المجتمع</h3>
+            <p>
+              استفد من حلول الآخرين ومناقشاتهم لفهم طرق مختلفة لحل نفس المشكلة.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Recommendation Tool -->
+    <section class="recommendation-section">
+      <div class="container">
+        <div class="recommendation-container">
+          <h2 class="recommendation-title">أداة التوصية الذكية</h2>
+          <p class="recommendation-description">
+            دعنا نساعدك في اختيار المنصة المناسبة لمستواك وأهدافك. سنستخدم
+            بيانات ملفك الشخصي لتخصيص التوصيات.
+          </p>
+
+          <div class="recommendation-tool">
+            <div class="tool-progress">
+              <div class="progress-bar" id="progressBar"></div>
+              <span id="progressText">السؤال 1 من 4</span>
+            </div>
+
+            <div class="tool-question" id="currentQuestion">
+              ما هو مستواك في البرمجة؟
+            </div>
+
+            <div class="tool-options" id="toolOptions">
+              <div class="tool-option" data-value="مبتدئ">مبتدئ</div>
+              <div class="tool-option" data-value="متوسط">متوسط</div>
+              <div class="tool-option" data-value="متقدم">متقدم</div>
+            </div>
+
+            <div class="tool-navigation">
+              <button
+                class="btn secondary-btn"
+                id="prevQuestion"
+                style="display: none"
+              >
+                السابق
+              </button>
+              <button class="btn primary-btn" id="nextQuestion">التالي</button>
+            </div>
+
+            <div class="tool-result" id="recommendationResult">
+              <h3>التوصيات المناسبة لك:</h3>
+              <div
+                id="recommendationExplanation"
+                class="recommendation-explanation"
+              ></div>
+              <div id="recommendationsGrid" class="recommendations-grid">
+                <!-- Recommendations will be loaded here -->
+              </div>
+              <div class="result-actions">
+                <button
+                  class="btn primary-btn"
+                  id="savePreferences"
+                  style="display: none"
+                >
+                  حفظ التفضيلات
+                </button>
+                <button
+                  class="btn secondary-btn"
+                  id="refineSearch"
+                  style="display: none"
+                >
+                  تعديل البحث
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <h3>عن الأكاديمية</h3>
+            <p>
+              نحن منصة تعليمية تهدف إلى تمكين الشباب العربي من تعلم البرمجة
+              وتطوير مهاراتهم التقنية لسوق العمل.
+            </p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-column">
+            <h3>روابط سريعة</h3>
+            <ul class="footer-links">
+              <li><a href="index.html">الصفحة الرئيسية</a></li>
+              <li><a href="#">من نحن</a></li>
+              <li><a href="path.html">الكورسات</a></li>
+              <li><a href="#">المشاريع</a></li>
+              <li><a href="#">اتصل بنا</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>الكورسات</h3>
+            <ul class="footer-links">
+              <li><a href="path.html?path=basics">أساسيات البرمجة</a></li>
+              <li>
+                <a href="path.html?path=frontend">تطوير الواجهات الأمامية</a>
+              </li>
+              <li>
+                <a href="path.html?path=backend">تطوير الواجهات الخلفية</a>
+              </li>
+              <li><a href="#">تطوير تطبيقات الجوال</a></li>
+              <li><a href="#">علوم البيانات</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>اتصل بنا</h3>
+            <ul class="footer-links">
+              <li><i class="fas fa-map-marker-alt"></i> دمشق، سوريا</li>
+              <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+              <li>
+                <i class="fas fa-envelope"></i> info@programmingacademy.com
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="site-notification.js"></script>
+    <script>
+      // Global variables
+      let currentFilters = {
+        category: "all",
+        level: "all",
+        language: "all",
+        search: "",
+        favorites: false,
+      };
+      let currentPage = 0;
+      const platformsPerPage = 50;
+
+      // Initialize the page
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch user status first
+        fetch("/api/user/status", { credentials: "include" })
+          .then((response) => {
+            if (response.status === 401) {
+              return { success: false, user: null };
+            }
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success && data.user) {
+              window.currentUser = data.user;
+            } else {
+              window.currentUser = null;
+            }
+            updateUserInterface();
+            loadPlatforms();
+            initializeFilters();
+            initializeRecommendationTool();
+          })
+          .catch((error) => {
+            // Guest mode should not be treated as an error in console
+            window.currentUser = null;
+            updateUserInterface();
+            loadPlatforms();
+            initializeFilters();
+            initializeRecommendationTool();
+          });
+      });
+
+      // Load platforms from API
+      async function loadPlatforms(append = false) {
+        const loadingState = document.getElementById("loadingState");
+        const platformsGrid = document.getElementById("platformsGrid");
+
+        if (!append) {
+          // Show loading state
+          platformsGrid.innerHTML =
+            '<div class="loading-state" id="loadingState"><div class="loading-spinner"></div><p>جاري تحميل المنصات...</p></div>';
+        }
+
+        try {
+          // Get user_id from window.currentUser
+          const userId = window.currentUser ? window.currentUser.id : null;
+
+          const params = new URLSearchParams({
+            category: currentFilters.category,
+            level: currentFilters.level,
+            language: currentFilters.language,
+            search: currentFilters.search,
+            favorites: currentFilters.favorites,
+            limit: platformsPerPage,
+            offset: append ? currentPage * platformsPerPage : 0,
+          });
+
+          // Add user_id if available (needed for favorites and personalized data)
+          if (userId) {
+            params.append("user_id", userId);
+          }
+
+          const response = await fetch(`/api/platforms?${params}`, {
+            credentials: "include",
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            if (!append) {
+              platformsGrid.innerHTML = "";
+            }
+
+            displayPlatforms(data.platforms, append);
+
+            // Update pagination info
+            currentPage = append ? currentPage + 1 : 1;
+
+            // Hide loading state if it exists
+            const loadingEl = document.getElementById("loadingState");
+            if (loadingEl) {
+              loadingEl.remove();
+            }
+
+            // Add load more button if there are more results
+            if (data.pagination?.has_more && !append) {
+              addLoadMoreButton();
+            }
+          } else {
+            showNotification(
+              data.message || "حدث خطأ في تحميل المنصات",
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Error loading platforms:", error);
+          showNotification("حدث خطأ في الاتصال بالخادم", "error");
+        }
+      }
+
+      // Display platforms in the grid
+      function displayPlatforms(platforms, append = false) {
+        const platformsGrid = document.getElementById("platformsGrid");
+
+        platforms.forEach((platform) => {
+          const platformCard = createPlatformCard(platform);
+          platformsGrid.appendChild(platformCard);
+        });
+      }
+
+      // Create platform card element
+      function createPlatformCard(platform) {
+        const card = document.createElement("div");
+        card.className = "platform-card";
+        card.setAttribute("data-id", platform.id);
+
+        // Generate logo background based on platform name
+        const logoColors = [
+          "linear-gradient(135deg, #f59e0b, #d97706)",
+          "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+          "linear-gradient(135deg, #10b981, #047857)",
+          "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+          "linear-gradient(135deg, #ef4444, #dc2626)",
+          "linear-gradient(135deg, #06b6d4, #0891b2)",
+        ];
+        const colorIndex = platform.name.length % logoColors.length;
+        const logoStyle = platform.logo_url
+          ? `background-image: url('${platform.logo_url}'); background-size: cover;`
+          : `background: ${logoColors[colorIndex]}`;
+
+        // Create rating stars and summary
+        const ratingDisplay = createRatingDisplay(platform);
+
+        // Create features
+        const featuresHTML = platform.features
+          .map((feature) => `<span class="platform-feature">${feature}</span>`)
+          .join("");
+
+        // Format numbers
+        const userCount = formatNumber(platform.user_count);
+        const problemCount = formatNumber(platform.problem_count);
+
+        card.innerHTML = `
+          <div class="platform-bookmark ${
+            platform.is_bookmarked ? "active" : ""
+          }" onclick="toggleBookmark(${platform.id})">
+            <i class="fas fa-bookmark"></i>
+          </div>
+          <div class="platform-header">
+            <div class="platform-logo" style="${logoStyle}">
+              ${platform.logo_url ? "" : `<i class="fas fa-code"></i>`}
+            </div>
+            <div class="platform-rating">
+              ${ratingDisplay}
+            </div>
+          </div>
+          <div class="platform-body">
+            <h3 class="platform-title">${platform.name}</h3>
+            <p class="platform-description">${platform.description}</p>
+            <div class="platform-features">
+              ${featuresHTML}
+            </div>
+            <div class="platform-footer">
+              <a href="${platform.url}" class="platform-link" target="_blank">
+                <span>زيارة الموقع</span>
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+              <div class="platform-stats">
+                <div class="platform-stat">
+                  <i class="fas fa-users"></i>
+                  <span>${userCount}</span>
+                </div>
+                <div class="platform-stat">
+                  <i class="fas fa-code"></i>
+                  <span>${problemCount}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        return card;
+      }
+
+      // Create rating stars HTML
+      function createRatingStars(avgRating, userRating) {
+        const stars = [];
+        const rating = userRating || avgRating;
+
+        for (let i = 1; i <= 5; i++) {
+          const starClass = i <= rating ? "active" : "";
+          stars.push(
+            `<i class="fas fa-star rating-star ${starClass}" data-rating="${i}" onclick="ratePlatform(event, ${
+              userRating ? "this" : "null"
+            })"></i>`
+          );
+        }
+
+        return `<div class="platform-rating-stars">${stars.join("")}</div>`;
+      }
+
+      // Create comprehensive rating display
+      function createRatingDisplay(platform) {
+        const avgRating = parseFloat(platform.avg_rating) || 0;
+        const ratingCount = parseInt(platform.rating_count) || 0;
+
+        // Create rating summary
+        const ratingStars = createRatingStars(avgRating, platform.user_rating);
+        const summary = `
+          <div class="rating-summary">
+            ${ratingStars}
+            <span class="rating-score">${avgRating.toFixed(1)}</span>
+            <span class="rating-count">(${formatNumber(ratingCount)})</span>
+          </div>
+        `;
+
+        return summary;
+      }
+
+      // Format large numbers
+      function formatNumber(num) {
+        if (num >= 1000000) {
+          return (num / 1000000).toFixed(1) + "M";
+        } else if (num >= 1000) {
+          return (num / 1000).toFixed(1) + "K";
+        }
+        return num.toString();
+      }
+
+      // Format large numbers
+      function formatNumber(num) {
+        if (num >= 1000000) {
+          return (num / 1000000).toFixed(1) + "M";
+        } else if (num >= 1000) {
+          return (num / 1000).toFixed(1) + "K";
+        }
+        return num.toString();
+      }
+
+      // Initialize filter tabs
+      function initializeFilters() {
+        document.querySelectorAll(".filter-tab").forEach((tab) => {
+          tab.addEventListener("click", function () {
+            const filterType = this.getAttribute("data-filter");
+
+            // Check if user is logged in for favorites
+            if (filterType === "favorites") {
+              if (!window.currentUser) {
+                showNotification(
+                  "يجب تسجيل الدخول أولاً لرؤية المفضلة",
+                  "error"
+                );
+                return;
+              }
+            }
+
+            // Update active state
+            document
+              .querySelectorAll(".filter-tab")
+              .forEach((t) => t.classList.remove("active"));
+            this.classList.add("active");
+
+            // Update filters based on filter type
+            if (filterType === "all") {
+              currentFilters.category = "all";
+              currentFilters.level = "all";
+              currentFilters.language = "all";
+              currentFilters.favorites = false;
+            } else if (filterType === "favorites") {
+              currentFilters.category = "all";
+              currentFilters.level = "all";
+              currentFilters.language = "all";
+              currentFilters.favorites = true;
+            } else if (filterType === "global") {
+              currentFilters.category = "global";
+              currentFilters.level = "all";
+              currentFilters.language = "all";
+              currentFilters.favorites = false;
+            } else if (filterType === "arabic") {
+              currentFilters.category = "arabic";
+              currentFilters.level = "all";
+              currentFilters.language = "all";
+              currentFilters.favorites = false;
+            } else if (filterType === "beginner") {
+              currentFilters.category = "all";
+              currentFilters.level = "beginner";
+              currentFilters.language = "all";
+              currentFilters.favorites = false;
+            } else if (filterType === "advanced") {
+              currentFilters.category = "all";
+              currentFilters.level = "advanced";
+              currentFilters.language = "all";
+              currentFilters.favorites = false;
+            }
+
+            // Reload platforms
+            loadPlatforms();
+          });
+        });
+      }
+
+      // Add load more button
+      function addLoadMoreButton() {
+        const platformsGrid = document.getElementById("platformsGrid");
+        const loadMoreBtn = document.createElement("div");
+        loadMoreBtn.className = "load-more-container";
+        loadMoreBtn.innerHTML = `
+          <button class="load-more-btn" onclick="loadMorePlatforms()">
+            <i class="fas fa-plus"></i>
+            تحميل المزيد
+          </button>
+        `;
+        platformsGrid.appendChild(loadMoreBtn);
+      }
+
+      // Load more platforms
+      function loadMorePlatforms() {
+        loadPlatforms(true);
+      }
+
+      // Toggle bookmark
+      async function toggleBookmark(platformId) {
+        // Get user_id from window.currentUser
+        const userId = window.currentUser ? window.currentUser.id : null;
+
+        if (!userId) {
+          showNotification("يجب تسجيل الدخول أولاً", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/toggle-bookmark", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ platform_id: platformId, user_id: userId }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update bookmark button state
+            const bookmarkBtn = document.querySelector(
+              `[data-id="${platformId}"] .platform-bookmark`
+            );
+            bookmarkBtn.classList.toggle("active");
+            showNotification(data.message, "success");
+          } else {
+            showNotification(data.message, "error");
+          }
+        } catch (error) {
+          console.error("Error toggling bookmark:", error);
+          showNotification("حدث خطأ في حفظ المفضلة", "error");
+        }
+      }
+
+      // Rate platform
+      async function ratePlatform(event, starElement) {
+        event.stopPropagation();
+
+        // Get user_id from window.currentUser
+        const userId = window.currentUser ? window.currentUser.id : null;
+
+        if (!userId) {
+          showNotification("يجب تسجيل الدخول أولاً", "error");
+          return;
+        }
+
+        const platformCard = event.target.closest(".platform-card");
+        const platformId = platformCard.getAttribute("data-id");
+        const rating = parseInt(event.target.getAttribute("data-rating"));
+
+        try {
+          const response = await fetch("/api/rate-platform", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            credentials: "include",
+            body: `platform_id=${platformId}&rating=${rating}&user_id=${userId}`,
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update rating display
+            const ratingContainer =
+              platformCard.querySelector(".platform-rating");
+            const stars = ratingContainer.querySelectorAll(".rating-star");
+            const ratingText = ratingContainer.querySelector(
+              "span:not(.rating-count)"
+            );
+            const ratingCount = ratingContainer.querySelector(".rating-count");
+
+            // Update stars
+            stars.forEach((star, index) => {
+              if (index < rating) {
+                star.classList.add("active");
+              } else {
+                star.classList.remove("active");
+              }
+            });
+
+            // Update rating text and count
+            ratingText.textContent = data.avg_rating.toFixed(1);
+            ratingCount.textContent = `(${data.rating_count})`;
+
+            showNotification(data.message, "success");
+          } else {
+            showNotification(data.message, "error");
+          }
+        } catch (error) {
+          console.error("Error rating platform:", error);
+          showNotification("حدث خطأ في حفظ التقييم", "error");
+        }
+      }
+
+      // Enhanced Recommendation Tool
+      const questions = [
+        {
+          text: "ما هو مستواك في البرمجة؟",
+          key: "level",
+          options: ["مبتدئ", "متوسط", "متقدم"],
+        },
+        {
+          text: "ما هو هدفك الرئيسي؟",
+          key: "goal",
+          options: [
+            "تحضير لمقابلات العمل",
+            "تحسين المهارات الخوارزمية",
+            "التعلم والممارسة",
+          ],
+        },
+        {
+          text: "ما اللغة التي تفضل التعامل بها؟",
+          key: "language",
+          options: ["العربية", "الإنجليزية", "لا يهم"],
+        },
+        {
+          text: "كم وقت يمكنك تخصيصه أسبوعياً؟",
+          key: "time_commitment",
+          options: ["يومياً", "أسبوعياً", "شهرياً"],
+        },
+      ];
+
+      let currentQuestionIndex = 0;
+      const userAnswers = {};
+      let userProfile = null;
+      let isProcessing = false;
+
+      // Load user profile if logged in
+      async function loadUserProfile() {
+        try {
+          const response = await fetch("/api/profile", {
+            credentials: "include",
+          });
+          if (response.status === 401) {
+            userProfile = null;
+            return;
+          }
+          const data = await response.json();
+          if (data.success) userProfile = data.user;
+        } catch (error) {
+          // Optional guest-only data; ignore when unavailable
+        }
+      }
+
+      // Update question with profile pre-fill
+      function updateQuestion() {
+        const question = questions[currentQuestionIndex];
+        document.getElementById("currentQuestion").textContent = question.text;
+
+        // Pre-fill if profile data exists
+        let prefilledValue = null;
+        if (userProfile) {
+          if (question.key === "level" && userProfile.experience) {
+            prefilledValue = userProfile.experience.toLowerCase();
+          }
+          // Add more pre-fill logic as needed
+        }
+
+        const optionsHtml = question.options
+          .map(
+            (option) =>
+              `<div class="tool-option ${
+                prefilledValue === option.toLowerCase() ? "active" : ""
+              }" data-value="${option}">${option}</div>`
+          )
+          .join("");
+        document.getElementById("toolOptions").innerHTML = optionsHtml;
+
+        updateProgress();
+      }
+
+      // Update progress bar and text
+      function updateProgress() {
+        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        document
+          .getElementById("progressBar")
+          .style.setProperty("--progress", `${progress}%`);
+        document.getElementById("progressText").textContent = `السؤال ${
+          currentQuestionIndex + 1
+        } من ${questions.length}`;
+
+        // Show/hide prev button
+        document.getElementById("prevQuestion").style.display =
+          currentQuestionIndex > 0 ? "block" : "none";
+
+        // Update next button text and enable
+        const nextBtn = document.getElementById("nextQuestion");
+        nextBtn.textContent =
+          currentQuestionIndex === questions.length - 1
+            ? "احصل على التوصية"
+            : "التالي";
+        nextBtn.disabled = false;
+      }
+
+      // Get recommendations from API
+      async function getRecommendations() {
+        try {
+          const params = new URLSearchParams(userAnswers);
+          const response = await fetch(`/api/platform-recommendations?${params}`, {
+            credentials: "include",
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            displayRecommendations(data.recommendations, data.explanation);
+            document.getElementById("savePreferences").style.display =
+              data.personalized ? "block" : "none";
+            document.getElementById("refineSearch").style.display = "block";
+          } else {
+            showNotification(
+              data.message || "حدث خطأ في جلب التوصيات",
+              "error"
+            );
+          }
+        } catch (error) {
+          console.error("Error getting recommendations:", error);
+          showNotification("حدث خطأ في الاتصال بالخادم", "error");
+        } finally {
+          isProcessing = false;
+          const button = document.getElementById("nextQuestion");
+          button.disabled = false;
+          button.textContent = "احصل على التوصية";
+        }
+      }
+
+      // Display recommendations as cards
+      function displayRecommendations(recommendations, explanation) {
+        const grid = document.getElementById("recommendationsGrid");
+        const resultElement = document.getElementById("recommendationResult");
+        const explanationDiv = document.getElementById(
+          "recommendationExplanation"
+        );
+
+        explanationDiv.innerHTML = explanation;
+
+        let html = "";
+
+        if (recommendations.length > 0) {
+          recommendations.forEach((platform) => {
+            const features = platform.features
+              ? platform.features.slice(0, 3).join(" • ")
+              : "";
+            html += `
+              <div class="platform-card">
+                <div class="platform-header">
+                  <div class="platform-logo" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+                    <i class="fas fa-code"></i>
+                  </div>
+                </div>
+                <div class="platform-body">
+                  <h4 class="platform-title">${platform.name}</h4>
+                  <p class="platform-description">${platform.description}</p>
+                  <div class="match-reason" style="background: rgba(67, 97, 238, 0.05); padding: 0.5rem; border-radius: 5px; font-size: 0.8rem; color: var(--dark); margin-bottom: 1rem;">
+                    لماذا يناسبك: ${
+                      platform.match_reason || "مناسب لمستواك وأهدافك"
+                    }
+                  </div>
+                  ${
+                    features
+                      ? `<div class="platform-features">${features
+                          .split(" • ")
+                          .map(
+                            (f) => `<span class="platform-feature">${f}</span>`
+                          )
+                          .join("")}</div>`
+                      : ""
+                  }
+                </div>
+                <div class="platform-footer">
+                  <a href="${
+                    platform.url
+                  }" class="platform-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    زيارة المنصة
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          html +=
+            "<p>لم نتمكن من العثور على توصيات محددة، جرب تعديل إجاباتك.</p>";
+        }
+
+        grid.innerHTML = html;
+        resultElement.classList.add("active");
+      }
+
+      // Save user preferences
+      async function savePreferences() {
+        if (!userProfile) {
+          showNotification("يجب تسجيل الدخول لحفظ التفضيلات", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/save-user-preferences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ ...userAnswers, user_id: userProfile.id }),
+          });
+
+          const data = await response.json();
+          showNotification(
+            data.success ? "تم حفظ التفضيلات بنجاح" : data.message,
+            data.success ? "success" : "error"
+          );
+        } catch (error) {
+          console.error("Error saving preferences:", error);
+          showNotification("حدث خطأ في حفظ التفضيلات", "error");
+        }
+      }
+
+      // Refine search - reset to first question
+      function refineSearch() {
+        currentQuestionIndex = 0;
+        Object.keys(userAnswers).forEach((key) => delete userAnswers[key]);
+        document
+          .getElementById("recommendationResult")
+          .classList.remove("active");
+        document.getElementById("savePreferences").style.display = "none";
+        document.getElementById("refineSearch").style.display = "none";
+        updateQuestion();
+      }
+
+      // Initialize tool
+      async function initializeRecommendationTool() {
+        await loadUserProfile();
+        updateQuestion();
+
+        // Navigation event listeners
+        const handleNextClick = () => {
+          if (isProcessing) return;
+
+          const button = document.getElementById("nextQuestion");
+          button.disabled = true;
+
+          const selected = document.querySelector(".tool-option.active");
+          if (!selected) {
+            showNotification("يرجى اختيار خيار قبل المتابعة", "error");
+            button.disabled = false;
+            return;
+          }
+
+          isProcessing = true;
+          button.textContent = "جاري التحميل...";
+
+          const question = questions[currentQuestionIndex];
+          userAnswers[question.key] = selected.dataset.value;
+
+          if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            updateQuestion();
+            isProcessing = false;
+          } else {
+            getRecommendations();
+          }
+        };
+
+        document
+          .getElementById("nextQuestion")
+          .addEventListener("click", handleNextClick);
+
+        document
+          .getElementById("prevQuestion")
+          .addEventListener("click", () => {
+            if (currentQuestionIndex > 0) {
+              currentQuestionIndex--;
+              updateQuestion();
+            }
+          });
+
+        document
+          .getElementById("savePreferences")
+          .addEventListener("click", savePreferences);
+        document
+          .getElementById("refineSearch")
+          .addEventListener("click", refineSearch);
+
+        // Option selection
+        document.addEventListener("click", (e) => {
+          if (e.target.classList.contains("tool-option")) {
+            document
+              .querySelectorAll(".tool-option")
+              .forEach((opt) => opt.classList.remove("active"));
+            e.target.classList.add("active");
+          }
+        });
+      }
+
+      // تأثيرات عند التمرير
+      window.addEventListener("scroll", function () {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll(".shape");
+
+        parallaxElements.forEach((element, index) => {
+          const speed = 0.5 + index * 0.1;
+          element.style.transform = `translateY(${scrolled * speed}px) rotate(${
+            scrolled * 0.1
+          }deg)`;
+        });
+      });
+
+      // Mobile Menu Functionality
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileNavLinks = document.getElementById("mobileNavLinks");
+      const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+
+      function toggleMobileMenu() {
+        mobileMenuBtn.classList.toggle("active");
+        mobileNavLinks.classList.toggle("active");
+        mobileMenuOverlay.classList.toggle("active");
+        document.body.style.overflow = mobileNavLinks.classList.contains(
+          "active"
+        )
+          ? "hidden"
+          : "";
+      }
+
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+      }
+
+      if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener("click", toggleMobileMenu);
+      }
+
+      // Handle mobile dropdown toggles
+      document.querySelectorAll(".mobile-dropdown-toggle").forEach((toggle) => {
+        toggle.addEventListener("click", function (e) {
+          e.preventDefault();
+          const parent = this.closest(".mobile-dropdown");
+          const menu = parent.querySelector(".mobile-dropdown-menu");
+          const icon = this.querySelector("i");
+
+          // Toggle dropdown
+          menu.classList.toggle("active");
+          icon.classList.toggle("fa-chevron-down");
+          icon.classList.toggle("fa-chevron-up");
+        });
+      });
+
+      // Close mobile menu when clicking on a link
+      document
+        .querySelectorAll(".mobile-nav-links a:not(.mobile-dropdown-toggle a)")
+        .forEach((link) => {
+          link.addEventListener("click", function () {
+            if (mobileNavLinks.classList.contains("active")) {
+              toggleMobileMenu();
+            }
+          });
+        });
+
+      // User Interface Update
+      function updateUserInterface() {
+        const currentUser = window.currentUser;
+        const userProfile = document.getElementById("userProfile");
+        const loginButton = document.getElementById("loginButton");
+        const userProfileMobile = document.getElementById("userProfileMobile");
+        const loginButtonMobile = document.getElementById("loginButtonMobile");
+        const favoritesTab = document.querySelector(
+          '[data-filter="favorites"]'
+        );
+
+        if (currentUser) {
+          // Show user profile, hide login
+          userProfile.style.display = "flex";
+          loginButton.style.display = "none";
+          userProfileMobile.style.display = "block";
+          loginButtonMobile.style.display = "none";
+          // Show favorites tab
+          if (favoritesTab) favoritesTab.style.display = "flex";
+
+          // Set user info
+          const initial = currentUser.firstName
+            ? currentUser.firstName.charAt(0)
+            : currentUser.username
+            ? currentUser.username.charAt(0)
+            : "?";
+
+          const username = currentUser.username;
+
+          const email = currentUser.email || currentUser.username;
+
+          // Desktop
+          document.getElementById("dropdownUserName").textContent = username;
+          document.getElementById("dropdownUserEmail").textContent = email;
+
+          // Mobile
+          document.getElementById("mobileUserName").textContent = username;
+          document.getElementById("mobileUserEmail").textContent = email;
+
+          // Avatar
+          const avatars = ["userAvatarSmall", "dropdownAvatar", "mobileAvatar"];
+          avatars.forEach((id) => {
+            const avatar = document.getElementById(id);
+            if (
+              currentUser.avatar
+            ) {
+              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              avatar.textContent = "";
+            } else {
+              avatar.textContent = initial;
+              avatar.style.background =
+                "linear-gradient(135deg, var(--accent), var(--primary))";
+              avatar.style.backgroundImage = "none";
+            }
+          });
+        } else {
+          // Hide user profile, show login
+          userProfile.style.display = "none";
+          loginButton.style.display = "block";
+          userProfileMobile.style.display = "none";
+          loginButtonMobile.style.display = "block";
+          // Hide favorites tab
+          if (favoritesTab) favoritesTab.style.display = "none";
+        }
+      }
+
+      // Logout
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          fetch("/api/logout", { method: "POST", credentials: "include" })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                window.currentUser = null;
+                updateUserInterface();
+                showNotification("تم تسجيل الخروج بنجاح!", "success");
+              } else {
+                showNotification("خطأ في تسجيل الخروج", "error");
+              }
+            })
+            .catch((error) => {
+              console.error("Logout error:", error);
+              showNotification("خطأ في تسجيل الخروج", "error");
+            });
+        });
+
+      // Mobile Logout
+      const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+      if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener("click", function () {
+          fetch("/api/logout", { method: "POST", credentials: "include" })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                window.currentUser = null;
+                updateUserInterface();
+                showNotification("تم تسجيل الخروج بنجاح!", "success");
+                // Close mobile menu after logout
+                if (mobileNavLinks.classList.contains("active")) {
+                  toggleMobileMenu();
+                }
+              } else {
+                showNotification("خطأ في تسجيل الخروج", "error");
+              }
+            })
+            .catch((error) => {
+              console.error("Logout error:", error);
+              showNotification("خطأ في تسجيل الخروج", "error");
+            });
+        });
+      }
+
+      // Dropdown hover functionality
+      const userProfileElement = document.getElementById("userProfile");
+      const userDropdown = document.querySelector(".user-dropdown");
+      let dropdownTimeout;
+
+      function showDropdown() {
+        clearTimeout(dropdownTimeout);
+        if (userDropdown) {
+          userDropdown.style.opacity = "1";
+          userDropdown.style.visibility = "visible";
+          userDropdown.style.transform = "translateY(0)";
+        }
+      }
+
+      function hideDropdown() {
+        dropdownTimeout = setTimeout(() => {
+          if (userDropdown) {
+            userDropdown.style.opacity = "0";
+            userDropdown.style.visibility = "hidden";
+            userDropdown.style.transform = "translateY(10px)";
+          }
+        }, 150); // Small delay to allow moving between elements
+      }
+
+      if (userProfileElement) {
+        userProfileElement.addEventListener("mouseenter", showDropdown);
+        userProfileElement.addEventListener("mouseleave", hideDropdown);
+      }
+
+      if (userDropdown) {
+        userDropdown.addEventListener("mouseenter", showDropdown);
+        userDropdown.addEventListener("mouseleave", hideDropdown);
+      }
+    </script>
+
+    <!-- AI Chat Modal -->
+    <div id="aiChatModal" class="ai-chat-modal">
+      <div class="ai-chat-container">
+        <div class="ai-chat-header">
+          <div class="ai-chat-title">
+            <i class="fas fa-robot"></i>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </div>
+          <button id="closeAiChat" class="close-ai-chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+              <p>كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة والدروس والتحديات وأي شيء آخر!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-area">
+          <textarea
+            id="aiChatInput"
+            class="ai-chat-input"
+            placeholder="اكتب رسالتك هنا..."
+            rows="1"
+          ></textarea>
+          <button id="sendAiMessage" class="send-ai-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* AI Chat Modal Styles */
+      .ai-chat-modal {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .ai-chat-modal.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .ai-chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .ai-chat-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .close-ai-chat {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .close-ai-chat:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .ai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+      }
+
+      .ai-message,
+      .user-message {
+        display: flex;
+        gap: 0.5rem;
+        animation: messageSlideIn 0.3s ease;
+      }
+
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .user-message .message-avatar {
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        order: 2;
+      }
+
+      .message-content {
+        max-width: 280px;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message .message-content {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+      }
+
+      .message-content p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ai-chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        border-radius: 0 0 15px 15px;
+      }
+
+      .ai-chat-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+      }
+
+      .ai-chat-input:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .send-ai-btn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .send-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .send-ai-btn:active {
+        transform: translateY(0);
+      }
+
+      /* AI Chat Floating Button */
+      .ai-chat-fab {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        margin-left: 1rem;
+      }
+
+      .ai-chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .ai-chat-modal {
+          width: calc(100% - 40px);
+          max-height: 70vh;
+        }
+
+        .message-content {
+          max-width: 200px;
+        }
+      }
+
+      /* RTL Support */
+      [dir="rtl"] .ai-chat-modal {
+        left: auto;
+        right: 20px;
+      }
+
+      [dir="rtl"] .ai-message {
+        flex-direction: row-reverse;
+      }
+
+      [dir="rtl"] .ai-chat-input-area {
+        direction: rtl;
+      }
+    </style>
+
+    <script>
+      // AI Chat Modal Functionality
+      (function () {
+        const aiChatModal = document.getElementById('aiChatModal');
+        const aiChatFab = document.getElementById('aiChatFab');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+
+        // Toggle chat modal
+        if (aiChatFab) {
+          aiChatFab.addEventListener('click', () => {
+            aiChatModal.classList.add('active');
+            aiChatInput.focus();
+          });
+        }
+
+        // Close chat modal
+        if (closeAiChat) {
+          closeAiChat.addEventListener('click', () => {
+            aiChatModal.classList.remove('active');
+          });
+        }
+
+        // Send message
+        const sendMessage = async () => {
+          const message = aiChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          addMessage(message, 'user');
+          aiChatInput.value = '';
+          aiChatInput.style.height = 'auto';
+
+          // Show typing indicator
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'ai-message';
+          typingDiv.innerHTML =
+            '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+          aiChatMessages.appendChild(typingDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+          try {
+            // Call AI helper API
+            const response = await fetch('/api/ai/helper', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: message,
+                type: 'general',
+              }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            if (data.success) {
+              addMessage(data.response, 'ai');
+            } else {
+              addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+          }
+        };
+
+        if (sendAiMessage) {
+          sendAiMessage.addEventListener('click', sendMessage);
+        }
+
+        if (aiChatInput) {
+          aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          aiChatInput.addEventListener('input', () => {
+            aiChatInput.style.height = 'auto';
+            aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 100) + 'px';
+          });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'message-avatar';
+          avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+          aiChatMessages.appendChild(messageDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+          };
+          return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+      })();
+    </script>
+  </body>
+</html>
+  </body>
+</html>

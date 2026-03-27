@@ -13,10 +13,10 @@ class User extends Authenticatable
     protected $fillable = [
         'firstName', 'lastName', 'email', 'username', 'password',
         'phone', 'country', 'experience', 'goal', 'interest',
-        'preferred_language', 'is_admin',
+        'preferred_language', 'is_admin', 'avatar_path',
     ];
 
-    protected $hidden = ['password', 'avatar_data'];
+    protected $hidden = ['password'];
 
     protected $casts = ['is_admin' => 'boolean'];
 

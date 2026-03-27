@@ -50,9 +50,9 @@ class AdminUploadController extends Controller
                     $safeName    = trim(preg_replace('/_+/', '_', $safeName), '_') ?: 'course_logo';
                     $logoFilename = 'logo_' . uniqid() . '_' . $safeName . '.' . strtolower($logoFile->getClientOriginalExtension());
 
-                    $logosDir = realpath(base_path('../programming-academy')) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'logos';
+                    $logosDir = public_path('uploads/logos');
                     if (!is_dir($logosDir)) {
-                        mkdir($logosDir, 0777, true);
+                        mkdir($logosDir, 0755, true);
                     }
 
                     $logoFile->move($logosDir, $logoFilename);
@@ -104,11 +104,10 @@ class AdminUploadController extends Controller
             }
 
             $safeCategory     = $this->sanitizeFolderName($courseCategory ?: 'Other');
-            $frontendBase     = realpath(base_path('../programming-academy'));
-            $courseUploadDir  = $frontendBase . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR . $safeCategory . DIRECTORY_SEPARATOR . $courseId;
+            $courseUploadDir  = storage_path('app/videos') . DIRECTORY_SEPARATOR . $safeCategory . DIRECTORY_SEPARATOR . $courseId;
 
             if (!is_dir($courseUploadDir)) {
-                if (!mkdir($courseUploadDir, 0777, true)) {
+                if (!mkdir($courseUploadDir, 0755, true)) {
                     return response()->json(['success' => false, 'message' => 'Failed to create upload directory.'], 500);
                 }
             }
@@ -128,8 +127,8 @@ class AdminUploadController extends Controller
                     'course_id'      => $courseId,
                     'title'          => $titles[$i],
                     'description'    => $request->input("descriptions.{$i}"),
-                    'video_data'     => $relativePath,
-                    'video_mime'     => $video->getClientMimeType(),
+                    'video_path'      => $relativePath,
+                    'video_mime_type' => $video->getClientMimeType(),
                     'resources_code' => $request->input("codes.{$i}"),
                     'sort_order'     => $baseSortOrder + $i + 1,
                 ]);

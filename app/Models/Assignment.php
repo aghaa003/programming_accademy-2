@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Assignment extends Model
 {
+    public $timestamps = false;
+
+    const CREATED_AT = 'created_at';
+
     protected $fillable = [
         'course_id', 'title', 'description', 'requirements',
         'difficulty', 'language', 'due_date', 'is_active',

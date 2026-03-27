@@ -1,0 +1,2237 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>أمثلة وتطبيقات وشروحات - أكاديمية البرمجة المتكاملة</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+    />
+    <script src="site-notification.js"></script>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+        display: block;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .login-btn {
+        background-color: var(--accent);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+      }
+
+      .login-btn:hover {
+        background-color: #3ab0d9;
+      }
+
+      /* User Profile Dropdown */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-profile:hover .user-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-small);
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* ============================================
+         MOBILE MENU STYLES
+         ============================================ */
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        margin: 3px 0;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-dropdown-toggle:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-right: 1rem;
+      }
+
+      .mobile-dropdown-menu.active {
+        max-height: 500px;
+      }
+
+      .mobile-dropdown-menu a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+      }
+
+      .user-profile-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+
+        border-radius: 10px;
+        margin-top: 1rem;
+      }
+
+      .user-info-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+
+        .mobile-nav-links.active {
+          right: 0;
+        }
+
+        .dropdown-content {
+          position: static;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          box-shadow: none;
+          background: rgba(67, 97, 238, 0.05);
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .logo h1 {
+          font-size: 1rem;
+        }
+      }
+
+      /* Hero Section */
+      .hero-section {
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .hero-title {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .hero-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      /* Content Section */
+      .content-section {
+        padding: 80px 0;
+        background-color: var(--light);
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--dark);
+        position: relative;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+      }
+
+      /* Filter Tabs */
+      .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        padding: 0.8rem 1.5rem;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+      }
+
+      .filter-tab:hover,
+      .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      /* Examples Grid */
+      .examples-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        align-items: stretch; /* ensure cards stretch to same height */
+      }
+
+      .example-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        /* make card take full height inside grid and use column flex layout
+           so inner elements can be spaced uniformly */
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .example-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .example-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+      }
+
+      .example-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+      }
+
+      .example-card:hover .example-image img {
+        transform: scale(1.1);
+      }
+
+      .example-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: var(--transition);
+      }
+
+      .example-card:hover .example-overlay {
+        opacity: 1;
+      }
+
+      .view-example {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .view-example:hover {
+        background: var(--primary);
+      }
+
+      .example-info {
+        padding: 1.5rem;
+        /* grow to fill space below image so footer actions can be anchored */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 0.8rem;
+        flex: 1 1 auto;
+        min-height: 170px; /* ensure consistent card body height */
+      }
+
+      .example-category {
+        display: inline-block;
+        background: #e2e8f0;
+        color: var(--dark);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+
+      .example-info h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+      }
+
+      .example-info p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+        /* limit description to 3 lines to keep card heights consistent */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .example-tech {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        min-height: 34px; /* reserve vertical space so following button stays aligned */
+      }
+
+      .example-tech span {
+        background: #f0f4ff;
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .example-difficulty {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .difficulty-beginner {
+        color: var(--success);
+      }
+
+      .difficulty-intermediate {
+        color: var(--warning);
+      }
+
+      .difficulty-advanced {
+        color: var(--danger);
+      }
+
+      /* Code Preview */
+      .code-preview {
+        background: #1e293b;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        overflow-x: auto;
+        display: none;
+      }
+
+      .code-preview.active {
+        display: block;
+      }
+
+      .code-preview pre {
+        color: #000000;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .code-toggle {
+        background: none;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-weight: 500;
+        margin-top: auto; /* push the button to the bottom of the card body */
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Search Bar */
+      .search-container {
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 1rem 3rem 1rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .examples-grid {
+          grid-template-columns: 1fr;
+        }
+
+        /* make the card-body sizing more flexible on smaller screens */
+        .example-info {
+          min-height: auto;
+          gap: 0.6rem;
+        }
+
+        .example-tech {
+          min-height: auto;
+        }
+
+        .filter-tabs {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section {
+          padding: 120px 0 60px;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .hero-title {
+          font-size: 2rem;
+        }
+      }
+
+      /* Code Modal Styles */
+      .code-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .code-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .code-modal-content {
+        background: var(--card-bg);
+        border-radius: 15px;
+        width: 90%;
+        max-width: 900px;
+        max-height: 80vh;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .code-modal-header {
+        background: var(--primary);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .code-modal-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .code-modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+      }
+
+      .code-modal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .code-modal-body {
+        padding: 0;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      .code-modal-toolbar {
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .code-modal-language {
+        background: var(--gray);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .code-modal-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .code-modal-btn {
+        background: none;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+      }
+
+      .code-modal-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .code-modal-code {
+        padding: 1.5rem;
+        background: #1e293b;
+        margin: 0;
+      }
+
+      .code-modal-code pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .code-modal-code code {
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #000000;
+      }
+      /* Footer */
+      footer {
+        background: var(--dark);
+        color: white;
+        padding: 3rem 0 1.5rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent);
+        padding-right: 5px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .social-links a:hover {
+        background: var(--accent);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #334155;
+        color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Code Modal -->
+    <div id="codeModal" class="code-modal">
+      <div class="code-modal-content">
+        <div class="code-modal-header">
+          <h3 id="codeModalTitle" class="code-modal-title">عرض الكود</h3>
+          <button class="code-modal-close" onclick="closeCodeModal()">
+            &times;
+          </button>
+        </div>
+        <div class="code-modal-body">
+          <div class="code-modal-toolbar">
+            <span id="codeModalLanguage" class="code-modal-language"
+              >JavaScript</span
+            >
+            <div class="code-modal-actions">
+              <button class="code-modal-btn" onclick="copyCodeFromModal()">
+                <i class="fas fa-copy"></i> نسخ
+              </button>
+              <button class="code-modal-btn" onclick="downloadCodeFromModal()">
+                <i class="fas fa-download"></i> تحميل
+              </button>
+            </div>
+          </div>
+          <div class="code-modal-code">
+            <pre><code id="codeModalContent"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navbar -->
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+          <button id="aiChatFab" class="ai-chat-fab" title="اطلب من الذكاء الاصطناعي">
+            <i class="fas fa-robot"></i>
+          </button>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.html?path=frontend">مسار Frontend Developer</a>
+              <a href="path.html?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li class="user-profile" id="userProfile" style="display: none">
+            <div class="user-avatar-small" id="userAvatarSmall">م</div>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar-small" id="dropdownAvatar">م</div>
+                <div>
+                  <div class="user-name" id="dropdownUserName"></div>
+                  <div class="user-email" id="dropdownUserEmail"></div>
+                </div>
+              </div>
+              <a
+                href="profile.html"
+                class="nav-link"
+                style="
+                  display: block;
+                  text-align: right;
+                  margin-bottom: 0.5rem;
+                  color: black;
+                  font-size: large;
+                "
+                ><i
+                  class="fas fa-user-circle profile-icon"
+                  style="margin-left: 10%"
+                ></i
+                >الملف الشخصي</a
+              >
+              <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+            </div>
+          </li>
+          <li id="loginButton">
+            <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.html?path=frontend">مسار Frontend Developer</a>
+            <a href="path.html?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li><a href="project.html" class="nav-link">التكليفات والمشاريع</a></li>
+        <li
+          class="user-profile-mobile"
+          id="userProfileMobile"
+          style="display: none"
+        >
+          <div class="user-info-mobile">
+            <div class="user-avatar-small" id="mobileAvatar"></div>
+            <div>
+              <div class="user-name" id="mobileUserName"></div>
+              <div class="user-email" id="mobileUserEmail"></div>
+            </div>
+          </div>
+          <a href="profile.html" class="nav-link">
+            <i class="fas fa-user-circle"></i> الملف الشخصي
+          </a>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+        <li id="loginButtonMobile">
+          <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">أمثلة وتطبيقات وشروحات</h1>
+          <p class="hero-description">
+            استكشف مجموعة متنوعة من الأمثلة البرمجية والتطبيقات العملية
+            والشروحات التفصيلية لتعزيز مهاراتك البرمجية
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+      <div class="container">
+        <h2 class="section-title">استكشف أمثلة برمجية متنوعة</h2>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="ابحث عن مثال أو تطبيق..."
+          />
+          <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">الكل</div>
+          <div class="filter-tab" data-filter="frontend">Frontend</div>
+          <div class="filter-tab" data-filter="backend">Backend</div>
+          <div class="filter-tab" data-filter="mobile">تطبيقات الجوال</div>
+          <div class="filter-tab" data-filter="algorithms">الخوارزميات</div>
+        </div>
+
+        <!-- Examples Grid -->
+        <div class="examples-grid">
+          <!-- Loading state - will be replaced by JavaScript -->
+          <div
+            style="
+              grid-column: 1 / -1;
+              text-align: center;
+              padding: 3rem;
+              color: var(--gray);
+            "
+          >
+            <i
+              class="fas fa-spinner fa-spin fa-2x"
+              style="margin-bottom: 1rem"
+            ></i>
+            <p>جاري تحميل الأمثلة...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <h3>عن الأكاديمية</h3>
+            <p>
+              نحن منصة تعليمية تهدف إلى تمكين الشباب العربي من تعلم البرمجة
+              وتطوير مهاراتهم التقنية لسوق العمل.
+            </p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-column">
+            <h3>روابط سريعة</h3>
+            <ul class="footer-links">
+              <li><a href="index.html">الصفحة الرئيسية</a></li>
+              <li><a href="#">من نحن</a></li>
+              <li><a href="path.html">الكورسات</a></li>
+              <li><a href="#">المشاريع</a></li>
+              <li><a href="#">اتصل بنا</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>الكورسات</h3>
+            <ul class="footer-links">
+              <li><a href="path.html?path=basics">أساسيات البرمجة</a></li>
+              <li>
+                <a href="path.html?path=frontend">تطوير الواجهات الأمامية</a>
+              </li>
+              <li>
+                <a href="path.html?path=backend">تطوير الواجهات الخلفية</a>
+              </li>
+              <li><a href="#">تطوير تطبيقات الجوال</a></li>
+              <li><a href="#">علوم البيانات</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>اتصل بنا</h3>
+            <ul class="footer-links">
+              <li><i class="fas fa-map-marker-alt"></i> دمشق، سوريا</li>
+              <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+              <li>
+                <i class="fas fa-envelope"></i> info@programmingacademy.com
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // User Interface Update
+      function updateUserInterface() {
+        const currentUser = window.currentUser;
+        const userProfile = document.getElementById("userProfile");
+        const loginButton = document.getElementById("loginButton");
+        const userProfileMobile = document.getElementById("userProfileMobile");
+        const loginButtonMobile = document.getElementById("loginButtonMobile");
+
+        if (currentUser) {
+          // Show user profile, hide login
+          userProfile.style.display = "flex";
+          loginButton.style.display = "none";
+          userProfileMobile.style.display = "block";
+          loginButtonMobile.style.display = "none";
+
+          // Set user info
+          const initial = currentUser.firstName
+            ? currentUser.firstName.charAt(0)
+            : currentUser.username
+            ? currentUser.username.charAt(0)
+            : "?";
+
+          const username = currentUser.username;
+
+          const email = currentUser.email || currentUser.username;
+
+          // Desktop
+          document.getElementById("dropdownUserName").textContent = username;
+          document.getElementById("dropdownUserEmail").textContent = email;
+
+          // Mobile
+          document.getElementById("mobileUserName").textContent = username;
+          document.getElementById("mobileUserEmail").textContent = email;
+
+          // Avatar
+          const avatars = ["userAvatarSmall", "dropdownAvatar", "mobileAvatar"];
+          avatars.forEach((id) => {
+            const avatar = document.getElementById(id);
+            if (
+              currentUser.avatar
+            ) {
+              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              avatar.textContent = "";
+            } else {
+              avatar.textContent = initial;
+              avatar.style.background =
+                "linear-gradient(135deg, var(--accent), var(--primary))";
+              avatar.style.backgroundImage = "none";
+            }
+          });
+        } else {
+          // Hide user profile, show login
+          userProfile.style.display = "none";
+          loginButton.style.display = "block";
+          userProfileMobile.style.display = "none";
+          loginButtonMobile.style.display = "block";
+        }
+      }
+      // Initialize user interface on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch user status first
+        fetch("/api/user/status", { credentials: "include" })
+          .then((response) => {
+            if (response.status === 401) {
+              return { success: false, user: null };
+            }
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success && data.user) {
+              window.currentUser = data.user;
+            } else {
+              window.currentUser = null;
+            }
+            updateUserInterface();
+          })
+          .catch((error) => {
+            // Guest mode should not be treated as an error in console
+            window.currentUser = null;
+            updateUserInterface();
+          });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+        const mobileNavLinks = document.getElementById("mobileNavLinks");
+
+        function toggleMobileMenu() {
+          const isActive = mobileMenuBtn.classList.contains("active");
+          if (isActive) {
+            closeMobileMenuFunc();
+          } else {
+            openMobileMenu();
+          }
+        }
+
+        function openMobileMenu() {
+          mobileMenuBtn.classList.add("active");
+          mobileMenuOverlay.classList.add("active");
+          mobileNavLinks.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeMobileMenuFunc() {
+          mobileMenuBtn.classList.remove("active");
+          mobileMenuOverlay.classList.remove("active");
+          mobileNavLinks.classList.remove("active");
+          document.body.style.overflow = "auto";
+        }
+
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+        }
+        if (mobileMenuOverlay) {
+          mobileMenuOverlay.addEventListener("click", closeMobileMenuFunc);
+        }
+
+        // Mobile Dropdown Toggle
+        document
+          .querySelectorAll(".mobile-dropdown-toggle")
+          .forEach((toggle) => {
+            toggle.addEventListener("click", function (e) {
+              e.preventDefault();
+              const menu = this.nextElementSibling;
+              const icon = this.querySelector("i");
+              menu.classList.toggle("active");
+              if (menu.classList.contains("active")) {
+                icon.classList.remove("fa-chevron-down");
+                icon.classList.add("fa-chevron-up");
+              } else {
+                icon.classList.remove("fa-chevron-up");
+                icon.classList.add("fa-chevron-down");
+              }
+            });
+          });
+
+        // Mobile Logout
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener("click", function () {
+            closeMobileMenuFunc(); // Close menu first
+            fetch("/api/logout", { method: "POST", credentials: "include" })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  updateUserInterface();
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+
+        // Dropdown hover functionality
+        const userProfile = document.getElementById("userProfile");
+        const userDropdown = document.querySelector(".user-dropdown");
+        let dropdownTimeout;
+
+        function showDropdown() {
+          clearTimeout(dropdownTimeout);
+          if (userDropdown) {
+            userDropdown.style.opacity = "1";
+            userDropdown.style.visibility = "visible";
+            userDropdown.style.transform = "translateY(0)";
+          }
+        }
+
+        function hideDropdown() {
+          dropdownTimeout = setTimeout(() => {
+            if (userDropdown) {
+              userDropdown.style.opacity = "0";
+              userDropdown.style.visibility = "hidden";
+              userDropdown.style.transform = "translateY(10px)";
+            }
+          }, 150); // Small delay to allow moving between elements
+        }
+
+        if (userProfile) {
+          userProfile.addEventListener("mouseenter", showDropdown);
+          userProfile.addEventListener("mouseleave", hideDropdown);
+        }
+
+        if (userDropdown) {
+          userDropdown.addEventListener("mouseenter", showDropdown);
+          userDropdown.addEventListener("mouseleave", hideDropdown);
+        }
+
+        // Logout functionality
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function () {
+            fetch("/api/logout", { method: "POST", credentials: "include" })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  updateUserInterface();
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+      });
+
+      // Load examples on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        loadExamples();
+      });
+
+      // Load examples from API
+      async function loadExamples(category = "all", search = "") {
+        try {
+          const response = await fetch(
+            `/api/examples?category=${category}&search=${encodeURIComponent(
+              search
+            )}`
+          );
+          const data = await response.json();
+
+          if (data.success) {
+            renderExamples(data.examples);
+          } else {
+            console.error("Failed to load examples:", data.message);
+            showNotification("فشل في تحميل الأمثلة", "error");
+          }
+        } catch (error) {
+          console.error("Error loading examples:", error);
+          showNotification("خطأ في تحميل الأمثلة", "error");
+        }
+      }
+
+      // Render examples dynamically
+      function renderExamples(examples) {
+        const container = document.querySelector(".examples-grid");
+        container.innerHTML = "";
+
+        if (examples.length === 0) {
+          container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--gray);">
+                        <i class="fas fa-search fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>لا توجد أمثلة متاحة في هذه الفئة</p>
+                    </div>
+                `;
+          return;
+        }
+
+        examples.forEach((example) => {
+          const card = createExampleCard(example);
+          container.appendChild(card);
+        });
+      }
+
+      function createExampleCard(example) {
+        const card = document.createElement("div");
+        card.className = "example-card";
+        card.setAttribute("data-category", example.category);
+
+        card.innerHTML = `
+                <div class="example-image">
+                    <img src="${
+                      example.image_url ||
+                      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    }" alt="${
+          example.title
+        }" onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'">
+                    <div class="example-overlay">
+                        <button class="view-example"
+                                data-id="${example.id}"
+                                data-demo-url="${
+                                  example.demo_url
+                                    ? example.demo_url.replace(/\"/g, "&quot;")
+                                    : ""
+                                }"
+                                onclick="viewExample(this)">عرض المثال</button>
+                    </div>
+                    <div class="example-difficulty difficulty-${
+                      example.difficulty
+                    }">${getDifficultyText(example.difficulty)}</div>
+                </div>
+                <div class="example-info">
+                    <span class="example-category">${getCategoryText(
+                      example.category
+                    )}</span>
+                    <h3>${example.title}</h3>
+                    <p>${example.description}</p>
+                    <div class="example-tech">
+                        ${example.technologies
+                          .map((tech) => `<span>${tech}</span>`)
+                          .join("")}
+                    </div>
+                    <button class="code-toggle"
+                            data-title="${example.title}"
+                            data-language="${example.code_language}"
+                            data-code="${escapeHtml(example.code_snippet)
+                              .replace(/"/g, "&quot;")
+                              .replace(/'/g, "&#39;")}"
+                            onclick="showCodeModalFromButton(this)">
+                        <span>عرض الكود</span>
+                        <i class="fas fa-code"></i>
+                    </button>
+                </div>
+            `;
+
+        return card;
+      }
+
+      function getCategoryText(category) {
+        const categories = {
+          frontend: "Frontend",
+          backend: "Backend",
+          mobile: "تطبيقات الجوال",
+          algorithms: "الخوارزميات",
+        };
+        return categories[category] || category;
+      }
+
+      function getDifficultyText(difficulty) {
+        const difficulties = {
+          beginner: "مبتدئ",
+          intermediate: "متوسط",
+          advanced: "متقدم",
+        };
+        return difficulties[difficulty] || difficulty;
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // تصفية الأمثلة حسب الفئة
+      document.querySelectorAll(".filter-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          // إزالة النشاط من جميع الألسنة
+          document.querySelectorAll(".filter-tab").forEach((t) => {
+            t.classList.remove("active");
+          });
+
+          // إضافة النشاط للسان المحدد
+          this.classList.add("active");
+
+          const filter = this.getAttribute("data-filter");
+          loadExamples(filter, document.querySelector(".search-input").value);
+        });
+      });
+
+      // البحث في الأمثلة
+      const searchInput = document.querySelector(".search-input");
+      let searchTimeout;
+      searchInput.addEventListener("input", function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          const activeFilter = document
+            .querySelector(".filter-tab.active")
+            .getAttribute("data-filter");
+          loadExamples(activeFilter, this.value);
+        }, 300); // Debounce search
+      });
+
+      // تبديل عرض الكود
+      function toggleCode(button) {
+        const codePreview = button.nextElementSibling;
+        const icon = button.querySelector("i");
+
+        if (codePreview.classList.contains("active")) {
+          codePreview.classList.remove("active");
+          icon.classList.remove("fa-chevron-up");
+          icon.classList.add("fa-chevron-down");
+          button.querySelector("span").textContent = "عرض الكود";
+        } else {
+          codePreview.classList.add("active");
+          icon.classList.remove("fa-chevron-down");
+          icon.classList.add("fa-chevron-up");
+          button.querySelector("span").textContent = "إخفاء الكود";
+
+          // Highlight code when shown
+          const codeElement = codePreview.querySelector("code");
+          if (codeElement && !codeElement.classList.contains("highlighted")) {
+            Prism.highlightElement(codeElement);
+            codeElement.classList.add("highlighted");
+          }
+        }
+      }
+
+      // عرض المثال
+      function viewExample(target) {
+        const demoUrl =
+          typeof target === "object" && target.dataset
+            ? (target.dataset.demoUrl || "").trim()
+            : "";
+        const exampleId =
+          typeof target === "object" && target.dataset
+            ? target.dataset.id
+            : target;
+
+        if (demoUrl) {
+          window.open(demoUrl, "_blank");
+          return;
+        }
+
+        window.open(`example_demo.html?id=${exampleId}`, "_blank");
+      }
+
+      // Modal Functions
+      function showCodeModal(title, language, code) {
+        document.getElementById("codeModalTitle").textContent = title;
+        document.getElementById("codeModalLanguage").textContent = language;
+        document.getElementById("codeModalContent").textContent = code;
+
+        // Apply syntax highlighting
+        Prism.highlightElement(document.getElementById("codeModalContent"));
+
+        document.getElementById("codeModal").classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function showCodeModalFromButton(button) {
+        const title = button.getAttribute("data-title");
+        const language = button.getAttribute("data-language");
+        const code = button.getAttribute("data-code");
+        showCodeModal(title, language, code);
+      }
+
+      function closeCodeModal() {
+        document.getElementById("codeModal").classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      function copyCodeFromModal() {
+        const codeElement = document.getElementById("codeModalContent");
+        const code = codeElement.textContent;
+
+        navigator.clipboard
+          .writeText(code)
+          .then(() => {
+            showNotification("تم نسخ الكود بنجاح!", "success");
+          })
+          .catch(() => {
+            showNotification("فشل في نسخ الكود", "error");
+          });
+      }
+
+      function downloadCodeFromModal() {
+        const title = document.getElementById("codeModalTitle").textContent;
+        const language =
+          document.getElementById("codeModalLanguage").textContent;
+        const code = document.getElementById("codeModalContent").textContent;
+
+        const blob = new Blob([code], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${title}.${getFileExtension(language)}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function getFileExtension(language) {
+        const extensions = {
+          javascript: "js",
+          python: "py",
+          php: "php",
+          java: "java",
+          html: "html",
+          css: "css",
+          cpp: "cpp",
+          c: "c",
+          dart: "dart",
+        };
+        return extensions[language.toLowerCase()] || "txt";
+      }
+
+      // Close modal when clicking outside
+      document
+        .getElementById("codeModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeCodeModal();
+          }
+        });
+
+      // Close modal with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (
+          e.key === "Escape" &&
+          document.getElementById("codeModal").classList.contains("active")
+        ) {
+          closeCodeModal();
+        }
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+
+    <!-- AI Chat Modal -->
+    <div id="aiChatModal" class="ai-chat-modal">
+      <div class="ai-chat-container">
+        <div class="ai-chat-header">
+          <div class="ai-chat-title">
+            <i class="fas fa-robot"></i>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </div>
+          <button id="closeAiChat" class="close-ai-chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+              <p>كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة والدروس والتحديات وأي شيء آخر!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-area">
+          <textarea
+            id="aiChatInput"
+            class="ai-chat-input"
+            placeholder="اكتب رسالتك هنا..."
+            rows="1"
+          ></textarea>
+          <button id="sendAiMessage" class="send-ai-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* AI Chat Modal Styles */
+      .ai-chat-modal {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .ai-chat-modal.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .ai-chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .ai-chat-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .close-ai-chat {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .close-ai-chat:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .ai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+      }
+
+      .ai-message,
+      .user-message {
+        display: flex;
+        gap: 0.5rem;
+        animation: messageSlideIn 0.3s ease;
+      }
+
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .user-message .message-avatar {
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        order: 2;
+      }
+
+      .message-content {
+        max-width: 280px;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message .message-content {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+      }
+
+      .message-content p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ai-chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        border-radius: 0 0 15px 15px;
+      }
+
+      .ai-chat-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+      }
+
+      .ai-chat-input:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .send-ai-btn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .send-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .send-ai-btn:active {
+        transform: translateY(0);
+      }
+
+      /* AI Chat Floating Button */
+      .ai-chat-fab {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        margin-left: 1rem;
+      }
+
+      .ai-chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .ai-chat-modal {
+          width: calc(100% - 40px);
+          max-height: 70vh;
+        }
+
+        .message-content {
+          max-width: 200px;
+        }
+      }
+
+      /* RTL Support */
+      [dir="rtl"] .ai-chat-modal {
+        left: auto;
+        right: 20px;
+      }
+
+      [dir="rtl"] .ai-message {
+        flex-direction: row-reverse;
+      }
+
+      [dir="rtl"] .ai-chat-input-area {
+        direction: rtl;
+      }
+    </style>
+
+    <script>
+      // AI Chat Modal Functionality
+      (function () {
+        const aiChatModal = document.getElementById('aiChatModal');
+        const aiChatFab = document.getElementById('aiChatFab');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+
+        // Toggle chat modal
+        if (aiChatFab) {
+          aiChatFab.addEventListener('click', () => {
+            aiChatModal.classList.add('active');
+            aiChatInput.focus();
+          });
+        }
+
+        // Close chat modal
+        if (closeAiChat) {
+          closeAiChat.addEventListener('click', () => {
+            aiChatModal.classList.remove('active');
+          });
+        }
+
+        // Send message
+        const sendMessage = async () => {
+          const message = aiChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          addMessage(message, 'user');
+          aiChatInput.value = '';
+          aiChatInput.style.height = 'auto';
+
+          // Show typing indicator
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'ai-message';
+          typingDiv.innerHTML =
+            '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+          aiChatMessages.appendChild(typingDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+          try {
+            // Call AI helper API
+            const response = await fetch('/api/ai/helper', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: message,
+                type: 'general',
+              }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            if (data.success) {
+              addMessage(data.response, 'ai');
+            } else {
+              addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+          }
+        };
+
+        if (sendAiMessage) {
+          sendAiMessage.addEventListener('click', sendMessage);
+        }
+
+        if (aiChatInput) {
+          aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          aiChatInput.addEventListener('input', () => {
+            aiChatInput.style.height = 'auto';
+            aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 100) + 'px';
+          });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'message-avatar';
+          avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+          aiChatMessages.appendChild(messageDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+          };
+          return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+      })();
+    </script>
+  </body>
+</html>
+  </body>
+</html>

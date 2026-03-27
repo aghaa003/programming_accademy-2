@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller
@@ -17,6 +16,7 @@ class AdminUserController extends Controller
             ->get()
             ->map(function ($u) {
                 $u->roles = $u->roles()->pluck('name');
+
                 return $u;
             });
 
@@ -27,9 +27,10 @@ class AdminUserController extends Controller
     public function show($id)
     {
         $user = User::with('roles')->find($id);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
         }
+
         return response()->json(['success' => true, 'user' => $user]);
     }
 
@@ -37,11 +38,11 @@ class AdminUserController extends Controller
     public function toggleAdmin($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
         }
 
-        $user->is_admin = !$user->is_admin;
+        $user->is_admin = ! $user->is_admin;
         $user->save();
 
         // Sync admin role
@@ -58,10 +59,24 @@ class AdminUserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
         }
+
+        // Delete avatar file if stored on disk
+        if (! empty($user->avatar_path)) {
+            $avatarFile = public_path(ltrim($user->avatar_path, '/'));
+            if (is_file($avatarFile)) {
+                @unlink($avatarFile);
+            }
+        }
+
+        // Delete rows with RESTRICT FK first to allow user deletion
+        DB::table('user_assignments')->where('user_id', $id)->delete();
+        DB::table('user_challenges')->where('user_id', $id)->delete();
+
         $user->delete();
+
         return response()->json(['success' => true, 'message' => 'تم حذف المستخدم بنجاح']);
     }
 }

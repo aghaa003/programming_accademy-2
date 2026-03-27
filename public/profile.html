@@ -1,0 +1,2306 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>الملف الشخصي - أكاديمية البرمجة المتكاملة</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3a0ca3;
+        --accent-color: #4cc9f0;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --dark-color: #1e293b;
+        --light-color: #f8fafc;
+        --gray-color: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+        color: var(--dark-color);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(
+          45deg,
+          var(--accent-color),
+          var(--primary-color)
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+        padding: 0.5rem 0;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark-color);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary-color);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .logout-btn {
+        background: #ef4444;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 4px;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary-color);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark-color);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        color: var(--dark-color);
+        text-decoration: none;
+        font-size: 1.1rem;
+        display: block;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        cursor: pointer;
+      }
+
+      .mobile-dropdown-menu {
+        display: none;
+        padding-left: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .mobile-dropdown.active .mobile-dropdown-menu {
+        display: block;
+      }
+
+      .mobile-dropdown-menu a {
+        display: block;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+        color: var(--gray-color);
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .mobile-dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .mobile-nav-links .logout-btn {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        font-size: 1rem;
+      }
+
+      /* Profile Section */
+      .profile-section {
+        padding: 6rem 5% 4rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 3rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      .profile-avatar {
+        position: relative;
+      }
+
+      .avatar-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--primary-color);
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--accent-color)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: bold;
+      }
+
+      .avatar-upload {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background: var(--primary-color);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .avatar-upload:hover {
+        background: var(--secondary-color);
+        transform: scale(1.1);
+      }
+
+      .profile-info h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+      }
+
+      .profile-info p {
+        color: #666;
+        margin-bottom: 1rem;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      /* Tabs */
+      .profile-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .tab {
+        padding: 1rem 2rem;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+      }
+
+      .tab.active {
+        color: var(--primary-color);
+      }
+
+      .tab.active::after {
+        content: "";
+        position: absolute;
+        bottom: -1px;
+        right: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 3px 3px 0 0;
+      }
+
+      .tab-content {
+        display: none;
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Form Styles */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark-color);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+      }
+
+      .form-row {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .btn:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+      }
+
+      /* Courses Grid */
+      .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .course-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: var(--transition);
+        border: 1px solid #e9ecef;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .course-card h3 {
+        margin-bottom: 0.5rem;
+        color: var(--dark-color);
+      }
+
+      .course-card p {
+        color: #666;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .course-progress {
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+      }
+
+      .course-progress-bar {
+        height: 100%;
+        background: var(--success-color);
+        border-radius: 3px;
+      }
+
+      .progress-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      .course-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .course-card-header-content {
+        flex: 1;
+        min-height: 0; /* Allow flex item to shrink */
+        height: 4rem; /* Fixed height for title + description */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+
+      .course-card-header h3 {
+        margin: 0 0 0.25rem 0;
+        color: var(--dark-color);
+        font-size: 1rem;
+        line-height: 1.3;
+        flex-shrink: 0;
+        min-height: 1.3rem;
+      }
+
+      .course-card-header p {
+        margin: 0;
+        color: #666;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        flex: 1;
+        min-height: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .course-card-progress {
+        margin-bottom: 1rem;
+      }
+
+      .course-card-info {
+        margin-bottom: 1rem;
+        font-size: 0.8rem;
+        color: #666;
+        padding: 0.5rem 0.75rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        height: 2.5rem; /* Fixed height */
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .course-card-actions {
+        margin-top: auto;
+        padding-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .course-action-btn {
+        flex: 1;
+        font-size: 0.85rem !important;
+        padding: 0.65rem 1rem !important;
+        white-space: nowrap;
+        min-width: 0;
+      }
+
+      /* Course Icon Styles */
+      .course-icon-large {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+      }
+
+      .web-icon {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+      }
+      .js-icon {
+        background: linear-gradient(135deg, #f7df1e, #f1c40f);
+        color: #333;
+      }
+      .python-icon {
+        background: linear-gradient(135deg, #3776ab, #2e5f8f);
+      }
+      .php-icon {
+        background: linear-gradient(135deg, #777bb4, #6b6fb3);
+      }
+      .cpp-icon {
+        background: linear-gradient(135deg, #00599c, #004d84);
+      }
+      .java-icon {
+        background: linear-gradient(135deg, #ed8b00, #d77f00);
+      }
+      .csharp-icon {
+        background: linear-gradient(135deg, #239120, #1e7a1a);
+      }
+      .default-icon {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+      }
+
+      /* Footer */
+      .footer {
+        background: linear-gradient(135deg, var(--dark-color), #1a1a1a);
+        color: white;
+        padding: 4rem 5% 2rem;
+        margin-top: 4rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 2px;
+        background: var(--primary-color);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: #bbb;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent-color);
+        padding-right: 5px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .social-links a:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #bbb;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .profile-stats {
+          justify-content: center;
+        }
+
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .profile-info h1 {
+          font-size: 2rem;
+        }
+
+        .profile-tabs {
+          flex-direction: column;
+        }
+
+        .tab {
+          text-align: right;
+        }
+
+        /* Mobile navbar */
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+      }
+    </style>
+    <!-- user-manager.js is optional / not present in workspace; commented out to avoid 404 -->
+    <!-- <script src="user-manager.js"></script> -->
+    <script src="site-notification.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+          <button id="aiChatFab" class="ai-chat-fab" title="اطلب من الذكاء الاصطناعي">
+            <i class="fas fa-robot"></i>
+          </button>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.html?path=frontend">مسار Frontend Developer</a>
+              <a href="path.html?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li>
+            <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+        <button class="close-mobile-menu" id="closeMobileMenu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.html?path=frontend">مسار Frontend Developer</a>
+            <a href="path.html?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li>
+          <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+        </li>
+        <li>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <div class="avatar-img" id="avatarDisplay">م</div>
+          <div
+            class="avatar-upload"
+            id="avatarUploadBtn"
+            style="position: relative; overflow: hidden"
+          >
+            <i class="fas fa-camera"></i>
+            <!-- make input cover the button so native dialog behaves consistently -->
+            <input
+              type="file"
+              id="avatarInput"
+              accept="image/*"
+              style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                opacity: 0;
+                cursor: pointer;
+              "
+              aria-label="Upload avatar"
+            />
+          </div>
+        </div>
+        <div class="profile-info">
+          <h1 id="userFullName"></h1>
+          <p id="userEmail"></p>
+          <p id="userJoinDate"></p>
+          <div class="profile-stats">
+            <div class="stat">
+              <div class="stat-value" id="completedCourses">0</div>
+              <div class="stat-label">كورسات مكتملة</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="inProgressCourses">0</div>
+              <div class="stat-label">كورسات قيد التقدم</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="overallProgress">0%</div>
+              <div class="stat-label">التقدم العام</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-tabs">
+        <button class="tab active" data-tab="personal">
+          المعلومات الشخصية
+        </button>
+        <button class="tab" data-tab="courses">الكورسات</button>
+        <button class="tab" data-tab="settings">الإعدادات</button>
+      </div>
+
+      <!-- المعلومات الشخصية -->
+      <div class="tab-content active" id="personal-tab">
+        <h2>المعلومات الشخصية</h2>
+        <form id="personalInfoForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editFirstName">الاسم الأول</label>
+              <input type="text" id="editFirstName" required />
+            </div>
+            <div class="form-group">
+              <label for="editLastName">اسم العائلة</label>
+              <input type="text" id="editLastName" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editEmail">البريد الإلكتروني</label>
+            <input type="email" id="editEmail" required />
+          </div>
+
+          <div class="form-group">
+            <label for="editPhone">رقم الهاتف</label>
+            <input type="tel" id="editPhone" />
+          </div>
+
+          <div class="form-group">
+            <label for="editCountry">الدولة</label>
+            <select id="editCountry" required>
+              <option value="">اختر الدولة</option>
+              <option value="SA">السعودية</option>
+              <option value="EG">مصر</option>
+              <option value="AE">الإمارات</option>
+              <option value="JO">الأردن</option>
+              <option value="LB">لبنان</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editGoal">الهدف / نبذة عني</label>
+            <textarea
+              id="editGoal"
+              rows="4"
+              placeholder="اكتب نبذة مختصرة عن نفسك أو هدفك..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn">حفظ التغييرات</button>
+        </form>
+      </div>
+
+      <!-- الكورسات -->
+      <div class="tab-content" id="courses-tab">
+        <h2>كورساتي</h2>
+        <div class="courses-grid" id="userCoursesGrid">
+          <!-- سيتم تعبئة الكورسات ديناميكياً -->
+        </div>
+      </div>
+
+      <!-- الإعدادات -->
+      <div class="tab-content" id="settings-tab">
+        <h2>إعدادات الحساب</h2>
+        <form id="settingsForm">
+          <div class="form-group">
+            <label for="currentPassword">كلمة المرور الحالية</label>
+            <input type="password" id="currentPassword" />
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">كلمة المرور الجديدة</label>
+            <input type="password" id="newPassword" />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmNewPassword">تأكيد كلمة المرور الجديدة</label>
+            <input type="password" id="confirmNewPassword" />
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="emailNotifications" />
+              تلقي إشعارات البريد الإلكتروني
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="courseUpdates" />
+              إشعارات تحديثات الكورسات
+            </label>
+          </div>
+
+          <button type="submit" class="btn">حفظ الإعدادات</button>
+        </form>
+
+        <div
+          style="
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+          "
+        >
+          <h3 style="color: var(--danger-color); margin-bottom: 1rem">
+            منطقة الخطر
+          </h3>
+          <button
+            class="btn"
+            style="background: var(--danger-color)"
+            id="deleteAccountBtn"
+          >
+            حذف الحساب
+          </button>
+          <p style="color: #666; font-size: 0.9rem; margin-top: 0.5rem">
+            تحذير: حذف الحساب لا يمكن التراجع عنه وسيتم فقدان جميع بياناتك.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>عن الأكاديمية</h3>
+          <p>
+            أكاديمية البرمجة المتكاملة تهدف إلى تمكين الأفراد من دخول عالم
+            البرمجة وتطوير مهاراتهم من خلال مناهج شاملة وتطبيق عملي.
+          </p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>روابط سريعة</h3>
+          <ul class="footer-links">
+            <li><a href="index.html">الصفحة الرئيسية</a></li>
+            <li><a href="roadmap.html">خارطة الطريق</a></li>
+            <li><a href="path.html">الكورسات</a></li>
+            <li><a href="project.html">المشاريع</a></li>
+            <li><a href="#">اتصل بنا</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>المسارات التعليمية</h3>
+          <ul class="footer-links">
+            <li><a href="path.html?path=basics">أساسيات البرمجة</a></li>
+            <li>
+              <a href="path.html?path=frontend">تطوير الواجهات الأمامية</a>
+            </li>
+            <li><a href="path.html?path=backend">تطوير الواجهات الخلفية</a></li>
+            <li><a href="#">تطوير التطبيقات المتنقلة</a></li>
+            <li><a href="#">تطوير الويب الشامل</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>اتصل بنا</h3>
+          <ul class="footer-links">
+            <li><i class="fas fa-map-marker-alt"></i> دمشق، سوريا</li>
+            <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+            <li><i class="fas fa-envelope"></i> info@programmingacademy.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
+      </div>
+    </footer>
+
+    <script>
+      // التحقق من تسجيل الدخول
+      window.addEventListener("load", function () {
+        // تحميل بيانات المستخدم من الخادم
+        fetch("/api/profile", { credentials: "include" })
+          .then((r) => r.json())
+          .then((data) => {
+            if (!data.success) {
+              window.location.href = "login1.html";
+              return;
+            }
+
+            const user = data.user;
+            window.currentUser = user;
+
+            // تحديث العرض
+            document.getElementById(
+              "userFullName"
+            ).textContent = user.username ;
+            document.getElementById("userEmail").textContent = user.email;
+            if (user.joinDate) {
+              const joinDate = new Date(user.joinDate);
+              const options = { year: "numeric", month: "long" };
+              document.getElementById(
+                "userJoinDate"
+              ).textContent = `منضم منذ ${joinDate.toLocaleDateString(
+                "ar-AR",
+                options
+              )}`;
+            }
+
+            document.getElementById("editFirstName").value =
+              user.firstName || "";
+            document.getElementById("editLastName").value = user.lastName || "";
+            document.getElementById("editEmail").value = user.email || "";
+            document.getElementById("editPhone").value = user.phone || "";
+            document.getElementById("editCountry").value = user.country || "";
+            document.getElementById("editGoal").value = user.goal || "";
+
+            if (user.avatar) {
+              let avatarUrl = user.avatar;
+              const avatarDisplay = document.getElementById("avatarDisplay");
+              avatarDisplay.style.backgroundImage = `url(${avatarUrl})`;
+              avatarDisplay.style.backgroundSize = "cover";
+              avatarDisplay.textContent = "";
+            } else {
+              document.getElementById("avatarDisplay").textContent = (
+                user.firstName || "م"
+              ).charAt(0);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to load profile from server", err);
+            window.location.href = "login1.html";
+          });
+
+        // إعداد نظام التبويب
+        setupTabs();
+        // إعداد رفع الصورة
+        setupAvatarUpload();
+        // إعداد مستمعي الأحداث للنماذج
+        setupFormListeners();
+        // تحميل الكورسات
+        loadUserCourses();
+      });
+
+      // Load user data from server
+      // إعداد نظام التبويب
+      function setupTabs() {
+        const tabs = document.querySelectorAll(".tab");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", function () {
+            const tabId = this.getAttribute("data-tab");
+
+            // إزالة النشاط من جميع الألسنة والمحتويات
+            tabs.forEach((t) => t.classList.remove("active"));
+            tabContents.forEach((tc) => tc.classList.remove("active"));
+
+            // إضافة النشاط للسان والمحتوى المحدد
+            this.classList.add("active");
+            document.getElementById(`${tabId}-tab`).classList.add("active");
+
+            // تحميل الكورسات عند النقر على تبويب الكورسات
+            if (tabId === "courses") {
+              loadUserCourses();
+            }
+          });
+        });
+      }
+
+      // تحميل كورسات المستخدم
+      async function loadUserCourses() {
+        try {
+          const response = await fetch("/api/user-courses", {
+            credentials: "include",
+          });
+          const data = await response.json();
+
+          if (
+            response.status === 401 ||
+            (data.success === false && data.message === "Not authenticated")
+          ) {
+            // Session expired, redirect to login
+            window.location.href = "login1.html";
+            return;
+          }
+
+          if (data.success) {
+            renderUserCourses(data.courses);
+            updateCourseStats(data.courses);
+          } else {
+            console.error("Failed to load courses:", data.message);
+            showNotification("فشل في تحميل الكورسات", "error");
+          }
+        } catch (error) {
+          console.error("Error loading courses:", error);
+          showNotification("خطأ في تحميل الكورسات", "error");
+        }
+      }
+
+      // عرض كورسات المستخدم
+      function renderUserCourses(courses) {
+        const coursesGrid = document.getElementById("userCoursesGrid");
+        coursesGrid.innerHTML = "";
+
+        if (courses.length === 0) {
+          coursesGrid.innerHTML =
+            "<p>لم تشاهد أي كورسات بعد. ابدأ بمشاهدة كورس ليظهر هنا.</p>";
+          return;
+        }
+
+        courses.forEach((course) => {
+          const courseCard = document.createElement("div");
+          courseCard.className = "course-card";
+
+          const lastLessonText = course.last_lesson_title
+            ? `آخر درس: ${course.last_lesson_title}`
+            : "لم تبدأ بعد";
+          let logoIconHTML = "";
+          if (course.logo_path) {
+            // Show uploaded logo
+            logoIconHTML = `<img src="${course.logo_path}" alt="${course.title}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-left: 15px;">`;
+          } else {
+            // Show automatic icon based on course title
+            const iconClass = course.icon_class || getIconClass(course.title);
+            const colorClass =
+              course.color_class || getColorClass(course.title);
+            logoIconHTML = `<div class="course-icon-large ${colorClass}" style="margin-left: 15px;"><i class="${iconClass}"></i></div>`;
+          }
+
+          courseCard.innerHTML = `
+            <div class="course-card-header">
+              ${logoIconHTML}
+              <div class="course-card-header-content">
+                <h3>${course.title}</h3>
+                <p>${course.description || "وصف الدورة"}</p>
+              </div>
+            </div>
+            <div class="course-card-progress">
+              <div class="course-progress" style="margin-bottom: 0.5rem;">
+                <div class="course-progress-bar" style="width: ${
+                  course.percentage_completed
+                }%"></div>
+              </div>
+              <div class="progress-text">
+                <span>${course.percentage_completed}% مكتمل</span>
+                <span>${course.completed_lessons}/${
+            course.total_lessons
+          } درس</span>
+              </div>
+            </div>
+            <div class="course-card-info">
+              ${lastLessonText}
+            </div>
+            <div class="course-card-actions">
+              <button class="course-action-btn btn" onclick="resumeCourse(${
+                course.id
+              })">
+                ${course.percentage_completed > 0 ? "استئناف" : "ابدأ"}
+              </button>
+              <button class="course-action-btn btn" style="background: #ef4444;" onclick="deleteCourseProgress(${
+                course.id
+              }, '${course.title}')">
+                حذف
+              </button>
+            </div>
+          `;
+
+          coursesGrid.appendChild(courseCard);
+        });
+      }
+
+      // تحديث إحصائيات الكورسات
+      function updateCourseStats(courses) {
+        const completedCourses = courses.filter(
+          (c) => c.percentage_completed === 100
+        ).length;
+        const inProgressCourses = courses.filter(
+          (c) => c.percentage_completed > 0 && c.percentage_completed < 100
+        ).length;
+        const totalProgress =
+          courses.length > 0
+            ? Math.round(
+                courses.reduce((sum, c) => sum + c.percentage_completed, 0) /
+                  courses.length
+              )
+            : 0;
+
+        document.getElementById("completedCourses").textContent =
+          completedCourses;
+        document.getElementById("inProgressCourses").textContent =
+          inProgressCourses;
+        document.getElementById(
+          "overallProgress"
+        ).textContent = `${totalProgress}%`;
+      }
+
+      // استئناف الكورس
+      function resumeCourse(courseId) {
+        window.location.href = `watch.html?course_id=${courseId}&resume=true`;
+      }
+
+      // حذف تقدم الكورس
+      async function deleteCourseProgress(courseId, courseTitle) {
+        // Set modal content for course deletion
+        document.querySelector("#confirmModal h3").textContent =
+          "هل أنت متأكد؟";
+        document.querySelector(
+          "#confirmModal p"
+        ).textContent = `سيتم حذف تقدمك في كورس "${courseTitle}". هذا الإجراء لا يمكن التراجع عنه.`;
+        document.querySelector("#confirmDelete").textContent = "حذف التقدم";
+
+        // Store course info for deletion
+        document.getElementById("confirmModal").dataset.deleteType = "course";
+        document.getElementById("confirmModal").dataset.courseId = courseId;
+
+        // Show modal
+        document.getElementById("confirmModal").style.display = "flex";
+      }
+
+      // دالة لتحديد أيقونة الكورس حسب العنوان
+      function getIconClass(title) {
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes("javascript") || titleLower.includes("js")) {
+          return "fab fa-js-square";
+        } else if (titleLower.includes("python")) {
+          return "fab fa-python";
+        } else if (titleLower.includes("php")) {
+          return "fab fa-php";
+        } else if (titleLower.includes("html")) {
+          return "fab fa-html5";
+        } else if (titleLower.includes("css")) {
+          return "fab fa-css3-alt";
+        } else if (titleLower.includes("c++")) {
+          return "fas fa-code";
+        } else if (titleLower.includes("java")) {
+          return "fab fa-java";
+        } else if (titleLower.includes("c#") || titleLower.includes("csharp")) {
+          return "fas fa-code";
+        } else {
+          return "fas fa-code";
+        }
+      }
+
+      // دالة لتحديد لون الأيقونة حسب العنوان
+      function getColorClass(title) {
+        const titleLower = title.toLowerCase();
+        if (titleLower.includes("c++")) {
+          return "cpp-icon";
+        } else if (titleLower.includes("python")) {
+          return "python-icon";
+        } else if (titleLower.includes("php")) {
+          return "php-icon";
+        } else if (
+          titleLower.includes("javascript") ||
+          titleLower.includes("js")
+        ) {
+          return "js-icon";
+        } else if (titleLower.includes("html")) {
+          return "web-icon";
+        } else if (titleLower.includes("css")) {
+          return "web-icon";
+        } else if (titleLower.includes("java")) {
+          return "java-icon";
+        } else if (titleLower.includes("c#") || titleLower.includes("csharp")) {
+          return "csharp-icon";
+        } else {
+          return "default-icon";
+        }
+      }
+
+      function setupAvatarUpload() {
+        const avatarInput = document.getElementById("avatarInput");
+        const avatarUploadBtn = document.getElementById("avatarUploadBtn");
+
+        // ensure the input's value is reset whenever it is interacted with
+        avatarInput.addEventListener("click", function () {
+          // resetting ensures the OS file picker doesn't restrict to recent selections
+          this.value = null;
+        });
+
+        avatarInput.addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // preview immediately
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const avatarDisplay = document.getElementById("avatarDisplay");
+            avatarDisplay.style.backgroundImage = `url(${ev.target.result})`;
+            avatarDisplay.style.backgroundSize = "cover";
+            avatarDisplay.textContent = "";
+          };
+          reader.readAsDataURL(file);
+
+          // upload to server using FormData
+          const fd = new FormData();
+          fd.append("avatar", file);
+
+          fetch("/api/upload-avatar", {
+            method: "POST",
+            body: fd,
+            credentials: "include",
+          })
+            .then((r) => r.json())
+            .then((resp) => {
+              if (!resp.success)
+                throw new Error(resp.message || "Upload failed");
+              // After upload, re-fetch profile from server to get canonical avatar (data: URL)
+              fetch("/api/profile", { credentials: "include" })
+                .then((r) => r.json())
+                .then((result) => {
+                  if (result.success && result.user) {
+                    window.currentUser = result.user;
+                    // update UI immediately
+                    if (result.user.avatar) {
+                      let avatarUrl = result.user.avatar;
+                      const avatarDisplay =
+                        document.getElementById("avatarDisplay");
+                      avatarDisplay.style.backgroundImage = `url(${avatarUrl})`;
+                      avatarDisplay.style.backgroundSize = "cover";
+                      avatarDisplay.textContent = "";
+                    }
+                    showNotification(
+                      "تم تحديث الصورة الشخصية بنجاح!",
+                      "success"
+                    );
+                  } else {
+                    showNotification(
+                      "تم رفع الصورة لكن فشل تحديث الملف الشخصي.",
+                      "error"
+                    );
+                  }
+                })
+                .catch((err) => {
+                  console.error("Failed to refresh profile after upload", err);
+                  showNotification(
+                    "تم رفع الصورة لكن فشل تحديث الملف الشخصي. حاول إعادة تحميل الصفحة.",
+                    "error"
+                  );
+                });
+            })
+            .catch((err) => {
+              console.error("Upload error", err);
+              showNotification("فشل رفع الصورة. حاول مرة أخرى.", "error");
+            });
+        });
+      }
+
+      // إعداد مستمعي الأحداث للنماذج
+      function setupFormListeners() {
+        // نموذج المعلومات الشخصية -> إرسال إلى الخادم
+        document
+          .getElementById("personalInfoForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            const payload = {
+              firstName: document.getElementById("editFirstName").value,
+              lastName: document.getElementById("editLastName").value,
+              email: document.getElementById("editEmail").value,
+              phone: document.getElementById("editPhone").value,
+              country: document.getElementById("editCountry").value,
+              goal: document.getElementById("editGoal").value,
+            };
+
+            fetch("/api/profile", {
+              method: "PUT",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            })
+              .then((r) => r.json())
+              .then((resp) => {
+                if (!resp.success)
+                  throw new Error(resp.message || "Update failed");
+                // refresh UI by reloading profile
+                return fetch("/api/profile", { credentials: "include" });
+              })
+              .then((r) => r.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = data.user;
+                  showNotification(
+                    "تم حفظ المعلومات الشخصية بنجاح!",
+                    "success"
+                  );
+                }
+              })
+              .catch((err) => {
+                console.error("Profile update error", err);
+                showNotification(
+                  "فشل حفظ البيانات. تحقق وحاول مرة أخرى.",
+                  "error"
+                );
+              });
+          });
+
+        // نموذج الإعدادات
+        document
+          .getElementById("settingsForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            const currentPassword =
+              document.getElementById("currentPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+            const confirmNewPassword =
+              document.getElementById("confirmNewPassword").value;
+
+            if (newPassword && newPassword !== confirmNewPassword) {
+              showNotification("كلمتا المرور غير متطابقتين!", "error");
+              return;
+            }
+
+            if (newPassword) {
+              const payload = { currentPassword, newPassword };
+              fetch("/api/profile", {
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              })
+                .then((r) => r.json())
+                .then((resp) => {
+                  if (!resp.success)
+                    throw new Error(resp.message || "Password change failed");
+                  showNotification("تم تغيير كلمة المرور بنجاح", "success");
+                  document.getElementById("currentPassword").value = "";
+                  document.getElementById("newPassword").value = "";
+                  document.getElementById("confirmNewPassword").value = "";
+                })
+                .catch((err) => {
+                  console.error("Password change error", err);
+                  showNotification(
+                    "فشل تغيير كلمة المرور: " + (err.message || "خطأ"),
+                    "error"
+                  );
+                });
+            } else {
+              showNotification(
+                "لم تقم بإدخال كلمة مرور جديدة. لا يوجد شيء للتغيير.",
+                "info"
+              );
+            }
+          });
+
+        // زر حذف الحساب
+        document
+          .getElementById("deleteAccountBtn")
+          .addEventListener("click", function () {
+            // Set modal content for account deletion
+            document.querySelector("#confirmModal h3").textContent =
+              "هل أنت متأكد؟";
+            document.querySelector("#confirmModal p").textContent =
+              "سيتم حذف حسابك وكل بياناته نهائياً. هذا الإجراء لا يمكن التراجع عنه.";
+            document.querySelector("#confirmDelete").textContent = "حذف الحساب";
+
+            // Store delete type
+            document.getElementById("confirmModal").dataset.deleteType =
+              "account";
+
+            // open confirmation modal
+            const modal = document.getElementById("confirmModal");
+            modal.style.display = "flex";
+          });
+
+        // زر تسجيل الخروج
+        document
+          .getElementById("logoutBtn")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+
+            fetch("/api/logout", {
+              method: "POST",
+              credentials: "include",
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                  setTimeout(() => {
+                    window.location.href = "./login1.html";
+                  }, 1000);
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+      }
+
+      // Mobile menu functionality
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+      const mobileNavLinks = document.getElementById("mobileNavLinks");
+      const closeMobileMenu = document.getElementById("closeMobileMenu");
+      const mobileDropdownToggles = document.querySelectorAll(
+        ".mobile-dropdown-toggle"
+      );
+
+      // Open mobile menu
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", function () {
+          mobileMenuOverlay.classList.add("active");
+          mobileNavLinks.classList.add("active");
+          document.body.style.overflow = "hidden";
+        });
+      }
+
+      // Close mobile menu
+      if (closeMobileMenu) {
+        closeMobileMenu.addEventListener("click", function () {
+          mobileMenuOverlay.classList.remove("active");
+          mobileNavLinks.classList.remove("active");
+          document.body.style.overflow = "";
+        });
+      }
+
+      // Close mobile menu when clicking overlay
+      if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener("click", function () {
+          mobileMenuOverlay.classList.remove("active");
+          mobileNavLinks.classList.remove("active");
+          document.body.style.overflow = "";
+        });
+      }
+
+      // Mobile dropdown toggles
+      mobileDropdownToggles.forEach((toggle) => {
+        toggle.addEventListener("click", function (e) {
+          e.preventDefault();
+          const dropdown = this.parentElement;
+          const menu = dropdown.querySelector(".mobile-dropdown-menu");
+
+          // Close other dropdowns
+          document
+            .querySelectorAll(".mobile-dropdown")
+            .forEach((otherDropdown) => {
+              if (otherDropdown !== dropdown) {
+                otherDropdown.classList.remove("active");
+              }
+            });
+
+          // Toggle current dropdown
+          dropdown.classList.toggle("active");
+        });
+      });
+
+      // Mobile logout button
+      const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+      if (mobileLogoutBtn) {
+        mobileLogoutBtn.addEventListener("click", function () {
+          fetch("/api/logout", {
+            method: "POST",
+            credentials: "include",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                window.currentUser = null;
+
+                // Close mobile menu
+                mobileMenuOverlay.classList.remove("active");
+                mobileNavLinks.classList.remove("active");
+                document.body.style.overflow = "";
+
+                // Show logout notification
+                showNotification("تم تسجيل الخروج بنجاح!", "success");
+
+                // Redirect to login page after a short delay
+                setTimeout(() => {
+                  window.location.href = "./login1.html";
+                }, 1000);
+              } else {
+                showNotification("خطأ في تسجيل الخروج", "error");
+              }
+            })
+            .catch((error) => {
+              console.error("Logout error:", error);
+              showNotification("خطأ في تسجيل الخروج", "error");
+            });
+        });
+      }
+    </script>
+    <!-- Confirmation modal for destructive actions -->
+    <div
+      id="confirmModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 12px;
+          max-width: 480px;
+          width: 90%;
+          text-align: right;
+        "
+      >
+        <h3 style="margin-bottom: 8px; color: #111; font-size: 1.1rem">
+          هل أنت متأكد؟
+        </h3>
+        <p style="color: #444; margin-bottom: 16px">
+          سيتم حذف حسابك وكل بياناته نهائياً. هذا الإجراء لا يمكن التراجع عنه.
+        </p>
+        <div style="display: flex; gap: 8px; justify-content: flex-end">
+          <button
+            id="confirmCancel"
+            style="
+              background: #e5e7eb;
+              border: none;
+              padding: 8px 14px;
+              border-radius: 8px;
+            "
+          >
+            إلغاء
+          </button>
+          <button
+            id="confirmDelete"
+            style="
+              background: #ef4444;
+              color: #fff;
+              border: none;
+              padding: 8px 14px;
+              border-radius: 8px;
+            "
+          >
+            حذف الحساب
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // confirmation modal handlers
+      document
+        .getElementById("confirmCancel")
+        .addEventListener("click", function () {
+          document.getElementById("confirmModal").style.display = "none";
+        });
+      document
+        .getElementById("confirmDelete")
+        .addEventListener("click", async function () {
+          const modal = document.getElementById("confirmModal");
+          const deleteType = modal.dataset.deleteType;
+
+          modal.style.display = "none";
+
+          if (deleteType === "account") {
+            // Account deletion
+            fetch("/api/profile", {
+              method: "DELETE",
+              credentials: "include",
+            })
+              .then((r) => r.json())
+              .then((resp) => {
+                if (!resp.success)
+                  throw new Error(resp.message || "Delete failed");
+                // clear local data
+                window.currentUser = null;
+                showNotification(
+                  "تم حذف الحساب. سيتم تحويلك لصفحة تسجيل الدخول.",
+                  "success"
+                );
+                window.location.href = "./login1.html";
+              })
+              .catch((err) => {
+                console.error("Delete error", err);
+                showNotification(
+                  "فشل حذف الحساب: " + (err.message || "خطأ"),
+                  "error"
+                );
+              });
+          } else if (deleteType === "course") {
+            // Course progress deletion
+            const courseId = modal.dataset.courseId;
+            try {
+              const response = await fetch(`/api/course-progress/${courseId}`, {
+                method: "DELETE",
+                credentials: "include",
+              });
+
+              const data = await response.json();
+
+              if (
+                response.status === 401 ||
+                (data.success === false && data.message === "Not authenticated")
+              ) {
+                // Session expired, redirect to login
+                window.location.href = "login1.html";
+                return;
+              }
+
+              if (data.success) {
+                showNotification("تم حذف تقدم الكورس بنجاح", "success");
+                loadUserCourses(); // إعادة تحميل الكورسات
+              } else {
+                showNotification("فشل في حذف التقدم: " + data.message, "error");
+              }
+            } catch (error) {
+              console.error("Error deleting progress:", error);
+              showNotification("خطأ في حذف التقدم", "error");
+            }
+          }
+        });
+    </script>
+
+    <!-- AI Chat Modal -->
+    <div id="aiChatModal" class="ai-chat-modal">
+      <div class="ai-chat-container">
+        <div class="ai-chat-header">
+          <div class="ai-chat-title">
+            <i class="fas fa-robot"></i>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </div>
+          <button id="closeAiChat" class="close-ai-chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+              <p>كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة والدروس والتحديات وأي شيء آخر!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-area">
+          <textarea
+            id="aiChatInput"
+            class="ai-chat-input"
+            placeholder="اكتب رسالتك هنا..."
+            rows="1"
+          ></textarea>
+          <button id="sendAiMessage" class="send-ai-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* AI Chat Modal Styles */
+      .ai-chat-modal {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .ai-chat-modal.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .ai-chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .ai-chat-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .close-ai-chat {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .close-ai-chat:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .ai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+      }
+
+      .ai-message,
+      .user-message {
+        display: flex;
+        gap: 0.5rem;
+        animation: messageSlideIn 0.3s ease;
+      }
+
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .user-message .message-avatar {
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        order: 2;
+      }
+
+      .message-content {
+        max-width: 280px;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message .message-content {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+      }
+
+      .message-content p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ai-chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        border-radius: 0 0 15px 15px;
+      }
+
+      .ai-chat-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+      }
+
+      .ai-chat-input:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .send-ai-btn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .send-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .send-ai-btn:active {
+        transform: translateY(0);
+      }
+
+      /* AI Chat Floating Button */
+      .ai-chat-fab {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        margin-left: 1rem;
+      }
+
+      .ai-chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .ai-chat-modal {
+          width: calc(100% - 40px);
+          max-height: 70vh;
+        }
+
+        .message-content {
+          max-width: 200px;
+        }
+      }
+
+      /* RTL Support */
+      [dir="rtl"] .ai-chat-modal {
+        left: auto;
+        right: 20px;
+      }
+
+      [dir="rtl"] .ai-message {
+        flex-direction: row-reverse;
+      }
+
+      [dir="rtl"] .ai-chat-input-area {
+        direction: rtl;
+      }
+    </style>
+
+    <script>
+      // AI Chat Modal Functionality
+      (function () {
+        const aiChatModal = document.getElementById('aiChatModal');
+        const aiChatFab = document.getElementById('aiChatFab');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+
+        // Toggle chat modal
+        if (aiChatFab) {
+          aiChatFab.addEventListener('click', () => {
+            aiChatModal.classList.add('active');
+            aiChatInput.focus();
+          });
+        }
+
+        // Close chat modal
+        if (closeAiChat) {
+          closeAiChat.addEventListener('click', () => {
+            aiChatModal.classList.remove('active');
+          });
+        }
+
+        // Send message
+        const sendMessage = async () => {
+          const message = aiChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          addMessage(message, 'user');
+          aiChatInput.value = '';
+          aiChatInput.style.height = 'auto';
+
+          // Show typing indicator
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'ai-message';
+          typingDiv.innerHTML =
+            '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+          aiChatMessages.appendChild(typingDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+          try {
+            // Call AI helper API
+            const response = await fetch('/api/ai/helper', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: message,
+                type: 'general',
+              }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            if (data.success) {
+              addMessage(data.response, 'ai');
+            } else {
+              addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+          }
+        };
+
+        if (sendAiMessage) {
+          sendAiMessage.addEventListener('click', sendMessage);
+        }
+
+        if (aiChatInput) {
+          aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          aiChatInput.addEventListener('input', () => {
+            aiChatInput.style.height = 'auto';
+            aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 100) + 'px';
+          });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'message-avatar';
+          avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+          aiChatMessages.appendChild(messageDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+          };
+          return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+      })();
+    </script>
+  </body>
+</html>
+  </body>
+</html>

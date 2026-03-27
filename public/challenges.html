@@ -1,0 +1,3042 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>التحديات البرمجية - أكاديمية البرمجة المتكاملة</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      /* User Profile Dropdown */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        /* تم تغيير الخلفية الافتراضية إلى اللون الأبيض/الرمادي */
+        background: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+        /* إعدادات الصورة الرمزية */
+        background-size: cover;
+        background-position: center;
+        /* هذا مهم للتأكد من أن النص (الحرف الأول) يختفي عند تحميل الصورة */
+        text-indent: -9999px;
+        overflow: hidden;
+      }
+
+      /* **إضافة قاعدة جديدة لرمز الصورة المنسدلة الأكبر** */
+      .user-info .user-avatar-small {
+        width: 50px; /* جعلها أكبر قليلاً في القائمة المنسدلة */
+        height: 50px;
+        font-size: 1.2rem;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-left: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+        padding: 0.5rem 0;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .login-btn {
+        background-color: var(--accent);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+      }
+
+      .login-btn:hover {
+        background-color: #3ab0d9;
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        margin: 3px 0;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-dropdown-toggle:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-right: 1rem;
+      }
+
+      .mobile-dropdown-menu.active {
+        max-height: 500px;
+      }
+
+      .mobile-dropdown-menu a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+        text-decoration: none;
+        display: block;
+      }
+
+      .mobile-dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      /* User Profile Styles */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+        background-size: cover;
+        background-position: center;
+        text-indent: -9999px;
+        overflow: hidden;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* Mobile User Profile */
+      .user-profile-mobile {
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .user-info-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-info-mobile .user-avatar-small {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      /* Hero Section */
+      .hero-section {
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .hero-title {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .hero-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+
+      /* Stats Section */
+      .stats-section {
+        padding: 60px 0;
+        background-color: white;
+      }
+
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+      }
+
+      .stat-card {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 15px;
+        background: var(--light);
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+      }
+
+      .stat-label {
+        color: var(--gray);
+        font-weight: 500;
+      }
+
+      /* Challenges Section */
+      .challenges-section {
+        padding: 80px 0;
+        background-color: var(--light);
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--dark);
+        position: relative;
+      }
+
+      .section-title::after {
+        content: "";
+        position: absolute;
+        bottom: -10px;
+        right: 50%;
+        transform: translateX(50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 2px;
+      }
+
+      /* Filter Tabs */
+      .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        padding: 0.8rem 1.5rem;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .filter-tab:hover,
+      .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      /* Search Bar */
+      .search-container {
+        max-width: 600px;
+        margin: 0 auto 3rem;
+        position: relative;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 1rem 3rem 1rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: var(--transition);
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+      }
+
+      /* Challenges Grid */
+      .challenges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+      }
+
+      .challenge-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 350px;
+      }
+
+      .challenge-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .challenge-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .challenge-category {
+        display: inline-block;
+        background: #e2e8f0;
+        color: var(--dark);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .challenge-difficulty {
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .difficulty-easy {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+
+      .difficulty-medium {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      .difficulty-hard {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .completion-badge {
+        background: #dcfce7;
+        color: #16a34a;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .completion-badge i {
+        font-size: 0.9rem;
+      }
+
+      .completed-btn {
+        background: #16a34a !important;
+        color: white !important;
+      }
+
+      .completed-btn:hover {
+        background: #15803d !important;
+      }
+
+      .challenge-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .challenge-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
+
+      .challenge-description {
+        color: var(--gray);
+        line-height: 1.6;
+        margin: 0;
+        height: 80px;
+        overflow: hidden;
+        display: -webkit-box;
+        line-clamp: 4;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+      }
+
+      .challenge-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: var(--gray);
+        padding-top: 1rem;
+      }
+
+      .challenge-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .challenge-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+      }
+
+      .challenge-points {
+        background: var(--primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+      }
+
+      .btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.9rem;
+      }
+
+      .primary-btn {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .primary-btn:hover {
+        background-color: var(--secondary);
+        transform: translateY(-2px);
+      }
+
+      .secondary-btn {
+        background-color: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+      }
+
+      .secondary-btn:hover {
+        background-color: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      /* Progress Section */
+      .progress-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+      }
+
+      .progress-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .progress-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .progress-title {
+        font-size: 1.5rem;
+        color: var(--dark);
+      }
+
+      .progress-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .progress-stat {
+        text-align: center;
+        padding: 1.5rem;
+        background: var(--light);
+        border-radius: 10px;
+      }
+
+      .progress-label {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .progress-bar-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .progress-bar-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background: #e2e8f0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        border-radius: 5px;
+        transition: width 0.5s ease;
+      }
+
+      /* Leaderboard Section */
+      .leaderboard-section {
+        padding: 80px 0;
+        background-color: white;
+      }
+
+      .leaderboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .leaderboard-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+
+      .leaderboard-header {
+        background: var(--primary);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+      }
+
+      .leaderboard-title {
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      .leaderboard-list {
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .leaderboard-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: var(--transition);
+      }
+
+      .leaderboard-item:hover {
+        background: #f8fafc;
+      }
+
+      .leaderboard-rank {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--light);
+        border-radius: 50%;
+        font-weight: 700;
+        margin-left: 1rem;
+      }
+
+      .rank-1 {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      .rank-2 {
+        background: #e5e7eb;
+        color: #6b7280;
+      }
+
+      .rank-3 {
+        background: #fbcfe8;
+        color: #be185d;
+      }
+
+      .leaderboard-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .leaderboard-score {
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .challenges-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-tabs {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+
+        .challenge-footer {
+          flex-direction: row;
+          gap: 1rem;
+          align-items: center;
+        }
+
+        .challenge-footer .challenge-points {
+          flex-shrink: 0;
+          padding: 0.6rem 0.8rem;
+          min-width: fit-content;
+        }
+
+        .challenge-footer .btn {
+          flex: 1;
+          min-width: 0;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-section {
+          padding: 120px 0 60px;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .stats-container {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* Loading and No Challenges Messages */
+      .loading-message, .no-challenges {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray);
+        font-size: 1.1rem;
+      }
+ .loading-message i, .no-challenges i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        display: block;}
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      /* Warning Modal Styles */
+      .warning-modal-content {
+        max-width: 500px;
+      }
+
+      .warning-header {
+        background: var(--warning) !important;
+        gap: 0.5rem;
+      }
+
+      .warning-header h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .warning-body {
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .warning-body p {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        color: var(--dark);
+      }
+
+      .warning-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .warning-actions .btn {
+        padding: 0.8rem 2rem;
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        background: var(--primary);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+
+      .close-modal {
+        font-size: 2rem;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .close-modal:hover {
+        transform: scale(1.2);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .challenge-description {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Assistant Card Styles */
+      .assistant-card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        margin-top: 1rem;
+      }
+
+      .assistant-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .assistant-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .assistant-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .assistant-messages {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 10px;
+      }
+
+      .message {
+        margin-bottom: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        line-height: 1.5;
+      }
+
+      .message.assistant {
+        background: white;
+        border-right: 4px solid var(--primary);
+        margin-right: 2rem;
+      }
+
+      .message.user {
+        background: var(--primary);
+        color: white;
+        margin-left: 2rem;
+        text-align: right;
+      }
+
+      .message.verdict-yes {
+        border-right-color: var(--success);
+      }
+
+      .message.verdict-no {
+        border-right-color: var(--danger);
+      }
+
+      .assistant-input-container {
+        position: relative;
+        margin-top: 1rem;
+      }
+
+      .assistant-input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        resize: vertical;
+        transition: var(--transition);
+      }
+
+      .assistant-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      .assistant-send {
+        position: absolute;
+        left: 1rem;
+        bottom: 1rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .assistant-send:hover {
+        background: var(--secondary);
+        transform: scale(1.1);
+      }
+      /* Footer */
+      footer {
+        background: var(--dark);
+        color: white;
+        padding: 3rem 0 1.5rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent);
+        padding-right: 5px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .social-links a:hover {
+        background: var(--accent);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #334155;
+        color: #94a3b8;
+      }
+
+      /* Progress Section Enhancements */
+      .login-prompt {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 15px;
+        margin: 1rem 0;
+      }
+
+      .login-prompt-content h4 {
+        color: var(--primary);
+        margin: 1rem 0 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      .login-prompt-content p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+      }
+
+      .progress-loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--gray);
+      }
+
+      .progress-loading i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header & Navbar -->
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+          <button id="aiChatFab" class="ai-chat-fab" title="اطلب من الذكاء الاصطناعي">
+            <i class="fas fa-robot"></i>
+          </button>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.html?path=frontend">مسار Frontend Developer</a>
+              <a href="path.html?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li class="user-profile" id="userProfile" style="display: none">
+            <div class="user-avatar-small" id="userAvatarSmall">م</div>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar-small" id="dropdownAvatar">م</div>
+                <div>
+                  <div class="user-name" id="dropdownUserName"></div>
+                  <div class="user-email" id="dropdownUserEmail"></div>
+                </div>
+              </div>
+              <a
+                href="profile.html"
+                class="nav-link"
+                style="
+                  display: block;
+                  text-align: right;
+                  margin-bottom: 0.5rem;
+                  color: black;
+                  font-size: large;
+                "
+                ><i
+                  class="fas fa-user-circle profile-icon"
+                  style="margin-left: 10%"
+                ></i
+                >الملف الشخصي</a
+              >
+              <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+            </div>
+          </li>
+          <li id="loginButton">
+            <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="challenges.html" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.html?path=frontend">مسار Frontend Developer</a>
+            <a href="path.html?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li><a href="project.html" class="nav-link">التكليفات والمشاريع</a></li>
+        <li
+          class="user-profile-mobile"
+          id="userProfileMobile"
+          style="display: none"
+        >
+          <div class="user-info-mobile">
+            <div class="user-avatar-small" id="mobileAvatar"></div>
+            <div>
+              <div class="user-name" id="mobileUserName"></div>
+              <div class="user-email" id="mobileUserEmail"></div>
+            </div>
+          </div>
+          <a href="profile.html" class="nav-link">
+            <i class="fas fa-user-circle"></i> الملف الشخصي
+          </a>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+        <li id="loginButtonMobile">
+          <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">التحديات البرمجية</h1>
+          <p class="hero-description">
+            اختبر مهاراتك البرمجية وتحدى نفسك مع مجموعة متنوعة من التحديات
+            المصممة لتعزيز قدراتك في حل المشكلات
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="stat-number" id="totalChallenges">0</div>
+            <div class="stat-label">تحدي برمجي</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number" id="activeUsers">0</div>
+            <div class="stat-label">مبرمج نشط</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-number" id="totalCompletions">0</div>
+            <div class="stat-label">تحدي مكتمل</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-number" id="averageRating">0.0</div>
+            <div class="stat-label">تقييم المستخدمين</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Challenges Section -->
+    <section class="challenges-section">
+      <div class="container">
+        <h2 class="section-title">استكشف التحديات البرمجية</h2>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="ابحث عن تحدي برمجي..."
+          />
+          <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">
+            <i class="fas fa-th-large"></i>
+            الكل
+          </div>
+          <div class="filter-tab" data-filter="algorithms">
+            <i class="fas fa-brain"></i>
+            الخوارزميات
+          </div>
+          <div class="filter-tab" data-filter="data-structures">
+            <i class="fas fa-sitemap"></i>
+            هياكل البيانات
+          </div>
+          <div class="filter-tab" data-filter="web">
+            <i class="fas fa-globe"></i>
+            تطوير الويب
+          </div>
+          <div class="filter-tab" data-filter="database">
+            <i class="fas fa-database"></i>
+            قواعد البيانات
+          </div>
+          <div class="filter-tab" data-filter="completed">
+            <i class="fas fa-check-circle"></i>
+            المكتملة
+          </div>
+        </div>
+
+        <!-- Challenges Grid -->
+        <div class="challenges-grid" id="challengesGrid">
+          <!-- Challenges will be loaded dynamically -->
+          <div class="loading-message" id="loadingMessage">
+            <i class="fas fa-spinner fa-spin"></i> جاري تحميل التحديات...
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="progress-section">
+      <div class="container">
+        <div class="progress-container">
+          <div class="progress-card" id="progressCard">
+            <div class="progress-header">
+              <h3 class="progress-title">تقدمك في التحديات</h3>
+              <button class="btn secondary-btn" id="viewDetailsBtn">عرض التفاصيل</button>
+            </div>
+
+            <!-- Login Prompt for Guest Users -->
+            <div id="loginPrompt" class="login-prompt" style="display: none;">
+              <div class="login-prompt-content">
+                <i class="fas fa-user-circle"></i>
+                <h4>سجل دخولك لتتبع تقدمك</h4>
+                <p>احفظ إنجازاتك وعرض إحصائياتك الشخصية</p>
+                <a href="login1.html" class="btn primary-btn">تسجيل الدخول</a>
+              </div>
+            </div>
+
+            <!-- Progress Stats -->
+            <div id="progressStats" class="progress-stats">
+              <div class="progress-stat">
+                <div class="progress-label">التحديات المكتملة</div>
+                <div class="progress-value" id="completedChallenges">0</div>
+              </div>
+              <div class="progress-stat">
+                <div class="progress-label">إجمالي النقاط</div>
+                <div class="progress-value" id="totalPoints">0</div>
+              </div>
+              <div class="progress-stat">
+                <div class="progress-label">معدل النجاح</div>
+                <div class="progress-value" id="successRate">0%</div>
+              </div>
+            </div>
+
+            <!-- Category Progress Bars -->
+            <div id="categoryProgress" class="category-progress">
+              <!-- Progress bars will be loaded dynamically -->
+            </div>
+
+            <!-- Loading State -->
+            <div id="progressLoading" class="progress-loading" style="display: none;">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>جاري تحميل الإحصائيات...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard Section -->
+    <section class="leaderboard-section">
+      <div class="container">
+        <h2 class="section-title">لوحة المتصدرين</h2>
+
+        <div class="leaderboard-container">
+          <div class="leaderboard-card">
+            <div class="leaderboard-header">
+              <h3 class="leaderboard-title">أفضل المبرمجين هذا الأسبوع</h3>
+            </div>
+            <div class="leaderboard-list" id="leaderboardList">
+              <!-- Leaderboard items will be loaded dynamically -->
+              <div class="loading-message" id="leaderboardLoading">
+                <i class="fas fa-spinner fa-spin"></i> جاري تحميل لوحة المتصدرين...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Warning Modal for Completed Challenges -->
+    <div id="warningModal" class="modal" style="display: none;">
+      <div class="modal-content warning-modal-content">
+        <div class="modal-header warning-header">
+          <h3><i class="fas fa-exclamation-triangle"></i> تنبيه</h3>
+          <span class="close-modal" id="closeWarningModal">&times;</span>
+        </div>
+        <div class="modal-body warning-body">
+          <p>لقد أكملت هذا التحدي بالفعل. إعادة المحاولة لن تمنحك نقاط إضافية.</p>
+          <div class="warning-actions">
+            <button class="btn secondary-btn" id="cancelRedo">إلغاء</button>
+            <button class="btn primary-btn" id="confirmRedo">متابعة المحاولة</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Challenge Modal -->
+    <div id="challengeModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalChallengeTitle">التحدي البرمجي</h3>
+          <span class="close-modal" id="closeModal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="challenge-description" id="modalChallengeDescription"></div>
+          <div class="assistant-card">
+            <div class="assistant-header">
+              <div class="assistant-avatar">
+                <i class="fas fa-robot"></i>
+              </div>
+              <div class="assistant-title">المساعد الذكي</div>
+            </div>
+
+            <div class="assistant-messages" id="modalAssistantMessages">
+              <div class="message assistant">
+                اكتب كودك هنا وسأقوم بتحليله وإخبارك إذا كان صحيحاً أم لا.
+              </div>
+            </div>
+
+            <div class="assistant-input-container">
+              <textarea
+                class="assistant-input"
+                id="modalAssistantInput"
+                placeholder="ألصق الكود للتحليل..."
+                rows="6"
+              ></textarea>
+              <button class="assistant-send" id="modalAssistantSend">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-column">
+            <h3>عن الأكاديمية</h3>
+            <p>
+              نحن منصة تعليمية تهدف إلى تمكين الشباب العربي من تعلم البرمجة
+              وتطوير مهاراتهم التقنية لسوق العمل.
+            </p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook-f"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-column">
+            <h3>روابط سريعة</h3>
+            <ul class="footer-links">
+              <li><a href="index.html">الصفحة الرئيسية</a></li>
+              <li><a href="#">من نحن</a></li>
+              <li><a href="path.html">الكورسات</a></li>
+              <li><a href="#">المشاريع</a></li>
+              <li><a href="#">اتصل بنا</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>الكورسات</h3>
+            <ul class="footer-links">
+              <li><a href="path.html?path=basics">أساسيات البرمجة</a></li>
+              <li>
+                <a href="path.html?path=frontend">تطوير الواجهات الأمامية</a>
+              </li>
+              <li>
+                <a href="path.html?path=backend">تطوير الواجهات الخلفية</a>
+              </li>
+              <li><a href="#">تطوير تطبيقات الجوال</a></li>
+              <li><a href="#">علوم البيانات</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h3>اتصل بنا</h3>
+            <ul class="footer-links">
+              <li><i class="fas fa-map-marker-alt"></i> دمشق، سوريا</li>
+              <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+              <li>
+                <i class="fas fa-envelope"></i> info@programmingacademy.com
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
+        </div>
+      </div>
+    </footer>
+    <script src="login-modal.js"></script>
+    <script src="site-notification.js"></script>
+    <script>
+      // Global variables
+      let currentChallengeId = null;
+      let isRedoAttempt = false;
+      let pendingChallengeData = null;
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+      const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+      const mobileNavLinks = document.getElementById("mobileNavLinks");
+
+      function toggleMobileMenu() {
+        const isActive = mobileMenuBtn.classList.contains("active");
+        if (isActive) {
+          closeMobileMenuFunc();
+        } else {
+          openMobileMenu();
+        }
+      }
+
+      function openMobileMenu() {
+        mobileMenuBtn.classList.add("active");
+        mobileMenuOverlay.classList.add("active");
+        mobileNavLinks.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeMobileMenuFunc() {
+        mobileMenuBtn.classList.remove("active");
+        mobileMenuOverlay.classList.remove("active");
+        mobileNavLinks.classList.remove("active");
+        document.body.style.overflow = "auto";
+      }
+
+      mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+      mobileMenuOverlay.addEventListener("click", closeMobileMenuFunc);
+
+      // Mobile Dropdown Toggle
+      document.querySelectorAll(".mobile-dropdown-toggle").forEach((toggle) => {
+        toggle.addEventListener("click", function (e) {
+          e.preventDefault();
+          const menu = this.nextElementSibling;
+          const icon = this.querySelector("i");
+          menu.classList.toggle("active");
+          if (menu.classList.contains("active")) {
+            icon.classList.remove("fa-chevron-down");
+            icon.classList.add("fa-chevron-up");
+          } else {
+            icon.classList.remove("fa-chevron-up");
+            icon.classList.add("fa-chevron-down");
+          }
+        });
+      });
+
+      // User Interface Update
+      function updateUserInterface() {
+        const currentUser = window.currentUser;
+        const userProfile = document.getElementById("userProfile");
+        const loginButton = document.getElementById("loginButton");
+        const userProfileMobile = document.getElementById("userProfileMobile");
+        const loginButtonMobile = document.getElementById("loginButtonMobile");
+
+        if (currentUser) {
+          // Show user profile, hide login
+          userProfile.style.display = "flex";
+          loginButton.style.display = "none";
+          userProfileMobile.style.display = "block";
+          loginButtonMobile.style.display = "none";
+
+          // Set user info
+          const initial = currentUser.firstName
+            ? currentUser.firstName.charAt(0)
+            : currentUser.username
+            ? currentUser.username.charAt(0)
+            : "?";
+
+          const username = currentUser.username;
+
+          const email = currentUser.email || currentUser.username;
+
+          // Desktop
+          document.getElementById("dropdownUserName").textContent = username;
+          document.getElementById("dropdownUserEmail").textContent = email;
+
+          // Mobile
+          document.getElementById("mobileUserName").textContent = username;
+          document.getElementById("mobileUserEmail").textContent = email;
+
+          // Avatar
+          const avatars = ["userAvatarSmall", "dropdownAvatar", "mobileAvatar"];
+          avatars.forEach((id) => {
+            const avatar = document.getElementById(id);
+            if (
+              currentUser.avatar
+            ) {
+              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              avatar.textContent = "";
+            } else {
+              avatar.textContent = initial;
+              avatar.style.background =
+                "linear-gradient(135deg, var(--accent), var(--primary))";
+              avatar.style.backgroundImage = "none";
+            }
+          });
+        } else {
+          // Hide user profile, show login
+          userProfile.style.display = "none";
+          loginButton.style.display = "block";
+          userProfileMobile.style.display = "none";
+          loginButtonMobile.style.display = "block";
+        }
+      }
+
+      // Logout
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", function () {
+          fetch('/api/logout', { method: 'POST', credentials: 'include' })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.currentUser = null;
+                      updateUserInterface();
+                      showNotification("تم تسجيل الخروج بنجاح!", "success");
+                  } else {
+                      showNotification("خطأ في تسجيل الخروج", "error");
+                  }
+              })
+              .catch(error => {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+              });
+        });
+
+      document
+        .getElementById("mobileLogoutBtn")
+        .addEventListener("click", function () {
+          closeMobileMenuFunc(); // Close menu first
+          fetch('/api/logout', { method: 'POST', credentials: 'include' })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      window.currentUser = null;
+                      updateUserInterface();
+                      showNotification("تم تسجيل الخروج بنجاح!", "success");
+                  } else {
+                      showNotification("خطأ في تسجيل الخروج", "error");
+                  }
+              })
+              .catch(error => {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+              });
+        });
+
+      // Dropdown hover functionality
+      const userProfile = document.getElementById("userProfile");
+      const userDropdown = document.querySelector(".user-dropdown");
+      let dropdownTimeout;
+
+      function showDropdown() {
+        clearTimeout(dropdownTimeout);
+        if (userDropdown) {
+          userDropdown.style.opacity = "1";
+          userDropdown.style.visibility = "visible";
+          userDropdown.style.transform = "translateY(0)";
+        }
+      }
+
+      function hideDropdown() {
+        dropdownTimeout = setTimeout(() => {
+          if (userDropdown) {
+            userDropdown.style.opacity = "0";
+            userDropdown.style.visibility = "hidden";
+            userDropdown.style.transform = "translateY(0)";
+          }
+        }, 150); // Small delay to allow moving between elements
+      }
+
+      if (userProfile) {
+        userProfile.addEventListener("mouseenter", showDropdown);
+        userProfile.addEventListener("mouseleave", hideDropdown);
+      }
+
+      if (userDropdown) {
+        userDropdown.addEventListener("mouseenter", showDropdown);
+        userDropdown.addEventListener("mouseleave", hideDropdown);
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch user status first
+        fetch('/api/user/status', { credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.user) {
+                    window.currentUser = data.user;
+                } else {
+                    window.currentUser = null;
+                }
+                updateUserInterface();
+                loadChallenges(); // Load challenges dynamically
+                loadUserProgress(); // Load user progress
+                loadPlatformStats(); // Load platform statistics
+                loadLeaderboard(); // Load leaderboard data
+            })
+            .catch(error => {
+                window.currentUser = null;
+                updateUserInterface();
+                loadChallenges(); // Load challenges dynamically
+                loadUserProgress(); // Load user progress
+                loadPlatformStats(); // Load platform statistics
+                loadLeaderboard(); // Load leaderboard data
+            });
+
+        // Modal event listeners
+        document.getElementById("closeModal").addEventListener("click", closeChallengeModal);
+        document.getElementById("challengeModal").addEventListener("click", function(e) {
+          if (e.target === this) {
+            closeChallengeModal();
+          }
+        });
+        document.getElementById("modalAssistantSend").addEventListener("click", sendModalCode);
+        document.getElementById("modalAssistantInput").addEventListener("keypress", function(e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendModalCode();
+          }
+        });
+
+        // Warning modal event listeners
+        document.getElementById("closeWarningModal").addEventListener("click", closeWarningModal);
+        document.getElementById("warningModal").addEventListener("click", function(e) {
+          if (e.target === this) {
+            closeWarningModal();
+          }
+        });
+        document.getElementById("cancelRedo").addEventListener("click", closeWarningModal);
+        document.getElementById("confirmRedo").addEventListener("click", function() {
+          if (pendingChallengeData && pendingChallengeData.challengeId) {
+            // Extract data BEFORE closing modal (which clears pendingChallengeData)
+            const { challengeId, title, description } = pendingChallengeData;
+            closeWarningModal();
+            openChallengeModal(challengeId, title, description, true);
+          }
+        });
+      });
+
+      // Load challenges from API
+      async function loadChallenges() {
+        const loadingMessage = document.getElementById("loadingMessage");
+        const challengesGrid = document.getElementById("challengesGrid");
+
+        try {
+          const response = await fetch("/api/challenges", {
+            credentials: 'include'
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            displayChallenges(data.challenges);
+          } else {
+            showNotification(data.message || "فشل في تحميل التحديات", "error");
+            loadingMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في تحميل التحديات';
+          }
+        } catch (error) {
+          showNotification("حدث خطأ في الاتصال", "error");
+          loadingMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في تحميل التحديات';
+        }
+      }
+
+      // Load user progress
+      async function loadUserProgress() {
+        const progressCard = document.getElementById("progressCard");
+        const loginPrompt = document.getElementById("loginPrompt");
+        const progressStats = document.getElementById("progressStats");
+        const categoryProgress = document.getElementById("categoryProgress");
+        const progressLoading = document.getElementById("progressLoading");
+
+        // Show loading
+        progressLoading.style.display = "block";
+        loginPrompt.style.display = "none";
+        progressStats.style.display = "none";
+        categoryProgress.style.display = "none";
+
+        try {
+          const response = await fetch("/api/user-challenge-progress", {
+            credentials: 'include'
+          });
+          const data = await response.json();
+
+          progressLoading.style.display = "none";
+
+          if (data.success) {
+            displayUserProgress(data);
+          } else if (data.showLogin) {
+            // Show login prompt for guest users
+            loginPrompt.style.display = "block";
+          } else {
+            showNotification(data.message || "فشل في تحميل الإحصائيات", "error");
+          }
+        } catch (error) {
+          progressLoading.style.display = "none";
+          showNotification("حدث خطأ في الاتصال", "error");
+        }
+      }
+
+      // Load platform statistics
+      async function loadPlatformStats() {
+        try {
+          const response = await fetch("/api/challenge-stats");
+          const data = await response.json();
+
+          if (data.success) {
+            displayPlatformStats(data.stats);
+          } else {
+            // Keep default values if API fails
+          }
+        } catch (error) {
+          // Keep default values if API fails
+        }
+      }
+
+      // Display platform statistics
+      function displayPlatformStats(stats) {
+        // Update the stat numbers with real data
+        document.getElementById("totalChallenges").textContent = stats.total_challenges || 0;
+        document.getElementById("activeUsers").textContent = (stats.active_users || 0).toLocaleString();
+        document.getElementById("totalCompletions").textContent = (stats.total_completions || 0).toLocaleString();
+        document.getElementById("averageRating").textContent = stats.average_rating || 0.0;
+      }
+
+      // Load leaderboard from API
+      async function loadLeaderboard() {
+        const leaderboardList = document.getElementById("leaderboardList");
+        const loadingMessage = document.getElementById("leaderboardLoading");
+
+        try {
+          const response = await fetch("/api/leaderboard");
+          const data = await response.json();
+
+          if (data.success) {
+            displayLeaderboard(data.leaderboard);
+          } else {
+            showNotification("حدث خطأ في تحميل لوحة المتصدرين", "error");
+            loadingMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في تحميل لوحة المتصدرين';
+          }
+        } catch (error) {
+          showNotification("حدث خطأ في الاتصال", "error");
+          loadingMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في تحميل لوحة المتصدرين';
+        }
+      }
+
+      // Display leaderboard
+      function displayLeaderboard(leaderboard) {
+        const leaderboardList = document.getElementById("leaderboardList");
+
+        if (!leaderboard || leaderboard.length === 0) {
+          leaderboardList.innerHTML = '<div class="no-challenges"><i class="fas fa-trophy"></i> لا توجد بيانات متاحة حالياً</div>';
+          return;
+        }
+
+        let leaderboardHTML = '';
+
+        leaderboard.forEach((user) => {
+          const rankClass = user.rank <= 3 ? `rank-${user.rank}` : '';
+          const pointsFormatted = user.points.toLocaleString();
+
+          leaderboardHTML += `
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank ${rankClass}">${user.rank}</div>
+              <div class="leaderboard-user">
+                <div class="user-avatar">${user.avatar_letter}</div>
+                <div class="user-name">${user.name}</div>
+              </div>
+              <div class="leaderboard-score">${pointsFormatted} نقطة</div>
+            </div>
+          `;
+        });
+
+        leaderboardList.innerHTML = leaderboardHTML;
+      }
+
+      // Display user progress
+      function displayUserProgress(data) {
+        const progressStats = document.getElementById("progressStats");
+        const categoryProgress = document.getElementById("categoryProgress");
+
+        // Show stats section
+        progressStats.style.display = "grid";
+
+        // Update overall stats
+        document.getElementById("completedChallenges").textContent = data.stats.completed_challenges || 0;
+        document.getElementById("totalPoints").textContent = (data.stats.total_points || 0).toLocaleString();
+        document.getElementById("successRate").textContent = (data.stats.success_rate || 0) + "%";
+
+        // Clear and populate category progress
+        categoryProgress.innerHTML = "";
+        categoryProgress.style.display = "block";
+
+        if (data.categories && data.categories.length > 0) {
+          data.categories.forEach(category => {
+            const progressContainer = document.createElement("div");
+            progressContainer.className = "progress-bar-container";
+
+            progressContainer.innerHTML = `
+              <div class="progress-bar-label">
+                <span>${category.category_name}</span>
+                <span>${category.completed_in_category || 0}/${category.total_in_category || 0}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: ${category.progress_percentage || 0}%"></div>
+              </div>
+            `;
+
+            categoryProgress.appendChild(progressContainer);
+          });
+        }
+      }
+
+      // Display challenges
+      function displayChallenges(challenges) {
+        const challengesGrid = document.getElementById("challengesGrid");
+        const loadingMessage = document.getElementById("loadingMessage");
+
+        // Remove loading message
+        if (loadingMessage) {
+          loadingMessage.remove();
+        }
+
+        if (challenges.length === 0) {
+          challengesGrid.innerHTML = '<div class="no-challenges"><i class="fas fa-info-circle"></i> لا توجد تحديات متاحة حالياً</div>';
+          return;
+        }
+
+        // Clear existing content
+        challengesGrid.innerHTML = '';
+
+        // Create challenge cards
+        challenges.forEach(challenge => {
+          const card = createChallengeCard(challenge);
+          challengesGrid.appendChild(card);
+        });
+
+        // Re-attach event listeners for new buttons
+        attachChallengeButtonListeners();
+
+        // Reapply current filter after loading challenges
+        const currentFilter = getCurrentFilter();
+        applyFilter(currentFilter);
+      }
+
+      // Create challenge card element
+      function createChallengeCard(challenge) {
+        const card = document.createElement('div');
+        card.className = 'challenge-card';
+        card.setAttribute('data-category', challenge.category);
+        card.setAttribute('data-completed', challenge.user_completed || 0);
+
+        // Map categories to Arabic
+        const categoryMap = {
+          'algorithms': 'الخوارزميات',
+          'data-structures': 'هياكل البيانات',
+          'web': 'تطوير الويب',
+          'database': 'قواعد البيانات'
+        };
+
+        // Map difficulty to Arabic and CSS class
+        const difficultyMap = {
+          'easy': { text: 'سهل', class: 'difficulty-easy' },
+          'medium': { text: 'متوسط', class: 'difficulty-medium' },
+          'hard': { text: 'صعب', class: 'difficulty-hard' }
+        };
+
+        const categoryText = categoryMap[challenge.category] || challenge.category;
+        const difficulty = difficultyMap[challenge.difficulty] || { text: challenge.difficulty, class: '' };
+        const isCompleted = challenge.user_completed == 1;
+
+        card.innerHTML = `
+          <div class="challenge-header">
+            <span class="challenge-category">${categoryText}</span>
+            <span class="challenge-difficulty ${difficulty.class}">${difficulty.text}</span>
+            ${isCompleted ? '<span class="completion-badge"><i class="fas fa-check-circle"></i> مكتمل</span>' : ''}
+          </div>
+          <div class="challenge-body">
+            <div class="challenge-content">
+              <h3 class="challenge-title">${challenge.title}</h3>
+              <p class="challenge-description">${challenge.description}</p>
+            </div>
+            <div class="challenge-stats">
+              <div class="challenge-stat">
+                <i class="fas fa-users"></i>
+                <span>${challenge.total_attempts || 0} محاولة</span>
+              </div>
+              <div class="challenge-stat">
+                <i class="fas fa-check-circle"></i>
+                <span>${calculateSuccessRate(challenge.total_attempts || 0, challenge.total_completions || 0)} نجاح</span>
+              </div>
+            </div>
+            <div class="challenge-footer">
+              <span class="challenge-points">${challenge.points} نقطة</span>
+              <button class="btn primary-btn ${isCompleted ? 'completed-btn' : ''}" data-challenge-id="${challenge.id}">
+                ${isCompleted ? '<i class="fas fa-redo"></i> أعد المحاولة' : 'ابدأ التحدي'}
+              </button>
+            </div>
+          </div>
+        `;
+
+        return card;
+      }
+
+      // Open challenge modal
+      function openChallengeModal(challengeId, title, description, isRedo = false) {
+        currentChallengeId = challengeId;
+        isRedoAttempt = isRedo;
+        document.getElementById("modalChallengeTitle").textContent = title;
+        document.getElementById("modalChallengeDescription").textContent = description;
+
+        // Clear previous messages
+        const messagesContainer = document.getElementById("modalAssistantMessages");
+        const initialMessage = isRedo
+          ? 'اكتب كودك هنا وسأقوم بتحليله. ملاحظة: إعادة المحاولة لن تمنحك نقاط إضافية.'
+          : 'اكتب كودك هنا وسأقوم بتحليله وإخبارك إذا كان صحيحاً أم لا.';
+        messagesContainer.innerHTML = `<div class="message assistant">${initialMessage}</div>`;
+
+        // Clear input
+        document.getElementById("modalAssistantInput").value = "";
+
+        // Show modal
+        document.getElementById("challengeModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      // Close challenge modal
+      function closeChallengeModal() {
+        document.getElementById("challengeModal").style.display = "none";
+        document.body.style.overflow = "auto";
+        currentChallengeId = null;
+        isRedoAttempt = false;
+      }
+
+      // Show warning modal for completed challenges
+      function showWarningModal(challengeId, title, description) {
+        pendingChallengeData = { challengeId, title, description };
+        document.getElementById("warningModal").style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      // Close warning modal
+      function closeWarningModal() {
+        document.getElementById("warningModal").style.display = "none";
+        document.body.style.overflow = "auto";
+        pendingChallengeData = null;
+      }
+
+      // Add message to modal
+      function addModalMessage(text, sender, opts = {}) {
+        const messagesContainer = document.getElementById("modalAssistantMessages");
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", sender);
+        if (opts && opts.verdict) {
+          messageDiv.classList.add(`verdict-${opts.verdict}`);
+        }
+        messageDiv.textContent = text;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // Send code for analysis in modal
+      async function sendModalCode() {
+        const codeInput = document.getElementById("modalAssistantInput");
+        const code = codeInput.value.trim();
+        if (code === "" || !currentChallengeId) return;
+
+        addModalMessage(code, "user");
+        codeInput.value = "";
+
+        addModalMessage("جارٍ التحليل...", "assistant");
+
+        try {
+          const response = await fetch("/api/ai/helper-challenges", {
+            method: "POST",
+            credentials: 'include',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode: "verify",
+              challenge_id: currentChallengeId,
+              code: code,
+              is_redo: isRedoAttempt,
+            }),
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            if (data.verdict) {
+              addModalMessage(data.ai_response, "assistant", { verdict: data.verdict });
+              if (data.verdict === "yes") {
+                const successMessage = isRedoAttempt
+                  ? "مبروك! الحل صحيح"
+                  : "مبروك! تم إكمال التحدي بنجاح";
+                showNotification(successMessage, "success");
+                // Only refresh if it's not a redo attempt
+                if (!isRedoAttempt) {
+                  setTimeout(() => {
+                    loadChallenges();
+                    loadUserProgress();
+                  }, 1000);
+                }
+              }
+            } else {
+              addModalMessage(data.ai_response, "assistant");
+            }
+
+            // Debug output (removed console logging)
+          } else {
+            addModalMessage(data.message || "تعذر الحصول على رد من المساعد.", "assistant");
+          }
+        } catch (error) {
+          addModalMessage("حدث خطأ أثناء الاتصال بالمساعد.", "assistant");
+        }
+      }
+
+      // Attach event listeners to challenge buttons
+      function attachChallengeButtonListeners() {
+        document.querySelectorAll(".challenge-card .primary-btn").forEach((button) => {
+          button.addEventListener("click", function () {
+            const challengeId = this.getAttribute("data-challenge-id");
+            const challengeCard = this.closest(".challenge-card");
+
+            if (!challengeCard) return; // Safety check
+
+            const challengeTitle = challengeCard.querySelector(".challenge-title").textContent;
+            const challengeDescription = challengeCard.querySelector(".challenge-description").textContent;
+            const isCompleted = this.classList.contains('completed-btn');
+
+            // Check if user is logged in
+            if (!window.currentUser) {
+              showLoginModal({
+                message: 'يجب عليك تسجيل الدخول للمشاركة في التحديات البرمجية.'
+              });
+              return;
+            }
+
+            // If challenge is completed, show warning modal
+            if (isCompleted) {
+              showWarningModal(challengeId, challengeTitle, challengeDescription);
+            } else {
+              openChallengeModal(challengeId, challengeTitle, challengeDescription);
+            }
+          });
+        });
+      }
+
+
+
+      // Calculate success rate percentage
+      function calculateSuccessRate(totalAttempts, totalCompletions) {
+        if (totalAttempts === 0) return '0%';
+        const rate = Math.round((totalCompletions / totalAttempts) * 100);
+        return rate + '%';
+      }
+
+      // View Details Button
+      document.getElementById("viewDetailsBtn").addEventListener("click", function() {
+        showNotification("قريباً - صفحة تفصيلية للإحصائيات", "info");
+      });
+      // تصفية التحديات حسب الفئة
+      document.querySelectorAll(".filter-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          // إزالة النشاط من جميع الألسنة
+          document.querySelectorAll(".filter-tab").forEach((t) => {
+            t.classList.remove("active");
+          });
+
+          // إضافة النشاط للسان المحدد
+          this.classList.add("active");
+
+          const filter = this.getAttribute("data-filter");
+          applyFilter(filter);
+        });
+      });
+
+      // Function to apply filter to challenges
+      function applyFilter(filter) {
+        const challenges = document.querySelectorAll(".challenge-card");
+
+        challenges.forEach((challenge) => {
+          const challengeCategory = challenge.getAttribute("data-category");
+          const isCompleted = challenge.getAttribute("data-completed") === "1";
+
+          let shouldShow = false;
+
+          if (filter === "all") {
+            shouldShow = true;
+          } else if (filter === "completed") {
+            shouldShow = isCompleted;
+          } else {
+            shouldShow = challengeCategory === filter;
+          }
+
+          challenge.style.display = shouldShow ? "block" : "none";
+        });
+      }
+
+      // Function to get current active filter
+      function getCurrentFilter() {
+        const activeTab = document.querySelector(".filter-tab.active");
+        return activeTab ? activeTab.getAttribute("data-filter") : "all";
+      }
+
+      // البحث في التحديات
+      const searchInput = document.querySelector(".search-input");
+      searchInput.addEventListener("input", function () {
+        const searchTerm = this.value.toLowerCase();
+        const challenges = document.querySelectorAll(".challenge-card");
+        const currentFilter = getCurrentFilter();
+
+        challenges.forEach((challenge) => {
+          const title = challenge
+            .querySelector(".challenge-title")
+            .textContent.toLowerCase();
+          const description = challenge
+            .querySelector(".challenge-description")
+            .textContent.toLowerCase();
+          const category = challenge
+            .querySelector(".challenge-category")
+            .textContent.toLowerCase();
+          const challengeCategory = challenge.getAttribute("data-category");
+
+          // Check if challenge matches search term
+          const matchesSearch = searchTerm === "" ||
+            title.includes(searchTerm) ||
+            description.includes(searchTerm) ||
+            category.includes(searchTerm);
+
+          // Check if challenge matches current filter
+          const isCompleted = challenge.getAttribute("data-completed") === "1";
+          let matchesFilter = false;
+
+          if (currentFilter === "all") {
+            matchesFilter = true;
+          } else if (currentFilter === "completed") {
+            matchesFilter = isCompleted;
+          } else {
+            matchesFilter = challengeCategory === currentFilter;
+          }
+
+          // Show challenge only if it matches both search and filter
+          if (matchesSearch && matchesFilter) {
+            challenge.style.display = "block";
+          } else {
+            challenge.style.display = "none";
+          }
+        });
+      });
+    </script>
+
+    <!-- AI Chat Modal -->
+    <div id="aiChatModal" class="ai-chat-modal">
+      <div class="ai-chat-container">
+        <div class="ai-chat-header">
+          <div class="ai-chat-title">
+            <i class="fas fa-robot"></i>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </div>
+          <button id="closeAiChat" class="close-ai-chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+              <p>كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة والدروس والتحديات وأي شيء آخر!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-area">
+          <textarea
+            id="aiChatInput"
+            class="ai-chat-input"
+            placeholder="اكتب رسالتك هنا..."
+            rows="1"
+          ></textarea>
+          <button id="sendAiMessage" class="send-ai-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* AI Chat Modal Styles */
+      .ai-chat-modal {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .ai-chat-modal.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .ai-chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .ai-chat-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .close-ai-chat {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .close-ai-chat:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .ai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+      }
+
+      .ai-message,
+      .user-message {
+        display: flex;
+        gap: 0.5rem;
+        animation: messageSlideIn 0.3s ease;
+      }
+
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .user-message .message-avatar {
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        order: 2;
+      }
+
+      .message-content {
+        max-width: 280px;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message .message-content {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+      }
+
+      .message-content p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ai-chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        border-radius: 0 0 15px 15px;
+      }
+
+      .ai-chat-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+      }
+
+      .ai-chat-input:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .send-ai-btn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .send-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .send-ai-btn:active {
+        transform: translateY(0);
+      }
+
+      /* AI Chat Floating Button */
+      .ai-chat-fab {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        margin-left: 1rem;
+      }
+
+      .ai-chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .ai-chat-modal {
+          width: calc(100% - 40px);
+          max-height: 70vh;
+        }
+
+        .message-content {
+          max-width: 200px;
+        }
+      }
+
+      /* RTL Support */
+      [dir="rtl"] .ai-chat-modal {
+        left: auto;
+        right: 20px;
+      }
+
+      [dir="rtl"] .ai-message {
+        flex-direction: row-reverse;
+      }
+
+      [dir="rtl"] .ai-chat-input-area {
+        direction: rtl;
+      }
+    </style>
+
+    <script>
+      // AI Chat Modal Functionality
+      (function () {
+        const aiChatModal = document.getElementById('aiChatModal');
+        const aiChatFab = document.getElementById('aiChatFab');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+
+        // Toggle chat modal
+        if (aiChatFab) {
+          aiChatFab.addEventListener('click', () => {
+            aiChatModal.classList.add('active');
+            aiChatInput.focus();
+          });
+        }
+
+        // Close chat modal
+        if (closeAiChat) {
+          closeAiChat.addEventListener('click', () => {
+            aiChatModal.classList.remove('active');
+          });
+        }
+
+        // Send message
+        const sendMessage = async () => {
+          const message = aiChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          addMessage(message, 'user');
+          aiChatInput.value = '';
+          aiChatInput.style.height = 'auto';
+
+          // Show typing indicator
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'ai-message';
+          typingDiv.innerHTML =
+            '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+          aiChatMessages.appendChild(typingDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+          try {
+            // Call AI helper API
+            const response = await fetch('/api/ai/helper', {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: message,
+                type: 'general',
+              }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            if (data.success) {
+              addMessage(data.response, 'ai');
+            } else {
+              addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+          }
+        };
+
+        if (sendAiMessage) {
+          sendAiMessage.addEventListener('click', sendMessage);
+        }
+
+        if (aiChatInput) {
+          aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          aiChatInput.addEventListener('input', () => {
+            aiChatInput.style.height = 'auto';
+            aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 100) + 'px';
+          });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'message-avatar';
+          avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+          aiChatMessages.appendChild(messageDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+          };
+          return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+      })();
+    </script>
+  </body>
+</html>
+  </body>
+</html>

@@ -35,10 +35,7 @@ class AuthController extends Controller
         $request->session()->put('roles', $roles);
 
         // Build avatar
-        $avatar = null;
-        if (!empty($user->avatar_data)) {
-            $avatar = 'data:' . $user->avatar_mime_type . ';base64,' . base64_encode($user->avatar_data);
-        }
+        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         return response()->json([
             'success'   => true,
@@ -145,15 +142,18 @@ class AuthController extends Controller
             ['token' => $token, 'expires_at' => $expiresAt]
         );
 
-        // Send password reset email (best-effort via PHP mail)
-        $resetLink = 'http://localhost/programming-academy/reset-password.html?token=' . $token;
+        // Send password reset email via configured mailer (Gmail SMTP)
+        $resetLink = config('app.url') . '/reset-password.html?token=' . $token;
         $subject   = 'إعادة تعيين كلمة المرور - أكاديمية البرمجة';
         $body      = "مرحباً،\n\nلقد طلبت إعادة تعيين كلمة المرور لحسابك في أكاديمية البرمجة.\n\n"
                    . "انقر على الرابط التالي لإعادة تعيين كلمة المرور:\n{$resetLink}\n\n"
                    . "هذا الرابط صالح لمدة ساعتين.\n\nإذا لم تطلب هذا، يرجى تجاهل هذا البريد.\n\n"
                    . "مع خالص التحية،\nفريق أكاديمية البرمجة";
-        $headers   = "From: no-reply@programming-academy.com\r\nContent-Type: text/plain; charset=UTF-8\r\n";
-        @mail($email, $subject, $body, $headers);
+
+        Mail::raw($body, function ($message) use ($email, $subject) {
+            $message->to($email)
+                    ->subject($subject);
+        });
 
         return response()->json(['success' => true, 'message' => 'تم إرسال رابط إعادة تعيين كلمة المرور.']);
     }

@@ -1,0 +1,2650 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>أكاديمية البرمجة المتكاملة</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <style>
+            :root {
+                --primary: #4361ee;
+                --secondary: #3a0ca3;
+                --accent: #4cc9f0;
+                --success: #4ade80;
+                --warning: #f59e0b;
+                --danger: #ef4444;
+                --dark: #1e293b;
+                --light: #f8fafc;
+                --gray: #64748b;
+                --card-bg: #ffffff;
+                --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                --transition: all 0.3s ease;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                background-color: var(--light);
+                color: var(--dark);
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+            /* User Profile Dropdown */
+            .user-profile {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+            }
+
+            .user-avatar-small {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                /* تم تغيير الخلفية الافتراضية إلى اللون الأبيض/الرمادي */
+                background: #ccc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                border: 2px solid white;
+                /* إعدادات الصورة الرمزية */
+                background-size: cover;
+                background-position: center;
+                /* هذا مهم للتأكد من أن النص (الحرف الأول) يختفي عند تحميل الصورة */
+                text-indent: -9999px;
+                overflow: hidden;
+            }
+
+            /* **إضافة قاعدة جديدة لرمز الصورة المنسدلة الأكبر** */
+            .user-info .user-avatar-small {
+                width: 50px; /* جعلها أكبر قليلاً في القائمة المنسدلة */
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .user-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: white;
+                min-width: 200px;
+                box-shadow: var(--shadow);
+                border-radius: 10px;
+                padding: 1rem;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: var(--transition);
+                z-index: 1000;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #eee;
+                margin-bottom: 0.5rem;
+            }
+
+            .user-name {
+                font-weight: 600;
+                color: var(--dark);
+            }
+
+            .user-email {
+                font-size: 0.8rem;
+                color: var(--gray);
+            }
+
+            .logout-btn {
+                background: var(--danger);
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: var(--transition);
+                margin-left: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .logout-btn:hover {
+                background: #dc2626;
+            }
+
+            /* Header & Navbar */
+            header {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+                color: white;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 1000;
+                box-shadow: var(--shadow);
+            }
+
+            .navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 2rem;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .logo-img {
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(
+                    45deg,
+                    var(--accent),
+                    var(--primary)
+                );
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.5rem;
+                animation: rotate 10s linear infinite;
+            }
+
+            @keyframes rotate {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+                white-space: nowrap;
+            }
+
+            .nav-links {
+                display: flex;
+                list-style: none;
+                gap: 1.5rem;
+            }
+
+            .nav-link {
+                color: white;
+                text-decoration: none;
+                font-weight: 500;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                transition: var(--transition);
+                position: relative;
+            }
+
+            .nav-link:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .dropdown {
+                position: relative;
+            }
+
+            .dropdown-menu {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                min-width: 200px;
+                box-shadow: var(--shadow);
+                border-radius: 8px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: var(--transition);
+                z-index: 100;
+                padding: 0.5rem 0;
+            }
+
+            .dropdown:hover .dropdown-menu {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .dropdown-menu a {
+                display: block;
+                padding: 0.8rem 1rem;
+                color: var(--dark);
+                text-decoration: none;
+                border-bottom: 1px solid #eee;
+                transition: var(--transition);
+            }
+
+            .dropdown-menu a:hover {
+                background-color: #f5f5f5;
+                color: var(--primary);
+            }
+
+            .dropdown-menu a:last-child {
+                border-bottom: none;
+            }
+
+            .login-btn {
+                background-color: var(--accent);
+                border-radius: 50px;
+                padding: 0.5rem 1.5rem;
+            }
+
+            .login-btn:hover {
+                background-color: #3ab0d9;
+            }
+
+            .mobile-menu-btn {
+                display: none;
+                flex-direction: column;
+                cursor: pointer;
+                z-index: 1001;
+            }
+
+            .mobile-menu-btn span {
+                width: 25px;
+                height: 3px;
+                background: white;
+                margin: 3px 0;
+                transition: var(--transition);
+            }
+
+            .mobile-menu-btn.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .mobile-menu-btn.active span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-btn.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(7px, -6px);
+            }
+
+            /* Mobile Menu Overlay */
+            .mobile-menu-overlay {
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+            }
+
+            .mobile-menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .mobile-nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100%;
+                background: white;
+                padding: 2rem;
+                overflow-y: auto;
+                transition: var(--transition);
+                z-index: 1000;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .mobile-nav-links.active {
+                right: 0;
+            }
+
+            .mobile-nav-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid #eee;
+            }
+
+            .mobile-nav-header h2 {
+                color: var(--primary);
+            }
+
+            .close-mobile-menu {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: var(--dark);
+                cursor: pointer;
+            }
+
+            .mobile-nav-links ul {
+                list-style: none;
+            }
+
+            .mobile-nav-links li {
+                margin-bottom: 1rem;
+            }
+
+            .mobile-nav-links a {
+                display: block;
+                padding: 0.8rem 1rem;
+                color: var(--dark);
+                text-decoration: none;
+                border-radius: 5px;
+                transition: var(--transition);
+            }
+
+            .mobile-nav-links a:hover {
+                background-color: #f0f4ff;
+                color: var(--primary);
+            }
+
+            .mobile-dropdown {
+                position: relative;
+            }
+
+            .mobile-dropdown-toggle {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                padding: 0.8rem 1rem;
+                color: var(--dark);
+                text-decoration: none;
+                border-radius: 5px;
+                transition: var(--transition);
+            }
+
+            .mobile-dropdown-toggle:hover {
+                background-color: #f0f4ff;
+                color: var(--primary);
+            }
+
+            .mobile-dropdown-menu {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                padding-right: 1rem;
+            }
+
+            .mobile-dropdown-menu.active {
+                max-height: 500px;
+            }
+
+            .mobile-dropdown-menu a {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+                border-bottom: 1px solid #f0f0f0;
+                color: var(--dark);
+                text-decoration: none;
+                display: block;
+            }
+
+            .mobile-dropdown-menu a:last-child {
+                border-bottom: none;
+            }
+
+            /* User Profile Styles */
+            .user-profile {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+            }
+
+            .user-avatar-small {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: #ccc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: bold;
+                border: 2px solid white;
+                background-size: cover;
+                background-position: center;
+                text-indent: -9999px;
+                overflow: hidden;
+            }
+
+            .user-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: white;
+                min-width: 200px;
+                box-shadow: var(--shadow);
+                border-radius: 10px;
+                padding: 1rem;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: var(--transition);
+                z-index: 1000;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #eee;
+                margin-bottom: 0.5rem;
+            }
+
+            .user-name {
+                font-weight: 600;
+                color: var(--dark);
+            }
+
+            .user-email {
+                font-size: 0.8rem;
+                color: var(--gray);
+            }
+
+            .logout-btn {
+                background: var(--danger);
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                cursor: pointer;
+                width: 100%;
+                transition: var(--transition);
+            }
+
+            .logout-btn:hover {
+                background: #dc2626;
+            }
+
+            /* Mobile User Profile */
+            .user-profile-mobile {
+                border-top: 1px solid #eee;
+                padding-top: 1.5rem;
+                margin-top: 1.5rem;
+            }
+
+            .user-info-mobile {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .user-info-mobile .user-avatar-small {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            /* Hero Section */
+            .hero-section {
+                padding: 150px 0 80px;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+                color: white;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .hero-container {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 2rem;
+            }
+
+            .hero-content {
+                flex: 1;
+                max-width: 600px;
+            }
+
+            .animated-text {
+                font-size: 3rem;
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+            }
+
+            .typed-cursor {
+                opacity: 1;
+                animation: blink 0.7s infinite;
+            }
+
+            @keyframes blink {
+                0% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            .hero-description {
+                font-size: 1.2rem;
+                margin-bottom: 2rem;
+                opacity: 0.9;
+            }
+
+            .hero-buttons {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.8rem;
+                border: none;
+                border-radius: 50px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: var(--transition);
+                font-size: 1rem;
+            }
+
+            .primary-btn {
+                background-color: var(--accent);
+                color: white;
+            }
+
+            .primary-btn:hover {
+                background-color: #3ab0d9;
+                transform: translateY(-3px);
+            }
+
+            .secondary-btn {
+                background-color: transparent;
+                color: white;
+                border: 2px solid white;
+            }
+
+            .secondary-btn:hover {
+                background-color: white;
+                color: var(--primary);
+                transform: translateY(-3px);
+            }
+
+            .hero-animation {
+                flex: 1;
+                position: relative;
+                height: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .hero-image {
+                width: 100%;
+                max-width: 400px;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                position: relative;
+                animation: float 6s ease-in-out infinite;
+            }
+
+            .hero-image img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+            .code-animation {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+
+            .floating-code {
+                position: absolute;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                padding: 1rem;
+                border-radius: 10px;
+                font-family: "Courier New", monospace;
+                color: white;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                animation: float 6s ease-in-out infinite;
+            }
+
+            #floating-code-1 {
+                top: 10%;
+                right: 10%;
+                animation-delay: 0s;
+            }
+
+            #floating-code-2 {
+                top: 40%;
+                left: 5%;
+                animation-delay: 2s;
+            }
+
+            #floating-code-3 {
+                bottom: 10%;
+                right: 20%;
+                animation-delay: 4s;
+            }
+
+            @keyframes float {
+                0%,
+                100% {
+                    transform: translateY(0) rotate(0deg);
+                }
+                33% {
+                    transform: translateY(-20px) rotate(2deg);
+                }
+                66% {
+                    transform: translateY(10px) rotate(-2deg);
+                }
+            }
+
+            /* Services Section */
+            .services-section {
+                padding: 80px 0;
+                background-color: var(--light);
+            }
+
+            .section-title {
+                text-align: center;
+                font-size: 2.5rem;
+                margin-bottom: 3rem;
+                color: var(--dark);
+                position: relative;
+            }
+
+            .section-title::after {
+                content: "";
+                position: absolute;
+                bottom: -10px;
+                right: 50%;
+                transform: translateX(50%);
+                width: 80px;
+                height: 4px;
+                background: linear-gradient(
+                    to right,
+                    var(--primary),
+                    var(--accent)
+                );
+                border-radius: 2px;
+            }
+
+            .services-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+
+            .service-card {
+                background: var(--card-bg);
+                border-radius: 15px;
+                padding: 2rem;
+                box-shadow: var(--shadow);
+                transition: var(--transition);
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                z-index: 1;
+            }
+
+            .service-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 5px;
+                background: linear-gradient(
+                    to right,
+                    var(--primary),
+                    var(--accent)
+                );
+                z-index: -1;
+                transition: var(--transition);
+            }
+
+            .service-card:hover {
+                transform: translateY(-10px);
+            }
+
+            .service-card:hover::before {
+                height: 100%;
+                opacity: 0.05;
+            }
+
+            .service-icon {
+                font-size: 3rem;
+                margin-bottom: 1.5rem;
+                color: var(--primary);
+            }
+
+            .service-card h3 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+                color: var(--dark);
+            }
+
+            .service-card p {
+                color: var(--gray);
+                margin-bottom: 1.5rem;
+            }
+
+            .service-hover {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: var(--transition);
+            }
+
+            .service-card:hover .service-hover {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Projects Section */
+            .projects-section {
+                padding: 80px 0;
+                background: linear-gradient(135deg, #f0f4ff, #e6f7ff);
+            }
+
+            .projects-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+
+            .project-card {
+                background: var(--card-bg);
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: var(--shadow);
+                transition: var(--transition);
+            }
+
+            .project-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            }
+
+            .project-image {
+                position: relative;
+                height: 200px;
+                overflow: hidden;
+            }
+
+            .project-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: var(--transition);
+            }
+
+            .project-card:hover .project-image img {
+                transform: scale(1.1);
+            }
+
+            .project-overlay {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: var(--transition);
+            }
+
+            .project-card:hover .project-overlay {
+                opacity: 1;
+            }
+
+            .view-project {
+                background: var(--accent);
+                color: white;
+                border: none;
+                padding: 0.7rem 1.5rem;
+                border-radius: 50px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .view-project:hover {
+                background: var(--primary);
+            }
+
+            .project-info {
+                padding: 1.5rem;
+            }
+
+            .student-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 1rem;
+            }
+
+            .student-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            .project-info h3 {
+                font-size: 1.3rem;
+                margin-bottom: 0.5rem;
+                color: var(--dark);
+            }
+
+            .project-info p {
+                color: var(--gray);
+                margin-bottom: 1rem;
+            }
+
+            .project-tech {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .project-tech span {
+                background: #e2e8f0;
+                color: var(--dark);
+                padding: 0.3rem 0.8rem;
+                border-radius: 50px;
+                font-size: 0.8rem;
+                font-weight: 500;
+            }
+
+            /* Testimonials Section */
+            .testimonials-section {
+                padding: 80px 0;
+                background-color: var(--light);
+            }
+
+            .testimonials-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin-bottom: 3rem;
+            }
+
+            .testimonial-card {
+                background: var(--card-bg);
+                border-radius: 15px;
+                padding: 2rem;
+                box-shadow: var(--shadow);
+                transition: var(--transition);
+            }
+
+            .testimonial-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .testimonial-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .user-avatar {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 3px solid var(--primary);
+            }
+
+            .user-info h4 {
+                font-size: 1.2rem;
+                margin-bottom: 0.5rem;
+                color: var(--dark);
+            }
+
+            .user-rating {
+                color: var(--warning);
+            }
+
+            .testimonial-text {
+                color: var(--gray);
+                font-style: italic;
+                margin-bottom: 1rem;
+                line-height: 1.7;
+            }
+
+            .testimonial-meta {
+                color: var(--primary);
+                font-weight: 500;
+            }
+
+            /* Rating Form */
+            .rating-form {
+                background: var(--card-bg);
+                border-radius: 15px;
+                padding: 2rem;
+                box-shadow: var(--shadow);
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .rating-form h3 {
+                text-align: center;
+                margin-bottom: 1.5rem;
+                color: var(--dark);
+            }
+
+            .star-rating {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+                direction: ltr;
+            }
+
+            .star {
+                font-size: 2rem;
+                color: #d1d5db;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .star:hover,
+            .star.active {
+                color: var(--warning);
+            }
+
+            .feedback-input {
+                width: 100%;
+                padding: 1rem;
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                resize: vertical;
+                min-height: 100px;
+                margin-bottom: 1.5rem;
+                font-family: inherit;
+            }
+
+            .submit-feedback {
+                background: var(--primary);
+                color: white;
+                border: none;
+                padding: 0.8rem 1.5rem;
+                border-radius: 50px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: var(--transition);
+                display: block;
+                margin: 0 auto;
+            }
+
+            .submit-feedback:hover {
+                background: var(--secondary);
+            }
+
+            /* Footer */
+            footer {
+                background: var(--dark);
+                color: white;
+                padding: 3rem 0 1.5rem;
+            }
+
+            .footer-content {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .footer-column h3 {
+                font-size: 1.3rem;
+                margin-bottom: 1.5rem;
+                position: relative;
+                padding-bottom: 0.5rem;
+            }
+
+            .footer-column h3::after {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 50px;
+                height: 2px;
+                background: var(--accent);
+            }
+
+            .footer-links {
+                list-style: none;
+            }
+
+            .footer-links li {
+                margin-bottom: 0.8rem;
+            }
+
+            .footer-links a {
+                color: #cbd5e1;
+                text-decoration: none;
+                transition: var(--transition);
+            }
+
+            .footer-links a:hover {
+                color: var(--accent);
+                padding-right: 5px;
+            }
+
+            .social-links {
+                display: flex;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .social-links a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                color: white;
+                transition: var(--transition);
+            }
+
+            .social-links a:hover {
+                background: var(--accent);
+                transform: translateY(-3px);
+            }
+
+            .footer-bottom {
+                text-align: center;
+                padding-top: 1.5rem;
+                border-top: 1px solid #334155;
+                color: #94a3b8;
+            }
+
+            /* Support Message */
+            .support-message {
+                background: linear-gradient(135deg, #dbeafe, #d1fae5);
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+                border-right: 4px solid var(--success);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .support-icon {
+                font-size: 2rem;
+            }
+
+            .support-message p {
+                margin: 0;
+                color: var(--dark);
+            }
+
+            /* Payment Methods */
+            .payment-methods {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+                margin: 1.5rem 0;
+            }
+
+            .payment-method {
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 1rem;
+                text-align: center;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+
+            .payment-method:hover,
+            .payment-method.selected {
+                border-color: var(--primary);
+                background: #f0f4ff;
+            }
+
+            .payment-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                color: var(--primary);
+            }
+
+            /* Responsive Design */
+            @media (max-width: 992px) {
+                .hero-container {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .hero-buttons {
+                    justify-content: center;
+                }
+
+                .animated-text {
+                    font-size: 2.5rem;
+                }
+
+                .hero-animation {
+                    height: 300px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .navbar {
+                    padding: 1rem;
+                }
+
+                .nav-links {
+                    display: none;
+                }
+
+                .mobile-menu-btn {
+                    display: flex;
+                }
+
+                .animated-text {
+                    font-size: 2rem;
+                }
+
+                .hero-animation {
+                    height: 250px;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .hero-section {
+                    padding: 120px 0 60px;
+                }
+
+                .section-title {
+                    font-size: 2rem;
+                }
+
+                .animated-text {
+                    font-size: 1.8rem;
+                }
+
+                .btn {
+                    padding: 0.7rem 1.5rem;
+                }
+
+                .hero-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+            .user-rating .star {
+                /* لون النجمة عندما يتم عرضها من PHP */
+                color: gold;
+                font-size: 1.2rem;
+            }
+        </style>
+        <script src="site-notification.js"></script>
+    </head>
+    <body>
+        <!-- Header & Navbar -->
+        <header>
+            <nav class="navbar">
+                <div class="logo">
+                    <div class="logo-img">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h1>أكاديمية البرمجة المتكاملة</h1>
+                    <button
+                        id="aiChatFab"
+                        class="ai-chat-fab"
+                        title="اطلب من الذكاء الاصطناعي"
+                    >
+                        <i class="fas fa-robot"></i>
+                    </button>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="nav-link"
+                            >تعلم الآن <i class="fas fa-chevron-down"></i
+                        ></a>
+                        <div class="dropdown-menu">
+                            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+                            <a href="challenges.html">التحديات البرمجية</a>
+                            <a href="proplemsolving.html"
+                                >مواقع حل المشاكل البرمجية</a
+                            >
+                        </div>
+                    </li>
+                    <li>
+                        <a href="./roadmap.html" class="nav-link"
+                            >خارطة الطريق</a
+                        >
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="nav-link"
+                            >الكورسات <i class="fas fa-chevron-down"></i
+                        ></a>
+                        <div class="dropdown-menu">
+                            <a href="path.html?path=basics"
+                                >مسار أساسيات البرمجة</a
+                            >
+                            <a href="path.html?path=frontend"
+                                >مسار Frontend Developer</a
+                            >
+                            <a href="path.html?path=backend"
+                                >مسار Backend Developer</a
+                            >
+                        </div>
+                    </li>
+                    <li>
+                        <a href="project.html" class="nav-link"
+                            >التكليفات والمشاريع</a
+                        >
+                    </li>
+                    <li
+                        class="user-profile"
+                        id="userProfile"
+                        style="display: none"
+                    >
+                        <div class="user-avatar-small" id="userAvatarSmall">
+                            م
+                        </div>
+                        <div class="user-dropdown">
+                            <div class="user-info">
+                                <div
+                                    class="user-avatar-small"
+                                    id="dropdownAvatar"
+                                >
+                                    م
+                                </div>
+                                <div>
+                                    <div
+                                        class="user-name"
+                                        id="dropdownUserName"
+                                    ></div>
+                                    <div
+                                        class="user-email"
+                                        id="dropdownUserEmail"
+                                    ></div>
+                                </div>
+                            </div>
+                            <a
+                                href="profile.html"
+                                class="nav-link"
+                                style="
+                                    display: block;
+                                    text-align: right;
+                                    margin-bottom: 0.5rem;
+                                    color: black;
+                                    font-size: large;
+                                "
+                                ><i
+                                    class="fas fa-user-circle profile-icon"
+                                    style="margin-left: 10%"
+                                ></i
+                                >الملف الشخصي</a
+                            >
+                            <button class="logout-btn" id="logoutBtn">
+                                تسجيل الخروج
+                            </button>
+                        </div>
+                    </li>
+                    <li id="loginButton">
+                        <a href="./login1.html" class="nav-link login-btn"
+                            >تسجيل الدخول</a
+                        >
+                    </li>
+                </ul>
+
+                <div class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav-links" id="mobileNavLinks">
+            <div class="mobile-nav-header">
+                <h2>القائمة</h2>
+            </div>
+            <ul>
+                <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+                <li class="mobile-dropdown">
+                    <div class="mobile-dropdown-toggle">
+                        <a href="#" class="nav-link">تعلم الآن</a>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="mobile-dropdown-menu">
+                        <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+                        <a href="challenges.html">التحديات البرمجية</a>
+                        <a href="proplemsolving.html"
+                            >مواقع حل المشاكل البرمجية</a
+                        >
+                    </div>
+                </li>
+                <li>
+                    <a href="./roadmap.html" class="nav-link">خارطة الطريق</a>
+                </li>
+                <li class="mobile-dropdown">
+                    <div class="mobile-dropdown-toggle">
+                        <a href="#" class="nav-link">الكورسات</a>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="mobile-dropdown-menu">
+                        <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+                        <a href="path.html?path=frontend"
+                            >مسار Frontend Developer</a
+                        >
+                        <a href="path.html?path=backend"
+                            >مسار Backend Developer</a
+                        >
+                    </div>
+                </li>
+                <li>
+                    <a href="project.html" class="nav-link"
+                        >التكليفات والمشاريع</a
+                    >
+                </li>
+                <li
+                    class="user-profile-mobile"
+                    id="userProfileMobile"
+                    style="display: none"
+                >
+                    <div class="user-info-mobile">
+                        <div class="user-avatar-small" id="mobileAvatar"></div>
+                        <div>
+                            <div class="user-name" id="mobileUserName"></div>
+                            <div class="user-email" id="mobileUserEmail"></div>
+                        </div>
+                    </div>
+                    <a href="profile.html" class="nav-link">
+                        <i class="fas fa-user-circle"></i> الملف الشخصي
+                    </a>
+                    <button class="logout-btn" id="mobileLogoutBtn">
+                        تسجيل الخروج
+                    </button>
+                </li>
+                <li id="loginButtonMobile">
+                    <a href="./login1.html" class="nav-link login-btn"
+                        >تسجيل الدخول</a
+                    >
+                </li>
+            </ul>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-container">
+                    <div class="hero-content">
+                        <h1 class="animated-text" id="typed-text"></h1>
+                        <p class="hero-description">
+                            ابدأ رحلتك في عالم البرمجة مع أفضل المناهج التعليمية
+                            التفاعلية. تعلم، تطبق، وتتحدى نفسك مع مشاريع حقيقية.
+                        </p>
+                        <div class="hero-buttons">
+                            <button
+                                class="btn primary-btn"
+                                onclick="location.href = 'register.html'"
+                            >
+                                ابدأ التعلم مجانًا
+                            </button>
+                            <button
+                                class="btn secondary-btn"
+                                onclick="location.href = 'roadmap.html'"
+                            >
+                                استكشف الخدمات
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hero-animation">
+                        <div class="hero-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                                alt="مجموعة من المبرمجين"
+                            />
+                        </div>
+                        <div class="code-animation">
+                            <div class="floating-code" id="floating-code-1">
+                                <pre><code>function welcome() {
+  return "مرحبًا بالمبرمجين!";
+}</code></pre>
+                            </div>
+                            <div class="floating-code" id="floating-code-2">
+                                <pre><code>&lt;div class="success"&gt;
+  أنت على الطريق الصحيح!
+&lt;/div&gt;</code></pre>
+                            </div>
+                            <div class="floating-code" id="floating-code-3">
+                                <pre><code>def calculate_success():
+    return "مستقبل مبرمج"</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="services-section" id="services">
+            <div class="container">
+                <h2 class="section-title">ما الذي نقدمه لك؟</h2>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <h3>خارطة طريق شاملة</h3>
+                        <p>دليل متكامل لتصبح مبرمج Full Stack محترف</p>
+                        <div class="service-hover">
+                            <span>اكتشف المسار</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3>تحديات برمجية</h3>
+                        <p>تدرب على تحديات حقيقية تعزز مهاراتك</p>
+                        <div class="service-hover">
+                            <span>ابدأ التحدي</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3>مشاريع عملية</h3>
+                        <p>أنشئ مشاريع حقيقية تضيفها لبروفايلك</p>
+                        <div class="service-hover">
+                            <span>شاهد المشاريع</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="projects-section">
+            <div class="container">
+                <h2 class="section-title">مشاريع طلابنا</h2>
+
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                                alt="مشروع متجر إلكتروني"
+                            />
+                            <div class="project-overlay">
+                                <button class="view-project">
+                                    معاينة المشروع
+                                </button>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="student-info">
+                                <img
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80"
+                                    alt="الطالب أحمد"
+                                    class="student-avatar"
+                                />
+                                <span>أحمد محمد</span>
+                            </div>
+                            <h3>متجر إلكتروني متكامل</h3>
+                            <p>متجر إلكتروني باستخدام React وNode.js</p>
+                            <div class="project-tech">
+                                <span>React</span>
+                                <span>Node.js</span>
+                                <span>MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                                alt="مشروع تطبيق طبي"
+                            />
+                            <div class="project-overlay">
+                                <button class="view-project">
+                                    معاينة المشروع
+                                </button>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="student-info">
+                                <img
+                                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80"
+                                    alt="الطالبة سارة"
+                                    class="student-avatar"
+                                />
+                                <span>سارة عبدالله</span>
+                            </div>
+                            <h3>تطبيق طبي تفاعلي</h3>
+                            <p>تطبيق لحجز المواعيد الطبية مع نظام إشعارات</p>
+                            <div class="project-tech">
+                                <span>Flutter</span>
+                                <span>Firebase</span>
+                                <span>Dart</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img
+                                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
+                                alt="مشروع منصة تعليمية"
+                            />
+                            <div class="project-overlay">
+                                <button class="view-project">
+                                    معاينة المشروع
+                                </button>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <div class="student-info">
+                                <img
+                                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80"
+                                    alt="الطالب خالد"
+                                    class="student-avatar"
+                                />
+                                <span>خالد أحمد</span>
+                            </div>
+                            <h3>منصة تعليمية تفاعلية</h3>
+                            <p>منصة تعليمية مع فيديوهات تفاعلية واختبارات</p>
+                            <div class="project-tech">
+                                <span>Vue.js</span>
+                                <span>Laravel</span>
+                                <span>MySQL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <div class="container">
+                <h2 class="section-title">آراء طلابنا</h2>
+
+                <div
+                    class="testimonials-container"
+                    id="testimonialsContainer"
+                ></div>
+
+                <div class="rating-form">
+                    <h3>قيم تجربتك معنا</h3>
+                    <div
+                        id="reviewMessage"
+                        style="
+                            text-align: center;
+                            margin-bottom: 15px;
+                            font-weight: 600;
+                            display: none;
+                        "
+                    ></div>
+
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="1">☆</span>
+                        <span class="star" data-value="2">☆</span>
+                        <span class="star" data-value="3">☆</span>
+                        <span class="star" data-value="4">☆</span>
+                        <span class="star" data-value="5">☆</span>
+                    </div>
+                    <textarea
+                        placeholder="شاركنا برأيك..."
+                        class="feedback-input"
+                        id="feedbackInput"
+                    ></textarea>
+                    <button class="submit-feedback" id="submitFeedback">
+                        إرسال التقييم
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>عن الأكاديمية</h3>
+                        <p>
+                            نحن منصة تعليمية تهدف إلى تمكين الشباب العربي من
+                            تعلم البرمجة وتطوير مهاراتهم التقنية لسوق العمل.
+                        </p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>روابط سريعة</h3>
+                        <ul class="footer-links">
+                            <li><a href="index.html">الصفحة الرئيسية</a></li>
+                            <li><a href="#">من نحن</a></li>
+                            <li><a href="path.html">الكورسات</a></li>
+                            <li><a href="#">المشاريع</a></li>
+                            <li><a href="#">اتصل بنا</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>الكورسات</h3>
+                        <ul class="footer-links">
+                            <li>
+                                <a href="path.html?path=basics"
+                                    >أساسيات البرمجة</a
+                                >
+                            </li>
+                            <li>
+                                <a href="path.html?path=frontend"
+                                    >تطوير الواجهات الأمامية</a
+                                >
+                            </li>
+                            <li>
+                                <a href="path.html?path=backend"
+                                    >تطوير الواجهات الخلفية</a
+                                >
+                            </li>
+                            <li><a href="#">تطوير تطبيقات الجوال</a></li>
+                            <li><a href="#">علوم البيانات</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>اتصل بنا</h3>
+                        <ul class="footer-links">
+                            <li>
+                                <i class="fas fa-map-marker-alt"></i> دمشق،
+                                سوريا
+                            </li>
+                            <li>
+                                <i class="fas fa-phone"></i> +963 123 456 789
+                            </li>
+                            <li>
+                                <i class="fas fa-envelope"></i>
+                                info@programmingacademy.com
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>
+                        جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة
+                        المتكاملة
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Typing Effect
+            const typedTextSpan = document.getElementById("typed-text");
+            const textArray = [
+                "أكاديمية البرمجة المتكاملة",
+                "ابدأ رحلة البرمجة معنا",
+                "تعلم. تطبق. تتقن.",
+            ];
+            const typingDelay = 100;
+            const erasingDelay = 50;
+            const newTextDelay = 2000;
+            let textArrayIndex = 0;
+            let charIndex = 0;
+
+            function type() {
+                if (charIndex < textArray[textArrayIndex].length) {
+                    typedTextSpan.textContent +=
+                        textArray[textArrayIndex].charAt(charIndex);
+                    charIndex++;
+                    setTimeout(type, typingDelay);
+                } else {
+                    setTimeout(erase, newTextDelay);
+                }
+            }
+
+            function erase() {
+                if (charIndex > 0) {
+                    typedTextSpan.textContent = textArray[
+                        textArrayIndex
+                    ].substring(0, charIndex - 1);
+                    charIndex--;
+                    setTimeout(erase, erasingDelay);
+                } else {
+                    textArrayIndex++;
+                    if (textArrayIndex >= textArray.length) textArrayIndex = 0;
+                    setTimeout(type, typingDelay + 1100);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                if (textArray.length) setTimeout(type, newTextDelay + 250);
+            });
+
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+            const mobileMenuOverlay =
+                document.getElementById("mobileMenuOverlay");
+            const mobileNavLinks = document.getElementById("mobileNavLinks");
+
+            function toggleMobileMenu() {
+                const isActive = mobileMenuBtn.classList.contains("active");
+                if (isActive) {
+                    closeMobileMenuFunc();
+                } else {
+                    openMobileMenu();
+                }
+            }
+
+            function openMobileMenu() {
+                mobileMenuBtn.classList.add("active");
+                mobileMenuOverlay.classList.add("active");
+                mobileNavLinks.classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeMobileMenuFunc() {
+                mobileMenuBtn.classList.remove("active");
+                mobileMenuOverlay.classList.remove("active");
+                mobileNavLinks.classList.remove("active");
+                document.body.style.overflow = "auto";
+            }
+
+            mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+            mobileMenuOverlay.addEventListener("click", closeMobileMenuFunc);
+
+            // Mobile Dropdown Toggle
+            document
+                .querySelectorAll(".mobile-dropdown-toggle")
+                .forEach((toggle) => {
+                    toggle.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        const menu = this.nextElementSibling;
+                        const icon = this.querySelector("i");
+                        menu.classList.toggle("active");
+                        if (menu.classList.contains("active")) {
+                            icon.classList.remove("fa-chevron-down");
+                            icon.classList.add("fa-chevron-up");
+                        } else {
+                            icon.classList.remove("fa-chevron-up");
+                            icon.classList.add("fa-chevron-down");
+                        }
+                    });
+                });
+
+            // User Interface Update
+            function updateUserInterface() {
+                const currentUser = window.currentUser;
+                const userProfile = document.getElementById("userProfile");
+                const loginButton = document.getElementById("loginButton");
+                const userProfileMobile =
+                    document.getElementById("userProfileMobile");
+                const loginButtonMobile =
+                    document.getElementById("loginButtonMobile");
+
+                if (currentUser) {
+                    // Show user profile, hide login
+                    userProfile.style.display = "flex";
+                    loginButton.style.display = "none";
+                    userProfileMobile.style.display = "block";
+                    loginButtonMobile.style.display = "none";
+
+                    // Set user info
+                    const initial = currentUser.firstName
+                        ? currentUser.firstName.charAt(0)
+                        : currentUser.username
+                          ? currentUser.username.charAt(0)
+                          : "?";
+
+                    const username = currentUser.username;
+
+                    const email = currentUser.email || currentUser.username;
+
+                    // Desktop
+                    document.getElementById("dropdownUserName").textContent =
+                        username;
+                    document.getElementById("dropdownUserEmail").textContent =
+                        email;
+
+                    // Mobile
+                    document.getElementById("mobileUserName").textContent =
+                        username;
+                    document.getElementById("mobileUserEmail").textContent =
+                        email;
+
+                    // Avatar
+                    const avatars = [
+                        "userAvatarSmall",
+                        "dropdownAvatar",
+                        "mobileAvatar",
+                    ];
+                    avatars.forEach((id) => {
+                        const avatar = document.getElementById(id);
+                        if (currentUser.avatar) {
+                            avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+                            avatar.textContent = "";
+                        } else {
+                            avatar.textContent = initial;
+                            avatar.style.background =
+                                "linear-gradient(135deg, var(--accent), var(--primary))";
+                            avatar.style.backgroundImage = "none";
+                        }
+                    });
+                } else {
+                    // Hide user profile, show login
+                    userProfile.style.display = "none";
+                    loginButton.style.display = "block";
+                    userProfileMobile.style.display = "none";
+                    loginButtonMobile.style.display = "block";
+                }
+            }
+
+            // Logout
+            document
+                .getElementById("logoutBtn")
+                .addEventListener("click", function () {
+                    fetch("/api/logout", {
+                        method: "POST",
+                        credentials: "include",
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                window.currentUser = null;
+                                updateUserInterface();
+                                showNotification(
+                                    "تم تسجيل الخروج بنجاح!",
+                                    "success",
+                                );
+                            } else {
+                                showNotification(
+                                    "خطأ في تسجيل الخروج",
+                                    "error",
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Logout error:", error);
+                            showNotification("خطأ في تسجيل الخروج", "error");
+                        });
+                });
+
+            document
+                .getElementById("mobileLogoutBtn")
+                .addEventListener("click", function () {
+                    closeMobileMenuFunc(); // Close menu first
+                    fetch("/api/logout", {
+                        method: "POST",
+                        credentials: "include",
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                window.currentUser = null;
+                                updateUserInterface();
+                                showNotification(
+                                    "تم تسجيل الخروج بنجاح!",
+                                    "success",
+                                );
+                            } else {
+                                showNotification(
+                                    "خطأ في تسجيل الخروج",
+                                    "error",
+                                );
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Logout error:", error);
+                            showNotification("خطأ في تسجيل الخروج", "error");
+                        });
+                });
+
+            // Dropdown hover functionality
+            const userProfile = document.getElementById("userProfile");
+            const userDropdown = document.querySelector(".user-dropdown");
+            let dropdownTimeout;
+
+            function showDropdown() {
+                clearTimeout(dropdownTimeout);
+                if (userDropdown) {
+                    userDropdown.style.opacity = "1";
+                    userDropdown.style.visibility = "visible";
+                    userDropdown.style.transform = "translateY(0)";
+                }
+            }
+
+            function hideDropdown() {
+                dropdownTimeout = setTimeout(() => {
+                    if (userDropdown) {
+                        userDropdown.style.opacity = "0";
+                        userDropdown.style.visibility = "hidden";
+                        userDropdown.style.transform = "translateY(0)";
+                    }
+                }, 150); // Small delay to allow moving between elements
+            }
+
+            if (userProfile) {
+                userProfile.addEventListener("mouseenter", showDropdown);
+                userProfile.addEventListener("mouseleave", hideDropdown);
+            }
+
+            if (userDropdown) {
+                userDropdown.addEventListener("mouseenter", showDropdown);
+                userDropdown.addEventListener("mouseleave", hideDropdown);
+            }
+
+            // Initialize
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch("/api/user/status", {
+                    credentials: "include",
+                })
+                    .then((response) => {
+                        if (response.status === 401) {
+                            return { success: false, user: null };
+                        }
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        if (data.success && data.user) {
+                            window.currentUser = data.user;
+                        } else {
+                            window.currentUser = null;
+                        }
+                        updateUserInterface();
+                    })
+                    .catch((error) => {
+                        // Guest mode should not be treated as an error in console
+                        window.currentUser = null;
+                        updateUserInterface();
+                    });
+            });
+            // =================================================================
+            // **منطق التقييمات الجديد**
+            // =================================================================
+            const stars = document.querySelectorAll(".star-rating .star");
+            const submitFeedbackBtn = document.getElementById("submitFeedback");
+            const reviewMessage = document.getElementById("reviewMessage");
+
+            // **[تـصـحـيـح]** دالة لعرض النجوم بناءً على التقييم الرقمي
+            function renderStars(rating) {
+                let starsHtml = "";
+                // حلقة التكرار الآن تتأكد من عرض العدد الصحيح من النجوم الممتلئة والفارغة
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<span class="star">${i <= rating ? "⭐" : "☆"}</span>`;
+                }
+                return starsHtml;
+            }
+            // دالة لجلب وعرض آخر 5 تقييمات ديناميكياً
+            async function fetchReviews() {
+                const container = document.getElementById(
+                    "testimonialsContainer",
+                );
+                container.innerHTML =
+                    '<p style="text-align: center; color: var(--gray);">جاري تحميل التقييمات...</p>';
+
+                try {
+                    const response = await fetch("/api/reviews");
+                    const data = await response.json();
+
+                    if (data.success && data.reviews.length > 0) {
+                        container.innerHTML = "";
+                        data.reviews.forEach((review) => {
+                            const fullName =
+                                (review.firstName || "") +
+                                " " +
+                                (review.lastName || "");
+                            const specialty =
+                                review.interest || "متخصص في البرمجة";
+                            const initial = fullName.charAt(0) || "?";
+
+                            const avatarURL = `/api/avatar/${review.user_id}`;
+
+                            const cardHtml = `
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="user-avatar"
+                                style="
+                                    width: 60px;
+                                    height: 60px;
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 1.5rem;
+                                    border: 3px solid var(--primary);
+                                    background: linear-gradient(135deg, var(--accent), var(--primary));
+                                    overflow: hidden;
+                                    color: white;
+                                "
+                            ><img src="${avatarURL}"
+                                  style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                                  onerror="this.style.display='none';"
+                                  alt="">${initial}</div>
+                            <div class="user-info">
+                                <h4>${fullName || "مستخدم غير معروف"}</h4>
+                                <div class="user-rating" data-rating="${
+                                    review.rating
+                                }">
+                                    ${renderStars(review.rating)}
+                                </div>
+                            </div>
+                        </div>
+                        <p class="testimonial-text">
+                            "${review.review_text}"
+                        </p>
+                        <div class="testimonial-meta">
+                            <span>${specialty}</span>
+                        </div>
+                    </div>
+                `;
+                            container.innerHTML += cardHtml;
+                        });
+                    } else {
+                        container.innerHTML =
+                            '<p style="text-align: center; color: var(--gray);">لا توجد تقييمات لعرضها حالياً.</p>';
+                    }
+                } catch (error) {
+                    console.error("Error fetching reviews:", error);
+                    container.innerHTML =
+                        '<p style="text-align: center; color: var(--danger);">حدث خطأ أثناء جلب التقييمات. يرجى المحاولة لاحقاً.</p>';
+                }
+            }
+
+            // **[تـصـحـيـح]** منطق تفعيل النجوم لنموذج الإرسال
+            stars.forEach((star) => {
+                star.addEventListener("click", function () {
+                    const value = parseInt(this.getAttribute("data-value"));
+
+                    stars.forEach((s) => {
+                        // تفعيل النجوم حتى القيمة المختارة
+                        if (parseInt(s.getAttribute("data-value")) <= value) {
+                            s.classList.add("active");
+                            s.textContent = "⭐";
+                        } else {
+                            s.classList.remove("active");
+                            s.textContent = "☆";
+                        }
+                    });
+                });
+            });
+
+            // منطق إرسال التقييم
+            submitFeedbackBtn.addEventListener("click", async function () {
+                const currentUserId = window.currentUser
+                    ? window.currentUser.id
+                    : null;
+
+                if (!currentUserId) {
+                    reviewMessage.textContent =
+                        "يجب تسجيل الدخول أولاً لإضافة تقييم.";
+                    reviewMessage.style.color = "var(--danger)";
+                    reviewMessage.style.display = "block";
+                    return;
+                }
+
+                const feedback = document.getElementById("feedbackInput").value;
+                // للتأكد من الحصول على قيمة النجوم المحددة حاليًا
+                const activeStars = document.querySelectorAll(
+                    ".star-rating .star.active",
+                ).length;
+
+                reviewMessage.style.display = "none";
+
+                if (activeStars === 0) {
+                    reviewMessage.textContent =
+                        "يرجى تقييمنا من خلال النقر على النجوم";
+                    reviewMessage.style.color = "var(--danger)";
+                    reviewMessage.style.display = "block";
+                    return;
+                }
+
+                if (feedback.trim() === "") {
+                    reviewMessage.textContent = "يرجى كتابة رأيك في الموقع";
+                    reviewMessage.style.color = "var(--danger)";
+                    reviewMessage.style.display = "block";
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append("user_id", currentUserId);
+                formData.append("rating", activeStars);
+                formData.append("review_text", feedback);
+
+                this.disabled = true;
+
+                try {
+                    const response = await fetch("/api/reviews", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+
+                    reviewMessage.textContent = data.message;
+                    reviewMessage.style.color = data.success
+                        ? "var(--success)"
+                        : "var(--danger)";
+                    reviewMessage.style.display = "block";
+
+                    if (data.success) {
+                        document.getElementById("feedbackInput").value = "";
+                        // إعادة تعيين النجوم إلى حالتها الأصلية (فارغة)
+                        stars.forEach((s) => {
+                            s.classList.remove("active");
+                            s.textContent = "☆";
+                        });
+                        fetchReviews();
+                    }
+                } catch (error) {
+                    reviewMessage.textContent =
+                        "حدث خطأ غير متوقع في الاتصال بالخادم.";
+                    reviewMessage.style.color = "var(--danger)";
+                    reviewMessage.style.display = "block";
+                } finally {
+                    this.disabled = false;
+                }
+            });
+
+            // **********************************************
+            // استدعاء الدوال عند تحميل الصفحة
+            // **********************************************
+
+            document.addEventListener("DOMContentLoaded", function () {
+                // Typing Effect
+                if (textArray.length) setTimeout(type, newTextDelay + 250);
+
+                updateUserInterface(); // لتحديث حالة تسجيل الدخول
+                fetchReviews(); // لجلب وعرض التقييمات عند التحميل
+            });
+        </script>
+
+        <!-- AI Chat Modal -->
+        <div id="aiChatModal" class="ai-chat-modal">
+            <div class="ai-chat-container">
+                <div class="ai-chat-header">
+                    <div class="ai-chat-title">
+                        <i class="fas fa-robot"></i>
+                        <span>مساعد الذكاء الاصطناعي</span>
+                    </div>
+                    <button id="closeAiChat" class="close-ai-chat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="ai-chat-messages" id="aiChatMessages">
+                    <div class="ai-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+                            <p>
+                                كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن
+                                البرمجة والدروس والتحديات وأي شيء آخر!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-chat-input-area">
+                    <textarea
+                        id="aiChatInput"
+                        class="ai-chat-input"
+                        placeholder="اكتب رسالتك هنا..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendAiMessage" class="send-ai-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            /* AI Chat Modal Styles */
+            .ai-chat-modal {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                width: 400px;
+                max-height: 600px;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+                display: none;
+                flex-direction: column;
+                z-index: 10000;
+                opacity: 0;
+                transform: scale(0.8);
+                transition: all 0.3s ease;
+            }
+
+            .ai-chat-modal.active {
+                display: flex;
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            .ai-chat-container {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .ai-chat-header {
+                background: linear-gradient(135deg, #4361ee, #3a0ca3);
+                color: white;
+                padding: 1rem;
+                border-radius: 15px 15px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .ai-chat-title {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-weight: 600;
+                font-size: 1rem;
+            }
+
+            .close-ai-chat {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                cursor: pointer;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-size: 1.2rem;
+            }
+
+            .close-ai-chat:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .ai-chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                background: #f8fafc;
+            }
+
+            .ai-message,
+            .user-message {
+                display: flex;
+                gap: 0.5rem;
+                animation: messageSlideIn 0.3s ease;
+            }
+
+            @keyframes messageSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .user-message {
+                justify-content: flex-end;
+            }
+
+            .message-avatar {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #4361ee, #3a0ca3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
+            .user-message .message-avatar {
+                background: linear-gradient(135deg, #4cc9f0, #4361ee);
+                order: 2;
+            }
+
+            .message-content {
+                max-width: 280px;
+                background: white;
+                padding: 0.75rem 1rem;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .user-message .message-content {
+                background: linear-gradient(135deg, #4361ee, #3a0ca3);
+                color: white;
+            }
+
+            .message-content p {
+                margin: 0.25rem 0;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .message-content p:first-child {
+                margin-top: 0;
+            }
+
+            .message-content p:last-child {
+                margin-bottom: 0;
+            }
+
+            .ai-chat-input-area {
+                padding: 1rem;
+                border-top: 1px solid #e2e8f0;
+                display: flex;
+                gap: 0.5rem;
+                background: white;
+                border-radius: 0 0 15px 15px;
+            }
+
+            .ai-chat-input {
+                flex: 1;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 0.75rem;
+                font-family: inherit;
+                font-size: 0.9rem;
+                resize: none;
+                max-height: 100px;
+                transition: border-color 0.3s ease;
+            }
+
+            .ai-chat-input:focus {
+                outline: none;
+                border-color: #4361ee;
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            }
+
+            .send-ai-btn {
+                background: linear-gradient(135deg, #4361ee, #3a0ca3);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-size: 1rem;
+            }
+
+            .send-ai-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+            }
+
+            .send-ai-btn:active {
+                transform: translateY(0);
+            }
+
+            /* AI Chat Floating Button */
+            .ai-chat-fab {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(135deg, #4cc9f0, #4361ee);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+                transition: all 0.3s ease;
+                border: none;
+                color: white;
+                font-size: 1.2rem;
+                margin-left: 1rem;
+            }
+
+            .ai-chat-fab:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .ai-chat-modal {
+                    width: calc(100% - 40px);
+                    max-height: 70vh;
+                }
+
+                .message-content {
+                    max-width: 200px;
+                }
+            }
+
+            /* RTL Support */
+            [dir="rtl"] .ai-chat-modal {
+                left: auto;
+                right: 20px;
+            }
+
+            [dir="rtl"] .ai-message {
+                flex-direction: row-reverse;
+            }
+
+            [dir="rtl"] .ai-chat-input-area {
+                direction: rtl;
+            }
+        </style>
+
+        <script>
+            // AI Chat Modal Functionality
+            (function () {
+                const aiChatModal = document.getElementById("aiChatModal");
+                const aiChatFab = document.getElementById("aiChatFab");
+                const closeAiChat = document.getElementById("closeAiChat");
+                const aiChatInput = document.getElementById("aiChatInput");
+                const sendAiMessage = document.getElementById("sendAiMessage");
+                const aiChatMessages =
+                    document.getElementById("aiChatMessages");
+
+                // Toggle chat modal
+                if (aiChatFab) {
+                    aiChatFab.addEventListener("click", () => {
+                        aiChatModal.classList.add("active");
+                        aiChatInput.focus();
+                    });
+                }
+
+                // Close chat modal
+                if (closeAiChat) {
+                    closeAiChat.addEventListener("click", () => {
+                        aiChatModal.classList.remove("active");
+                    });
+                }
+
+                // Send message
+                const sendMessage = async () => {
+                    const message = aiChatInput.value.trim();
+                    if (!message) return;
+
+                    // Add user message to chat
+                    addMessage(message, "user");
+                    aiChatInput.value = "";
+                    aiChatInput.style.height = "auto";
+
+                    // Show typing indicator
+                    const typingDiv = document.createElement("div");
+                    typingDiv.className = "ai-message";
+                    typingDiv.innerHTML =
+                        '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+                    aiChatMessages.appendChild(typingDiv);
+                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+                    try {
+                        // Call AI helper API
+                        const response = await fetch("/api/ai/helper", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                message: message,
+                                type: "general",
+                            }),
+                        });
+
+                        const data = await response.json();
+                        typingDiv.remove();
+
+                        if (data.success) {
+                            addMessage(data.response, "ai");
+                        } else {
+                            addMessage(
+                                "عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.",
+                                "ai",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        typingDiv.remove();
+                        addMessage(
+                            "عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.",
+                            "ai",
+                        );
+                    }
+                };
+
+                if (sendAiMessage) {
+                    sendAiMessage.addEventListener("click", sendMessage);
+                }
+
+                if (aiChatInput) {
+                    aiChatInput.addEventListener("keypress", (e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
+
+                    // Auto-resize textarea
+                    aiChatInput.addEventListener("input", () => {
+                        aiChatInput.style.height = "auto";
+                        aiChatInput.style.height =
+                            Math.min(aiChatInput.scrollHeight, 100) + "px";
+                    });
+                }
+
+                // Add message to chat
+                function addMessage(text, sender) {
+                    const messageDiv = document.createElement("div");
+                    messageDiv.className =
+                        sender === "user" ? "user-message" : "ai-message";
+
+                    const avatarDiv = document.createElement("div");
+                    avatarDiv.className = "message-avatar";
+                    avatarDiv.innerHTML =
+                        sender === "user"
+                            ? '<i class="fas fa-user"></i>'
+                            : '<i class="fas fa-robot"></i>';
+
+                    const contentDiv = document.createElement("div");
+                    contentDiv.className = "message-content";
+                    contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+                    messageDiv.appendChild(avatarDiv);
+                    messageDiv.appendChild(contentDiv);
+                    aiChatMessages.appendChild(messageDiv);
+                    aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+                }
+
+                // Escape HTML to prevent XSS
+                function escapeHtml(text) {
+                    const map = {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#039;",
+                    };
+                    return text.replace(/[&<>"']/g, (m) => map[m]);
+                }
+            })();
+        </script>
+    </body>
+</html>

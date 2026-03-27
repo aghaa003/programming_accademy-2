@@ -1,0 +1,3805 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>لوحة الإدارة الرئيسية - أكاديمية البرمجة</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <style>
+            :root {
+                --primary: #4361ee;
+                --secondary: #3a0ca3;
+                --success: #4ade80;
+                --danger: #ef4444;
+                --warning: #f59e0b;
+                --gray: #64748b;
+                --light: #f8fafc;
+                --dark: #1e293b;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                background-color: var(--light);
+                color: var(--dark);
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            .header {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--secondary)
+                );
+                color: white;
+                padding: 2rem;
+                border-radius: 15px;
+                margin-bottom: 2rem;
+                text-align: center;
+            }
+
+            .nav-tabs {
+                display: flex;
+                background: white;
+                border-radius: 10px;
+                margin-bottom: 2rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                overflow-x: auto;
+                overflow-y: hidden;
+                justify-content: space-between;
+            }
+
+            .nav-tab {
+                flex: 0 0 auto;
+                min-width: 100px;
+                padding: 1rem;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .nav-tab:hover {
+                background: #f8fafc;
+            }
+
+            .nav-tab.active {
+                background: var(--primary);
+                color: white;
+                border-bottom-color: var(--primary);
+            }
+
+            .tab-content {
+                display: none;
+            }
+
+            .tab-content.active {
+                display: block;
+            }
+
+            .add-platform-btn {
+                background: var(--success);
+                color: white;
+                border: none;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                cursor: pointer;
+                margin-bottom: 2rem;
+                transition: all 0.3s ease;
+            }
+
+            .add-platform-btn:hover {
+                background: #22c55e;
+                transform: translateY(-2px);
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+            }
+
+            .modal-content {
+                background: white;
+                margin: 5% auto;
+                padding: 2rem;
+                border-radius: 15px;
+                width: 90%;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: var(--dark);
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.8rem;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .features-input {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+            }
+
+            .features-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+
+            .feature-tag {
+                background: var(--primary);
+                color: white;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .no-data {
+                text-align: center;
+                padding: 2rem;
+                color: var(--gray);
+                font-size: 1.1rem;
+            }
+
+            .video-preview {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 10px;
+                background: #f8f9fa;
+            }
+
+            .video-preview video {
+                width: 100%;
+                max-height: 200px;
+                border-radius: 3px;
+            }
+
+            .feature-tag .remove {
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            .btn-group {
+                display: flex;
+                gap: 1rem;
+                justify-content: flex-end;
+                margin-top: 2rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+                background: var(--primary);
+                color: white;
+            }
+
+            .btn-secondary {
+                background: var(--gray);
+                color: white;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .platforms-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .platform-card {
+                background: white;
+                border-radius: 10px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
+                display: flex;
+                flex-direction: column;
+                height: 280px;
+            }
+
+            .platform-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+                flex-shrink: 0;
+            }
+
+            .platform-title {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: var(--dark);
+                line-height: 1.3;
+                margin: 0;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .platform-status {
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 500;
+                flex-shrink: 0;
+            }
+
+            .status-active {
+                background: var(--success);
+                color: white;
+            }
+
+            .status-inactive {
+                background: var(--danger);
+                color: white;
+            }
+
+            .platform-stats {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                color: var(--gray);
+                flex-grow: 1;
+            }
+
+            .platform-stats > div {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+                min-height: 1.5rem;
+            }
+
+            .platform-actions {
+                display: flex;
+                gap: 0.5rem;
+                flex-shrink: 0;
+                margin-top: auto;
+            }
+
+            .action-btn {
+                flex: 1;
+                padding: 0.5rem;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.3s ease;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .edit-btn {
+                background: var(--warning);
+                color: white;
+            }
+
+            .delete-btn {
+                background: var(--danger);
+                color: white;
+            }
+
+            .toggle-btn {
+                background: var(--gray);
+                color: white;
+            }
+
+            .deactivate-btn {
+                background: #f59e0b;
+            }
+
+            .activate-btn {
+                background: var(--success);
+            }
+
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem;
+                border-radius: 8px;
+                color: white;
+                z-index: 1001;
+                display: none;
+                max-width: 400px;
+            }
+
+            .notification.success {
+                background: var(--success);
+            }
+
+            .notification.error {
+                background: var(--danger);
+            }
+
+            .close-modal {
+                position: absolute;
+                top: 1rem;
+                left: 1rem;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--gray);
+            }
+
+            .checkbox-label {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+                font-weight: normal;
+            }
+
+            .checkbox-label input[type="checkbox"] {
+                width: auto;
+                margin: 0;
+            }
+
+            /* Upload Section Styles */
+            .form-container {
+                max-width: 850px;
+                margin: auto;
+                padding: 30px;
+                border-radius: 16px;
+                background-color: #ffffff;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .form-container h2 {
+                text-align: center;
+                color: #1e3a8a;
+                margin-bottom: 30px;
+                border-bottom: 3px solid #3b82f6;
+                padding-bottom: 15px;
+            }
+
+            .form-container .form-group {
+                margin-bottom: 25px;
+            }
+
+            .form-container label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #4b5563;
+            }
+
+            .form-container input[type="text"],
+            .form-container input[type="file"],
+            .form-container select,
+            .form-container textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                box-sizing: border-box;
+                transition:
+                    border-color 0.3s,
+                    box-shadow 0.3s;
+                background-color: #f9fafb;
+            }
+
+            .form-container input:focus,
+            .form-container select:focus,
+            .form-container textarea:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+                outline: none;
+            }
+
+            .form-container textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            #new-course-fields {
+                display: none;
+                border: 2px solid #a5b4fc;
+                padding: 25px;
+                margin-top: 20px;
+                border-radius: 12px;
+                background-color: #f5f7ff;
+            }
+
+            #new-course-fields h4 {
+                color: #4f46e5;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #c7d2fe;
+                padding-bottom: 8px;
+            }
+
+            #courseId {
+                cursor: pointer;
+            }
+
+            .loader {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3b82f6;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                animation: spin 1s linear infinite;
+                display: none;
+                vertical-align: middle;
+                margin-right: 10px;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            #file-list {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #e5e7eb;
+            }
+
+            .file-entry {
+                display: flex;
+                align-items: flex-start;
+                gap: 20px;
+                border: 1px solid #e5e7eb;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+                background-color: #fff;
+                transition: box-shadow 0.3s;
+            }
+
+            .file-entry:hover {
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            }
+
+            .file-info {
+                flex-grow: 1;
+            }
+
+            .file-preview {
+                width: 150px;
+                min-width: 150px;
+                height: 100px;
+                overflow: hidden;
+                border-radius: 8px;
+                background-color: #e0e7ff;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .file-preview img,
+            .file-preview video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .file-preview .fa-icon {
+                font-size: 40px;
+                color: #3b82f6;
+            }
+
+            .file-preview p {
+                margin: 0;
+                font-size: 14px;
+                color: #6b7280;
+            }
+
+            .submit-btn {
+                background-color: #10b981;
+                color: white;
+                padding: 14px 25px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px;
+                width: 100%;
+                transition: background-color 0.3s;
+                margin-top: 20px;
+            }
+
+            .submit-btn:hover {
+                background-color: #059669;
+            }
+
+            .submit-btn:disabled {
+                background-color: #94a3b8;
+                cursor: not-allowed;
+            }
+
+            #upload-progress-container {
+                display: none;
+                margin-top: 20px;
+                padding: 15px;
+                background-color: #f0f9ff;
+                border-radius: 8px;
+                border: 1px solid #bae6fd;
+            }
+
+            .progress-bar-container {
+                width: 100%;
+                height: 20px;
+                background-color: #e2e8f0;
+                border-radius: 10px;
+                margin: 10px 0;
+                overflow: hidden;
+            }
+
+            .progress-bar {
+                height: 100%;
+                background-color: #3b82f6;
+                width: 0%;
+                transition: width 0.3s;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+            }
+        </style>
+        <script src="site-notification.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-cogs"></i> لوحة الإدارة الرئيسية</h1>
+                <p>إدارة المنصات ورفع الدروس</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="platforms">
+                    <i class="fas fa-code"></i> إدارة المنصات
+                </div>
+                <div class="nav-tab" data-tab="examples">
+                    <i class="fas fa-book"></i> إدارة الأمثلة
+                </div>
+                <div class="nav-tab" data-tab="courses">
+                    <i class="fas fa-graduation-cap"></i> إدارة الكورسات
+                </div>
+                <div class="nav-tab" data-tab="videos">
+                    <i class="fas fa-film"></i> إدارة فيديوهات الكورسات
+                </div>
+                <div class="nav-tab" data-tab="upload">
+                    <i class="fas fa-upload"></i> رفع الدروس
+                </div>
+                <div class="nav-tab" data-tab="assignments">
+                    <i class="fas fa-tasks"></i> إدارة التكليفات
+                </div>
+                <div class="nav-tab" data-tab="challenges">
+                    <i class="fas fa-puzzle-piece"></i> إدارة التحديات
+                </div>
+            </div>
+
+            <!-- Platforms Tab -->
+            <div class="tab-content active" id="platformsTab">
+                <button class="add-platform-btn" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> إضافة منصة جديدة
+                </button>
+
+                <div class="platforms-grid" id="platformsGrid">
+                    <!-- Platforms will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Examples Tab -->
+            <div class="tab-content" id="examplesTab">
+                <button
+                    class="add-platform-btn"
+                    onclick="openAddExampleModal()"
+                >
+                    <i class="fas fa-plus"></i> إضافة مثال جديد
+                </button>
+
+                <div class="platforms-grid" id="examplesGrid">
+                    <!-- Examples will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Courses Tab -->
+            <div class="tab-content" id="coursesTab">
+                <div class="platforms-grid" id="coursesGrid">
+                    <!-- Courses will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Videos Tab -->
+            <div class="tab-content" id="videosTab">
+                <div class="form-container">
+                    <h2><i class="fas fa-film"></i> إدارة فيديوهات الكورس</h2>
+
+                    <div class="form-group">
+                        <label for="videoCourseSelect">اختر الكورس</label>
+                        <select id="videoCourseSelect">
+                            <option value="">-- اختر كورساً --</option>
+                        </select>
+                    </div>
+
+                    <div id="lessonsList">
+                        <!-- Lessons will render here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Tab -->
+            <div class="tab-content" id="uploadTab">
+                <div class="form-container">
+                    <h2>
+                        <i class="fas fa-video"></i> لوحة رفع الدروس الجديدة
+                    </h2>
+
+                    <form
+                        id="uploadForm"
+                        method="POST"
+                        enctype="multipart/form-data"
+                    >
+                        <div class="form-group">
+                            <label for="courseId"
+                                ><i class="fas fa-book"></i> تحديد الكورس</label
+                            >
+                            <div style="display: flex; align-items: center">
+                                <select id="courseId" name="course_id" required>
+                                    <option value="">
+                                        -- Loading Courses... --
+                                    </option>
+                                    <option value="new">
+                                        -- إنشاء كورس جديد --
+                                    </option>
+                                </select>
+                                <div id="course-loader" class="loader"></div>
+                            </div>
+                        </div>
+
+                        <div id="new-course-fields">
+                            <h4>تفاصيل الكورس الجديد</h4>
+                            <div class="form-group">
+                                <label for="newCourseTitle"
+                                    ><i class="fas fa-pencil-alt"></i> عنوان
+                                    الكورس</label
+                                >
+                                <input
+                                    type="text"
+                                    id="newCourseTitle"
+                                    name="new_course_title"
+                                    placeholder="مثال: تطوير الويب باستخدام PHP"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="newCourseCategory"
+                                    ><i class="fas fa-tags"></i> تصنيف
+                                    الكورس</label
+                                >
+                                <input
+                                    type="text"
+                                    id="newCourseCategory"
+                                    name="new_course_category"
+                                    placeholder="مثال: الواجهة الخلفية (Backend)"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="courseLevel">مستوى الصعوبة</label>
+                                <select
+                                    class="form-control"
+                                    id="courseLevel"
+                                    name="level"
+                                >
+                                    <option value="أساسي">أساسي</option>
+                                    <option value="متوسط">متوسط</option>
+                                    <option value="متقدم">متقدم</option>
+                                    <option value="مبتدئ-متوسط">
+                                        مبتدئ-متوسط
+                                    </option>
+                                    <option value="أساسي-متوسط">
+                                        أساسي-متوسط
+                                    </option>
+                                    <option value="متوسط-متقدم">
+                                        متوسط-متقدم
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="courseLogo"
+                                    ><i class="fas fa-image"></i> شعار الكورس
+                                    (اختياري)</label
+                                >
+                                <input
+                                    type="file"
+                                    id="courseLogo"
+                                    name="course_logo"
+                                    accept="image/*"
+                                />
+                                <small
+                                    style="
+                                        color: #6b7280;
+                                        margin-top: 5px;
+                                        display: block;
+                                    "
+                                    >يُفضل صورة مربعة بحجم 200x200 بكسل</small
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="newCourseDescription"
+                                    ><i class="fas fa-align-right"></i> وصف
+                                    الكورس</label
+                                >
+                                <textarea
+                                    id="newCourseDescription"
+                                    name="new_course_description"
+                                    rows="3"
+                                    placeholder="وصف موجز للمحتوى..."
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newCoursePoints"
+                                    ><i class="fas fa-list-ul"></i> النقاط
+                                    الرئيسية للكورس (افصل بينها بسطر
+                                    جديد)</label
+                                >
+                                <textarea
+                                    id="newCoursePoints"
+                                    name="new_course_main_points"
+                                    rows="4"
+                                    placeholder="اكتب كل ميزة أو نقطة رئيسية للكورس في سطر جديد. هذا ما سيظهر في صفحة النظرة العامة."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoFiles"
+                                ><i class="fas fa-upload"></i> اختيار ملفات
+                                الفيديو (يمكن اختيار متعدد)</label
+                            >
+                            <input
+                                type="file"
+                                id="videoFiles"
+                                name="videos[]"
+                                accept="video/*"
+                                multiple
+                                required
+                            />
+                        </div>
+
+                        <div id="file-list"></div>
+
+                        <div class="form-group">
+                            <div id="upload-progress-container">
+                                <h4>
+                                    <i class="fas fa-spinner fa-spin"></i> جاري
+                                    رفع الملفات...
+                                </h4>
+                                <div class="progress-bar-container">
+                                    <div
+                                        id="upload-progress-bar"
+                                        class="progress-bar"
+                                    >
+                                        0%
+                                    </div>
+                                </div>
+                                <p id="upload-status">
+                                    جاري تحضير الملفات للرفع...
+                                </p>
+                            </div>
+
+                            <button type="submit" id="submit-button">
+                                <i class="fas fa-save"></i> رفع الدروس والحفظ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Assignments Tab -->
+            <div class="tab-content" id="assignmentsTab">
+                <button
+                    class="add-platform-btn"
+                    onclick="openAddAssignmentModal()"
+                >
+                    <i class="fas fa-plus"></i> إضافة تكليف جديد
+                </button>
+
+                <div class="platforms-grid" id="assignmentsGrid">
+                    <!-- Assignments will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Challenges Tab -->
+            <div class="tab-content" id="challengesTab">
+                <button
+                    class="add-platform-btn"
+                    onclick="openAddChallengeModal()"
+                >
+                    <i class="fas fa-plus"></i> إضافة تحدي جديد
+                </button>
+
+                <div class="platforms-grid" id="challengesGrid">
+                    <!-- Challenges will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div class="modal" id="platformModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal()">
+                    &times;
+                </button>
+                <h2 id="modalTitle">إضافة منصة جديدة</h2>
+
+                <form id="platformForm">
+                    <input type="hidden" id="platformId" name="id" />
+
+                    <div class="form-group">
+                        <label for="name">اسم المنصة *</label>
+                        <input type="text" id="name" name="name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">الوصف *</label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="url">رابط المنصة *</label>
+                        <input type="url" id="url" name="url" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">الفئة *</label>
+                        <select id="category" name="category" required>
+                            <option value="global">عالمية</option>
+                            <option value="arabic">عربية</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="level">المستوى *</label>
+                        <select id="level" name="level" required>
+                            <option value="beginner">مبتدئ</option>
+                            <option value="intermediate">متوسط</option>
+                            <option value="advanced">متقدم</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">اللغة *</label>
+                        <select id="language" name="language" required>
+                            <option value="english">إنجليزي</option>
+                            <option value="arabic">عربي</option>
+                            <option value="both">كلا اللغتين</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user_count">عدد المستخدمين</label>
+                        <input
+                            type="number"
+                            id="user_count"
+                            name="user_count"
+                            min="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="problem_count">عدد المشاكل</label>
+                        <input
+                            type="number"
+                            id="problem_count"
+                            name="problem_count"
+                            min="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>الميزات</label>
+                        <div class="features-input">
+                            <input
+                                type="text"
+                                id="featureInput"
+                                placeholder="أضف ميزة..."
+                            />
+                            <button
+                                type="button"
+                                onclick="addFeature()"
+                                class="btn btn-primary"
+                            >
+                                إضافة
+                            </button>
+                        </div>
+                        <div class="features-list" id="featuresList"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logo_url"
+                            >رابط الشعار (أو ارفع صورة أدناه)</label
+                        >
+                        <input
+                            type="url"
+                            id="logo_url"
+                            name="logo_url"
+                            placeholder="https://..."
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="logo_file"
+                            >رفع شعار (PNG/JPG/WebP - حتى 2MB)</label
+                        >
+                        <input
+                            type="file"
+                            id="logo_file"
+                            name="logo_file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                        />
+                        <div id="logo_preview" style="margin-top: 8px"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Example Modal -->
+        <div class="modal" id="exampleModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeExampleModal()">
+                    &times;
+                </button>
+                <h2 id="exampleModalTitle">إضافة مثال جديد</h2>
+
+                <form id="exampleForm">
+                    <input type="hidden" id="exampleId" name="id" />
+
+                    <div class="form-group">
+                        <label for="exampleTitle">عنوان المثال *</label>
+                        <input
+                            type="text"
+                            id="exampleTitle"
+                            name="title"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleDescription">الوصف *</label>
+                        <textarea
+                            id="exampleDescription"
+                            name="description"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleCategory">الفئة *</label>
+                        <select id="exampleCategory" name="category" required>
+                            <option value="frontend">Frontend</option>
+                            <option value="backend">Backend</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="algorithms">Algorithms</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleDifficulty">مستوى الصعوبة *</label>
+                        <select
+                            id="exampleDifficulty"
+                            name="difficulty"
+                            required
+                        >
+                            <option value="مبتدئ">مبتدئ</option>
+                            <option value="متوسط">متوسط</option>
+                            <option value="متقدم">متقدم</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleLanguage">لغة البرمجة *</label>
+                        <input
+                            type="text"
+                            id="exampleLanguage"
+                            name="code_language"
+                            required
+                            placeholder="مثال: Python, JavaScript, Java, إلخ"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleCode">الكود *</label>
+                        <textarea
+                            id="exampleCode"
+                            name="code_snippet"
+                            rows="10"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleImage">رابط الصورة</label>
+                        <input type="url" id="exampleImage" name="image_url" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleDemo">رابط العرض التوضيحي</label>
+                        <input type="url" id="exampleDemo" name="demo_url" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>التقنيات المستخدمة</label>
+                        <div class="features-input">
+                            <input
+                                type="text"
+                                id="techInput"
+                                placeholder="أضف تقنية..."
+                            />
+                            <button
+                                type="button"
+                                onclick="addTechnology()"
+                                class="btn btn-primary"
+                            >
+                                إضافة
+                            </button>
+                        </div>
+                        <div class="features-list" id="techList"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialEnv">يتطلب بيئة خاصة</label>
+                        <input
+                            type="checkbox"
+                            id="specialEnv"
+                            name="requires_special_env"
+                        />
+                    </div>
+
+                    <div
+                        class="form-group"
+                        id="specialEnvMessageGroup"
+                        style="display: none"
+                    >
+                        <label for="specialEnvMessage"
+                            >رسالة البيئة الخاصة</label
+                        >
+                        <textarea
+                            id="specialEnvMessage"
+                            name="special_env_message"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeExampleModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Course Modal -->
+        <div class="modal" id="courseModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeCourseModal()">
+                    &times;
+                </button>
+                <h2 id="courseModalTitle">إضافة كورس جديد</h2>
+
+                <form id="courseForm" enctype="multipart/form-data">
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="update_course_info"
+                    />
+                    <input type="hidden" id="courseEditId" name="id" />
+
+                    <div class="form-group">
+                        <label for="courseTitle">عنوان الكورس *</label>
+                        <input
+                            type="text"
+                            id="courseTitle"
+                            name="title"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseDescription">الوصف *</label>
+                        <textarea
+                            id="courseDescription"
+                            name="description"
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseCategory">الفئة *</label>
+                        <input
+                            type="text"
+                            id="courseCategory"
+                            name="category"
+                            required
+                            placeholder="مثال: الواجهة الخلفية (Backend)"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseLevel">المستوى *</label>
+                        <select id="courseLevel" name="level" required>
+                            <option value="أساسي">أساسي</option>
+                            <option value="متوسط">متوسط</option>
+                            <option value="متقدم">متقدم</option>
+                            <option value="مبتدئ-متوسط">مبتدئ-متوسط</option>
+                            <option value="أساسي-متوسط">أساسي-متوسط</option>
+                            <option value="متوسط-متقدم">متوسط-متقدم</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseMainPoints">النقاط الرئيسية</label>
+                        <textarea
+                            id="courseMainPoints"
+                            name="main_points"
+                            rows="4"
+                            placeholder="اكتب النقاط الرئيسية سطر بسطر"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseLogo">شعار الكورس</label>
+                        <input
+                            type="file"
+                            id="courseLogo"
+                            name="course_logo"
+                            accept="image/*"
+                        />
+                        <small>PNG, JPG, GIF - حد أقصى 2MB</small>
+                    </div>
+
+                    <div class="form-group">
+                        <button
+                            type="button"
+                            onclick="addLesson()"
+                            class="btn btn-secondary"
+                            style="margin-top: 10px"
+                        >
+                            <i class="fas fa-plus"></i> إضافة درس
+                        </button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeCourseModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Lesson Modal (Videos Tab) -->
+        <div class="modal" id="lessonModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeLessonModal()">
+                    &times;
+                </button>
+                <h2>تعديل الدرس</h2>
+
+                <form id="lessonForm" enctype="multipart/form-data">
+                    <input type="hidden" id="lessonId" name="lesson_id" />
+
+                    <div class="form-group">
+                        <label for="lessonTitle">عنوان الدرس *</label>
+                        <input
+                            type="text"
+                            id="lessonTitle"
+                            name="title"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lessonDescription">الوصف</label>
+                        <textarea
+                            id="lessonDescription"
+                            name="description"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lessonResources">روابط/كود إضافي</label>
+                        <textarea
+                            id="lessonResources"
+                            name="resources_code"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lessonOrder"
+                            >الترتيب في صفحة المشاهدة</label
+                        >
+                        <input
+                            type="number"
+                            id="lessonOrder"
+                            name="sort_order"
+                            min="0"
+                            value="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lessonVideo"
+                            >استبدال الفيديو (اختياري)</label
+                        >
+                        <input
+                            type="file"
+                            id="lessonVideo"
+                            name="video"
+                            accept="video/*"
+                        />
+                        <small>اتركه فارغاً للاحتفاظ بالفيديو الحالي.</small>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeLessonModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Assignment Modal -->
+        <div class="modal" id="assignmentModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeAssignmentModal()">
+                    &times;
+                </button>
+                <h2 id="assignmentModalTitle">إضافة تكليف جديد</h2>
+
+                <form id="assignmentForm">
+                    <input type="hidden" id="assignmentId" name="id" />
+
+                    <div class="form-group">
+                        <label for="assignmentCourse">الكورس *</label>
+                        <select id="assignmentCourse" name="course_id" required>
+                            <option value="">اختر الكورس</option>
+                            <!-- Courses will be loaded dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assignmentOrder">ترتيب التكليف *</label>
+                        <input
+                            type="number"
+                            id="assignmentOrder"
+                            name="assignment_order"
+                            min="1"
+                            required
+                            placeholder="1"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assignmentQuestion">نص التكليف *</label>
+                        <textarea
+                            id="assignmentQuestion"
+                            name="question"
+                            rows="6"
+                            required
+                            placeholder="اكتب نص التكليف هنا..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assignmentDifficulty"
+                            >مستوى الصعوبة *</label
+                        >
+                        <select
+                            id="assignmentDifficulty"
+                            name="difficulty"
+                            required
+                        >
+                            <option value="1">1 - مبتدئ</option>
+                            <option value="2">2 - متوسط</option>
+                            <option value="3">3 - متقدم</option>
+                            <option value="4">4 - خبير</option>
+                            <option value="5">5 - محترف</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeAssignmentModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Challenge Modal -->
+        <div class="modal" id="challengeModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeChallengeModal()">
+                    &times;
+                </button>
+                <h2 id="challengeModalTitle">إضافة تحدي جديد</h2>
+
+                <form id="challengeForm">
+                    <input type="hidden" id="challengeId" name="id" />
+
+                    <div class="form-group">
+                        <label for="challengeTitle">عنوان التحدي *</label>
+                        <input
+                            type="text"
+                            id="challengeTitle"
+                            name="title"
+                            required
+                            placeholder="مثال: بحث ثنائي"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeDescription">وصف التحدي *</label>
+                        <textarea
+                            id="challengeDescription"
+                            name="description"
+                            rows="4"
+                            required
+                            placeholder="اكتب وصف التحدي..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeCategory">الفئة *</label>
+                        <select id="challengeCategory" name="category" required>
+                            <option value="algorithms">الخوارزميات</option>
+                            <option value="data-structures">
+                                هياكل البيانات
+                            </option>
+                            <option value="web">تطوير الويب</option>
+                            <option value="database">قواعد البيانات</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeDifficulty">مستوى الصعوبة *</label>
+                        <select
+                            id="challengeDifficulty"
+                            name="difficulty"
+                            required
+                        >
+                            <option value="easy">سهل</option>
+                            <option value="medium">متوسط</option>
+                            <option value="hard">صعب</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengePoints">عدد النقاط *</label>
+                        <input
+                            type="number"
+                            id="challengePoints"
+                            name="points"
+                            min="0"
+                            required
+                            placeholder="50"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeCodeLanguage">لغة البرمجة</label>
+                        <input
+                            type="text"
+                            id="challengeCodeLanguage"
+                            name="code_language"
+                            placeholder="مثال: javascript, python"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeTestCases"
+                            >حالات الاختبار (JSON)</label
+                        >
+                        <textarea
+                            id="challengeTestCases"
+                            name="test_cases"
+                            rows="3"
+                            placeholder='[{"input": "test", "expected": "output"}]'
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="challengeSolutionTemplate">قالب الحل</label>
+                        <textarea
+                            id="challengeSolutionTemplate"
+                            name="solution_template"
+                            rows="4"
+                            placeholder="كود البداية للمستخدم..."
+                        ></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="closeChallengeModal()"
+                        >
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            حفظ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
+
+        <script>
+            let currentFeatures = [];
+
+            // Admin authentication check
+            (async function checkAdminAuth() {
+                try {
+                    const r = await fetch("/api/user/status", {
+                        credentials: "include",
+                    });
+                    const d = await r.json();
+                    if (!d.success || !d.roles || !d.roles.includes("admin")) {
+                        window.location.href = "login1.html";
+                        return;
+                    }
+                } catch (e) {
+                    window.location.href = "login1.html";
+                }
+            })();
+
+            // Initialize on page load
+            document.addEventListener("DOMContentLoaded", function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                let tabParam = urlParams.get("tab") || "platforms";
+
+                const search = window.location.search;
+                if (search.includes("tab=courses")) {
+                    tabParam = "courses";
+                } else if (search.includes("tab=examples")) {
+                    tabParam = "examples";
+                } else if (search.includes("tab=upload")) {
+                    tabParam = "upload";
+                }
+
+                setActiveTab(tabParam);
+                setupTabSwitching();
+            });
+
+            // Setup tab switching
+            function setupTabSwitching() {
+                const tabs = document.querySelectorAll(".nav-tab");
+                tabs.forEach((tab) => {
+                    tab.addEventListener("click", function () {
+                        const tabName = this.getAttribute("data-tab");
+                        setActiveTab(tabName);
+
+                        // Update URL without page reload
+                        const url = new URL(window.location);
+                        url.searchParams.set("tab", tabName);
+                        window.history.pushState({}, "", url);
+                    });
+                });
+            }
+
+            // Set active tab
+            function setActiveTab(tabName) {
+                // Remove active class from all tabs
+                document
+                    .querySelectorAll(".nav-tab")
+                    .forEach((t) => t.classList.remove("active"));
+                document
+                    .querySelectorAll(".tab-content")
+                    .forEach((c) => c.classList.remove("active"));
+
+                // Add active class to specified tab
+                const tabElement = document.querySelector(
+                    `.nav-tab[data-tab="${tabName}"]`,
+                );
+                const contentElement = document.getElementById(tabName + "Tab");
+
+                if (tabElement && contentElement) {
+                    tabElement.classList.add("active");
+                    contentElement.classList.add("active");
+
+                    // Load content based on tab
+                    if (tabName === "platforms") {
+                        loadPlatforms();
+                    } else if (tabName === "examples") {
+                        loadExamples();
+                    } else if (tabName === "courses") {
+                        loadCourses();
+                    } else if (tabName === "videos") {
+                        loadVideoCourses();
+                    } else if (tabName === "assignments") {
+                        loadAssignments();
+                    } else if (tabName === "challenges") {
+                        loadChallenges();
+                    } else if (tabName === "upload") {
+                        // Handle upload tab if needed
+                    }
+                }
+            }
+
+            // Display platforms in grid
+            function displayPlatforms(platforms) {
+                const grid = document.getElementById("platformsGrid");
+                grid.innerHTML = "";
+
+                platforms.forEach((platform) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${platform.name}</h3>
+                        <span class="platform-status ${
+                            platform.is_active
+                                ? "status-active"
+                                : "status-inactive"
+                        }">
+                            ${platform.is_active ? "نشط" : "غير نشط"}
+                        </span>
+                    </div>
+                    <div class="platform-stats">
+                        <div><i class="fas fa-users"></i> ${formatNumber(
+                            platform.user_count,
+                        )}</div>
+                        <div><i class="fas fa-code"></i> ${formatNumber(
+                            platform.problem_count,
+                        )}</div>
+                        <div><i class="fas fa-star"></i> ${parseFloat(
+                            platform.rating,
+                        ).toFixed(1)}</div>
+                        <div><i class="fas fa-globe"></i> ${
+                            platform.category === "global" ? "عالمي" : "عربي"
+                        }</div>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick="editPlatform(${
+                            platform.id
+                        })">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn toggle-btn ${platform.is_active ? "deactivate-btn" : "activate-btn"}" onclick="toggleActive(${
+                            platform.id
+                        })">
+                            <i class="fas fa-${platform.is_active ? "ban" : "check"}"></i> ${platform.is_active ? "تعطيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deletePlatform(${
+                            platform.id
+                        })">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // Open add modal
+            function openAddModal() {
+                document.getElementById("modalTitle").textContent =
+                    "إضافة منصة جديدة";
+                document.getElementById("platformForm").reset();
+                document.getElementById("platformId").value = "";
+                currentFeatures = [];
+                updateFeaturesDisplay();
+                document.getElementById("platformModal").style.display =
+                    "block";
+            }
+
+            // Edit platform
+            async function editPlatform(id) {
+                try {
+                    const response = await fetch(`/api/admin/platforms/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const platform = data.platform;
+                        document.getElementById("modalTitle").textContent =
+                            "تعديل المنصة";
+                        document.getElementById("platformId").value =
+                            platform.id;
+                        document.getElementById("name").value = platform.name;
+                        document.getElementById("description").value =
+                            platform.description;
+                        document.getElementById("url").value = platform.url;
+                        document.getElementById("category").value =
+                            platform.category;
+                        document.getElementById("level").value = platform.level;
+                        document.getElementById("language").value =
+                            platform.language;
+                        document.getElementById("user_count").value =
+                            platform.user_count;
+                        document.getElementById("problem_count").value =
+                            platform.problem_count;
+                        document.getElementById("logo_url").value =
+                            platform.logo_url || "";
+                        document.getElementById("logo_file").value = "";
+                        document.getElementById("logo_preview").innerHTML =
+                            platform.logo_url
+                                ? `<img src="${platform.logo_url}" style="height:48px;border-radius:6px;" />`
+                                : "";
+
+                        currentFeatures = platform.features || [];
+                        updateFeaturesDisplay();
+
+                        document.getElementById("platformModal").style.display =
+                            "block";
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات المنصة",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading platform:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Delete platform permanently
+            async function deletePlatform(id) {
+                if (
+                    !confirm(
+                        "تحذير: سيتم حذف هذه المنصة نهائياً من قاعدة البيانات ولن يمكن استرجاعها. هل أنت متأكد؟",
+                    )
+                ) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/admin/platforms/${id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(
+                            "تم حذف المنصة نهائياً من قاعدة البيانات",
+                            "success",
+                        );
+                        loadPlatforms(); // Reload the list
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف المنصة",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting platform:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Toggle active status
+            async function toggleActive(id) {
+                try {
+                    // First, get the current platform data
+                    const response = await fetch(`/api/admin/platforms/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات المنصة",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    const platform = data.platform;
+                    const currentActive = Boolean(platform.is_active);
+                    const newActiveStatus = !currentActive;
+                    const actionText = newActiveStatus ? "تفعيل" : "تعطيل";
+
+                    if (!confirm(`هل أنت متأكد من ${actionText} هذه المنصة؟`)) {
+                        return;
+                    }
+
+                    // Send toggle request
+                    const updateResponse = await fetch(
+                        `/api/admin/platforms/${platform.id}`,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                is_active: newActiveStatus ? 1 : 0,
+                            }),
+                        },
+                    );
+                    const updateData = await updateResponse.json();
+
+                    if (updateData.success) {
+                        showNotification(
+                            newActiveStatus
+                                ? "تم تفعيل المنصة وأصبحت مرئية للمستخدمين"
+                                : "تم تعطيل المنصة ولن تظهر للمستخدمين",
+                            "success",
+                        );
+                        loadPlatforms(); // Reload the list
+                    } else {
+                        showNotification(
+                            updateData.message || "فشل في تحديث حالة المنصة",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error toggling platform status:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Handle form submission
+            document
+                .getElementById("platformForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+                    data.features = currentFeatures;
+
+                    // If a logo file was selected, upload it first
+                    const logoFile =
+                        document.getElementById("logo_file").files[0];
+                    if (logoFile) {
+                        try {
+                            const uploadData = new FormData();
+                            uploadData.append("logo", logoFile);
+                            const uploadRes = await fetch(
+                                "/api/admin/platforms/upload-logo",
+                                {
+                                    method: "POST",
+                                    credentials: "include",
+                                    body: uploadData,
+                                },
+                            );
+                            const uploadResult = await uploadRes.json();
+                            if (uploadResult.success) {
+                                data.logo_url = uploadResult.logo_url;
+                            } else {
+                                showNotification(
+                                    uploadResult.message || "فشل في رفع الشعار",
+                                    "error",
+                                );
+                                return;
+                            }
+                        } catch (err) {
+                            showNotification(
+                                "حدث خطأ أثناء رفع الشعار",
+                                "error",
+                            );
+                            return;
+                        }
+                    }
+
+                    const isEdit = data.id;
+                    const method = isEdit ? "PUT" : "POST";
+                    const url = isEdit
+                        ? `/api/admin/platforms/${data.id}`
+                        : "/api/admin/platforms";
+
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify(data),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification(
+                                isEdit
+                                    ? "تم تحديث المنصة بنجاح"
+                                    : "تم إضافة المنصة بنجاح",
+                                "success",
+                            );
+                            closeModal();
+                            loadPlatforms(); // Reload the list
+                        } else {
+                            showNotification(
+                                result.message || "فشل في حفظ المنصة",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving platform:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            // Logo file preview
+            document
+                .getElementById("logo_file")
+                .addEventListener("change", function () {
+                    const file = this.files[0];
+                    const preview = document.getElementById("logo_preview");
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            preview.innerHTML = `<img src="${e.target.result}" style="height:48px;border-radius:6px;" />`;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.innerHTML = "";
+                    }
+                });
+
+            // Add feature
+            function addFeature() {
+                const input = document.getElementById("featureInput");
+                const feature = input.value.trim();
+
+                if (feature && !currentFeatures.includes(feature)) {
+                    currentFeatures.push(feature);
+                    updateFeaturesDisplay();
+                    input.value = "";
+                }
+            }
+
+            // Update features display
+            function updateFeaturesDisplay() {
+                const list = document.getElementById("featuresList");
+                list.innerHTML = "";
+
+                currentFeatures.forEach((feature, index) => {
+                    const tag = document.createElement("div");
+                    tag.className = "feature-tag";
+                    tag.innerHTML = `
+                    ${feature}
+                    <span class="remove" onclick="removeFeature(${index})">&times;</span>
+                `;
+                    list.appendChild(tag);
+                });
+            }
+
+            // Remove feature
+            function removeFeature(index) {
+                currentFeatures.splice(index, 1);
+                updateFeaturesDisplay();
+            }
+
+            // Close modal
+            function closeModal() {
+                document.getElementById("platformModal").style.display = "none";
+            }
+
+            // Load all platforms
+            async function loadPlatforms() {
+                try {
+                    const response = await fetch("/api/admin/platforms", {
+                        credentials: "include",
+                    });
+
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (parseErr) {
+                        console.error("Invalid JSON for platforms:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند تحميل المنصات",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    if (data.success) {
+                        displayPlatforms(data.platforms || []);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل المنصات",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading platforms:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // ===== EXAMPLES MANAGEMENT FUNCTIONS =====
+
+            // Load all examples
+            async function loadExamples() {
+                try {
+                    const response = await fetch("/api/admin/examples", {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        displayExamples(data.examples);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل الأمثلة",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading examples:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Display examples in grid
+            function displayExamples(examples) {
+                const grid = document.getElementById("examplesGrid");
+                grid.innerHTML = "";
+
+                examples.forEach((example) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${example.title}</h3>
+                        <span class="platform-status ${
+                            example.is_active
+                                ? "status-active"
+                                : "status-inactive"
+                        }">
+                            ${example.is_active ? "نشط" : "غير نشط"}
+                        </span>
+                    </div>
+                    <div class="platform-stats">
+                        <div><i class="fas fa-code"></i> ${example.code_language}</div>
+                        <div><i class="fas fa-layer-group"></i> ${example.category}</div>
+                        <div><i class="fas fa-chart-line"></i> ${example.difficulty}</div>
+                        <div><i class="fas fa-eye"></i> ${example.views || 0}</div>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick="editExample(${
+                            example.id
+                        })">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn toggle-btn ${example.is_active ? "deactivate-btn" : "activate-btn"}" onclick="toggleExampleActive(${
+                            example.id
+                        })">
+                            <i class="fas fa-${example.is_active ? "ban" : "check"}"></i> ${example.is_active ? "تعطيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteExample(${
+                            example.id
+                        })">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // Open add example modal
+            function openAddExampleModal() {
+                document.getElementById("exampleModalTitle").textContent =
+                    "إضافة مثال جديد";
+                document.getElementById("exampleForm").reset();
+                document.getElementById("exampleId").value = "";
+                currentTechnologies = [];
+                updateTechDisplay();
+                document.getElementById("exampleModal").style.display = "block";
+            }
+
+            // Edit example
+            async function editExample(id) {
+                try {
+                    const response = await fetch(`/api/admin/examples/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const example = data.example;
+                        document.getElementById(
+                            "exampleModalTitle",
+                        ).textContent = "تعديل المثال";
+                        document.getElementById("exampleId").value = example.id;
+                        document.getElementById("exampleTitle").value =
+                            example.title;
+                        document.getElementById("exampleDescription").value =
+                            example.description;
+                        document.getElementById("exampleCategory").value =
+                            example.category;
+                        document.getElementById("exampleDifficulty").value =
+                            example.difficulty;
+                        document.getElementById("exampleLanguage").value =
+                            example.code_language;
+                        document.getElementById("exampleCode").value =
+                            example.code_snippet;
+                        document.getElementById("exampleImage").value =
+                            example.image_url || "";
+                        document.getElementById("exampleDemo").value =
+                            example.demo_url || "";
+                        document.getElementById("specialEnv").checked =
+                            example.requires_special_env == 1;
+                        document.getElementById("specialEnvMessage").value =
+                            example.special_env_message || "";
+
+                        currentTechnologies = example.technologies
+                            ? JSON.parse(example.technologies)
+                            : [];
+                        updateTechDisplay();
+
+                        // Show/hide special env message
+                        toggleSpecialEnvMessage();
+
+                        document.getElementById("exampleModal").style.display =
+                            "block";
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات المثال",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading example:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Delete example permanently
+            async function deleteExample(id) {
+                if (
+                    !confirm(
+                        "تحذير: سيتم حذف هذا المثال نهائياً من قاعدة البيانات ولن يمكن استرجاعه. هل أنت متأكد؟",
+                    )
+                ) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/admin/examples/${id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(
+                            "تم حذف المثال نهائياً من قاعدة البيانات",
+                            "success",
+                        );
+                        loadExamples(); // Reload the list
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف المثال",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting example:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Toggle example active status
+            async function toggleExampleActive(id) {
+                try {
+                    // First, get the current example data
+                    const response = await fetch(`/api/admin/examples/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات المثال",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    const example = data.example;
+                    const currentActive = Boolean(example.is_active);
+                    const newActiveStatus = !currentActive;
+                    const actionText = newActiveStatus ? "تفعيل" : "تعطيل";
+
+                    if (!confirm(`هل أنت متأكد من ${actionText} هذا المثال؟`)) {
+                        return;
+                    }
+
+                    // Send toggle request
+                    const updateResponse = await fetch(
+                        `/api/admin/examples/${example.id}`,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                is_active: newActiveStatus ? 1 : 0,
+                            }),
+                        },
+                    );
+                    const updateData = await updateResponse.json();
+
+                    if (updateData.success) {
+                        showNotification(
+                            newActiveStatus
+                                ? "تم تفعيل المثال وأصبح مرئي للمستخدمين"
+                                : "تم تعطيل المثال ولن يظهر للمستخدمين",
+                            "success",
+                        );
+                        loadExamples(); // Reload the list
+                    } else {
+                        showNotification(
+                            updateData.message || "فشل في تحديث حالة المثال",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error toggling example status:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Handle example form submission
+            document
+                .getElementById("exampleForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+                    data.technologies = currentTechnologies;
+
+                    const isEdit = data.id;
+                    const method = isEdit ? "PUT" : "POST";
+                    const url = isEdit
+                        ? `/api/admin/examples/${data.id}`
+                        : "/api/admin/examples";
+
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify(data),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification(
+                                isEdit
+                                    ? "تم تحديث المثال بنجاح"
+                                    : "تم إضافة المثال بنجاح",
+                                "success",
+                            );
+                            closeExampleModal();
+                            loadExamples(); // Reload the list
+                        } else {
+                            showNotification(
+                                result.message || "فشل في حفظ المثال",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving example:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            // Assignment form submission
+            document
+                .getElementById("assignmentForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+
+                    const isEdit = data.id;
+                    const method = isEdit ? "PUT" : "POST";
+                    const url = isEdit
+                        ? `/api/admin/assignments/${data.id}`
+                        : "/api/admin/assignments";
+
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify(data),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification(
+                                isEdit
+                                    ? "تم تحديث التكليف بنجاح"
+                                    : "تم إضافة التكليف بنجاح",
+                                "success",
+                            );
+                            closeAssignmentModal();
+                            loadAssignments(); // Reload the list
+                        } else {
+                            showNotification(
+                                result.message || "فشل في حفظ التكليف",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving assignment:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            // Challenge form submission
+            document
+                .getElementById("challengeForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData);
+
+                    const isEdit = data.id;
+                    const method = isEdit ? "PUT" : "POST";
+                    const url = isEdit
+                        ? `/api/admin/challenges/${data.id}`
+                        : "/api/admin/challenges";
+
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify(data),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showNotification(
+                                isEdit
+                                    ? "تم تحديث التحدي بنجاح"
+                                    : "تم إضافة التحدي بنجاح",
+                                "success",
+                            );
+                            closeChallengeModal();
+                            loadChallenges(); // Reload the list
+                        } else {
+                            showNotification(
+                                result.message || "فشل في حفظ التحدي",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving challenge:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            // Technology management for examples
+            let currentTechnologies = [];
+
+            // Add technology
+            function addTechnology() {
+                const input = document.getElementById("techInput");
+                const tech = input.value.trim();
+
+                if (tech && !currentTechnologies.includes(tech)) {
+                    currentTechnologies.push(tech);
+                    updateTechDisplay();
+                    input.value = "";
+                }
+            }
+
+            // Update technology display
+            function updateTechDisplay() {
+                const list = document.getElementById("techList");
+                list.innerHTML = "";
+
+                currentTechnologies.forEach((tech, index) => {
+                    const tag = document.createElement("div");
+                    tag.className = "feature-tag";
+                    tag.innerHTML = `
+                    ${tech}
+                    <span class="remove" onclick="removeTechnology(${index})">&times;</span>
+                `;
+                    list.appendChild(tag);
+                });
+            }
+
+            // Remove technology
+            function removeTechnology(index) {
+                currentTechnologies.splice(index, 1);
+                updateTechDisplay();
+            }
+
+            // Close example modal
+            function closeExampleModal() {
+                document.getElementById("exampleModal").style.display = "none";
+            }
+
+            // Close assignment modal
+            function closeAssignmentModal() {
+                document.getElementById("assignmentModal").style.display =
+                    "none";
+            }
+
+            // Close challenge modal
+            function closeChallengeModal() {
+                document.getElementById("challengeModal").style.display =
+                    "none";
+            }
+
+            // Toggle special environment message visibility
+            function toggleSpecialEnvMessage() {
+                const checked = document.getElementById("specialEnv").checked;
+                document.getElementById(
+                    "specialEnvMessageGroup",
+                ).style.display = checked ? "block" : "none";
+            }
+
+            // Event listener for special env checkbox
+            document
+                .getElementById("specialEnv")
+                .addEventListener("change", toggleSpecialEnvMessage);
+
+            // Allow adding technologies with Enter key
+            document
+                .getElementById("techInput")
+                .addEventListener("keypress", function (e) {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTechnology();
+                    }
+                });
+
+            // ===== END EXAMPLES MANAGEMENT FUNCTIONS =====
+
+            // ===== ASSIGNMENTS MANAGEMENT FUNCTIONS =====
+
+            // Load all assignments
+            async function loadAssignments() {
+                try {
+                    const response = await fetch("/api/admin/assignments", {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        displayAssignments(data.assignments);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل التكليفات",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading assignments:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Load courses for assignment dropdown
+            async function loadCoursesForAssignment() {
+                try {
+                    const response = await fetch("/api/admin/courses", {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const courseSelect =
+                            document.getElementById("assignmentCourse");
+                        courseSelect.innerHTML =
+                            '<option value="">اختر الكورس</option>';
+
+                        data.courses.forEach((course) => {
+                            const option = document.createElement("option");
+                            option.value = course.id;
+                            option.textContent = `${course.title} (${course.category})`;
+                            courseSelect.appendChild(option);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading courses:", error);
+                }
+            }
+
+            // Display assignments in grid
+            function displayAssignments(assignments) {
+                const grid = document.getElementById("assignmentsGrid");
+                grid.innerHTML = "";
+
+                assignments.forEach((assignment) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    const isActive =
+                        assignment.is_active == 1 ||
+                        assignment.is_active === true;
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${assignment.question.substring(0, 50)}...</h3>
+                        <span class="platform-status ${isActive ? "status-active" : "status-inactive"}">
+                            ${isActive ? "نشط" : "معطّل"}
+                        </span>
+                    </div>
+                    <div class="platform-stats">
+                        <div><i class="fas fa-graduation-cap"></i> ${assignment.course_title ?? "-"}</div>
+                        <div><i class="fas fa-sort-numeric-up"></i> الترتيب: ${assignment.assignment_order}</div>
+                        <div><i class="fas fa-chart-line"></i> الصعوبة: ${assignment.difficulty}</div>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick="editAssignment(${assignment.id})">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn" style="background:${isActive ? "#f59e0b" : "#10b981"};color:#fff;" onclick="toggleAssignment(${assignment.id}, this)">
+                            <i class="fas fa-${isActive ? "ban" : "check"}"></i> ${isActive ? "تعطيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteAssignment(${assignment.id})">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // Open add assignment modal
+            function openAddAssignmentModal() {
+                loadCoursesForAssignment();
+                document.getElementById("assignmentId").value = "";
+                document.getElementById("assignmentCourse").value = "";
+                document.getElementById("assignmentOrder").value = "1";
+                document.getElementById("assignmentQuestion").value = "";
+                document.getElementById("assignmentDifficulty").value = "1";
+                document.getElementById("assignmentModalTitle").textContent =
+                    "إضافة تكليف جديد";
+                document.getElementById("assignmentModal").style.display =
+                    "block";
+            }
+
+            // Edit assignment
+            async function editAssignment(id) {
+                try {
+                    const response = await fetch(
+                        `/api/admin/assignments/${id}`,
+                        {
+                            credentials: "include",
+                        },
+                    );
+                    const data = await response.json();
+
+                    if (data.success) {
+                        loadCoursesForAssignment();
+                        const assignment = data.assignment;
+                        document.getElementById("assignmentId").value =
+                            assignment.id;
+                        document.getElementById("assignmentCourse").value =
+                            assignment.course_id;
+                        document.getElementById("assignmentOrder").value =
+                            assignment.assignment_order;
+                        document.getElementById("assignmentQuestion").value =
+                            assignment.question;
+                        document.getElementById("assignmentDifficulty").value =
+                            assignment.difficulty;
+                        document.getElementById(
+                            "assignmentModalTitle",
+                        ).textContent = "تعديل التكليف";
+                        document.getElementById(
+                            "assignmentModal",
+                        ).style.display = "block";
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات التكليف",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading assignment:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Delete assignment
+            async function deleteAssignment(id) {
+                if (!confirm("هل أنت متأكد من حذف هذا التكليف؟")) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/admin/assignments/${id}`,
+                        {
+                            method: "DELETE",
+                            credentials: "include",
+                        },
+                    );
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification("تم حذف التكليف بنجاح", "success");
+                        loadAssignments();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف التكليف",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting assignment:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Toggle assignment active/inactive
+            async function toggleAssignment(id, btn) {
+                try {
+                    const response = await fetch(
+                        `/api/admin/assignments/${id}/toggle`,
+                        {
+                            method: "PATCH",
+                            credentials: "include",
+                        },
+                    );
+                    const data = await response.json();
+                    if (data.success) {
+                        showNotification(data.message, "success");
+                        loadAssignments();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تغيير الحالة",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // ===== CHALLENGES MANAGEMENT FUNCTIONS =====
+
+            // Load all challenges
+            async function loadChallenges() {
+                try {
+                    const response = await fetch("/api/admin/challenges", {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        displayChallenges(data.challenges);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل التحديات",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading challenges:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Display challenges in grid
+            function displayChallenges(challenges) {
+                const grid = document.getElementById("challengesGrid");
+                grid.innerHTML = "";
+
+                challenges.forEach((challenge) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${challenge.title}</h3>
+                        <span class="platform-status ${challenge.is_active ? "status-active" : "status-inactive"}">
+                            ${challenge.is_active ? "نشط" : "غير نشط"}
+                        </span>
+                    </div>
+                    <div class="platform-stats">
+                        <div><i class="fas fa-tag"></i> الفئة: ${challenge.category}</div>
+                        <div><i class="fas fa-star"></i> الصعوبة: ${challenge.difficulty}</div>
+                        <div><i class="fas fa-coins"></i> النقاط: ${challenge.points}</div>
+                        <div><i class="fas fa-code"></i> ${challenge.code_language || "غير محدد"}</div>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick="editChallenge(${challenge.id})">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn ${challenge.is_active ? "deactivate-btn" : "activate-btn"}" onclick="toggleChallenge(${challenge.id}, ${challenge.is_active})">
+                            <i class="fas ${challenge.is_active ? "fa-eye-slash" : "fa-eye"}"></i> ${challenge.is_active ? "إلغاء التفعيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteChallenge(${challenge.id})">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // Open add challenge modal
+            function openAddChallengeModal() {
+                document.getElementById("challengeId").value = "";
+                document.getElementById("challengeTitle").value = "";
+                document.getElementById("challengeDescription").value = "";
+                document.getElementById("challengeCategory").value =
+                    "algorithms";
+                document.getElementById("challengeDifficulty").value = "easy";
+                document.getElementById("challengePoints").value = "50";
+                document.getElementById("challengeCodeLanguage").value = "";
+                document.getElementById("challengeTestCases").value = "";
+                document.getElementById("challengeSolutionTemplate").value = "";
+                document.getElementById("challengeModalTitle").textContent =
+                    "إضافة تحدي جديد";
+                document.getElementById("challengeModal").style.display =
+                    "block";
+            }
+
+            // Edit challenge
+            async function editChallenge(id) {
+                try {
+                    const response = await fetch(
+                        `/api/admin/challenges/${id}`,
+                        {
+                            credentials: "include",
+                        },
+                    );
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const challenge = data.challenge;
+                        document.getElementById("challengeId").value =
+                            challenge.id;
+                        document.getElementById("challengeTitle").value =
+                            challenge.title;
+                        document.getElementById("challengeDescription").value =
+                            challenge.description;
+                        document.getElementById("challengeCategory").value =
+                            challenge.category;
+                        document.getElementById("challengeDifficulty").value =
+                            challenge.difficulty;
+                        document.getElementById("challengePoints").value =
+                            challenge.points;
+                        document.getElementById("challengeCodeLanguage").value =
+                            challenge.code_language || "";
+                        document.getElementById("challengeTestCases").value =
+                            challenge.test_cases || "";
+                        document.getElementById(
+                            "challengeSolutionTemplate",
+                        ).value = challenge.solution_template || "";
+                        document.getElementById(
+                            "challengeModalTitle",
+                        ).textContent = "تعديل التحدي";
+                        document.getElementById(
+                            "challengeModal",
+                        ).style.display = "block";
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات التحدي",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading challenge:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Delete challenge
+            async function deleteChallenge(id) {
+                if (
+                    !confirm(
+                        "هل أنت متأكد من حذف هذا التحدي نهائياً؟ سيتم حذفه من قاعدة البيانات ولن يمكن استرداده.",
+                    )
+                ) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/admin/challenges/${id}`,
+                        {
+                            method: "DELETE",
+                            credentials: "include",
+                        },
+                    );
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(
+                            "تم حذف التحدي نهائياً من قاعدة البيانات",
+                            "success",
+                        );
+                        loadChallenges();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف التحدي",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting challenge:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Toggle challenge active status
+            async function toggleChallenge(id, currentStatus) {
+                const newActiveStatus = !currentStatus;
+                const actionText = newActiveStatus ? "تفعيل" : "تعطيل";
+
+                if (!confirm(`هل أنت متأكد من ${actionText} هذا التحدي؟`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/admin/challenges/${id}`,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                is_active: newActiveStatus ? 1 : 0,
+                            }),
+                        },
+                    );
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(
+                            newActiveStatus
+                                ? "تم تفعيل التحدي وأصبح متاحاً للمستخدمين"
+                                : "تم تعطيل التحدي ولن يظهر للمستخدمين",
+                            "success",
+                        );
+                        loadChallenges(); // Reload the list
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحديث حالة التحدي",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error toggling challenge status:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // ===== COURSES MANAGEMENT FUNCTIONS =====
+
+            // Load all courses
+            async function loadCourses() {
+                try {
+                    const response = await fetch("/api/admin/courses", {
+                        credentials: "include",
+                    });
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (parseErr) {
+                        console.error("Invalid JSON for courses:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند تحميل الكورسات",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    if (data.success) {
+                        displayCourses(data.courses || []);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل الكورسات",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading courses:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // ===== VIDEOS MANAGEMENT FUNCTIONS =====
+
+            let currentLessons = [];
+
+            async function loadVideoCourses() {
+                const select = document.getElementById("videoCourseSelect");
+                if (!select) return;
+
+                try {
+                    const response = await fetch("/api/admin/courses", {
+                        credentials: "include",
+                    });
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error("Invalid JSON for video courses:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند تحميل الكورسات",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    if (!data.success) {
+                        showNotification(
+                            data.message || "فشل في تحميل الكورسات",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    select.innerHTML =
+                        '<option value="">-- اختر كورساً --</option>';
+                    data.courses.forEach((course) => {
+                        const opt = document.createElement("option");
+                        opt.value = course.id;
+                        opt.textContent = course.title;
+                        select.appendChild(opt);
+                    });
+                } catch (error) {
+                    console.error("Error loading video courses:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            document
+                .getElementById("videoCourseSelect")
+                ?.addEventListener("change", (e) => {
+                    const courseId = e.target.value;
+                    if (courseId) {
+                        loadCourseLessons(courseId);
+                    } else {
+                        document.getElementById("lessonsList").innerHTML = "";
+                    }
+                });
+
+            async function loadCourseLessons(courseId) {
+                try {
+                    const response = await fetch(
+                        `/api/admin/courses/${courseId}/lessons`,
+                        {
+                            credentials: "include",
+                        },
+                    );
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error("Invalid JSON for lessons:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند تحميل الدروس",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    if (!data.success) {
+                        showNotification(
+                            data.message || "فشل في تحميل الدروس",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    displayLessons(data.lessons || []);
+                } catch (error) {
+                    console.error("Error loading lessons:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            function displayLessons(lessons) {
+                currentLessons = lessons;
+                const container = document.getElementById("lessonsList");
+                container.innerHTML = "";
+
+                if (!lessons.length) {
+                    container.innerHTML = "<p>لا توجد دروس لهذا الكورس.</p>";
+                    return;
+                }
+
+                lessons.forEach((lesson) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${lesson.title}</h3>
+                        <span class="platform-status">الترتيب: ${lesson.sort_order ?? 0}</span>
+                    </div>
+                    <p class="platform-desc">${lesson.description || ""}</p>
+                    <div class="platform-stats">
+                        <span><i class="fas fa-link"></i> ${lesson.resources_code ? "روابط/كود متاح" : "لا يوجد"}</span>
+                        <span><i class="fas fa-video"></i> ${lesson.video_path ? lesson.video_path : "بدون فيديو"}</span>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick='openLessonModalById(${lesson.id})'>تعديل</button>
+                        <button class="action-btn" onclick='reorderLesson(${lesson.id}, "up")'><i class="fas fa-arrow-up"></i></button>
+                        <button class="action-btn" onclick='reorderLesson(${lesson.id}, "down")'><i class="fas fa-arrow-down"></i></button>
+                        <button class="action-btn delete-btn" onclick='deleteLesson(${lesson.id})'><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                `;
+                    container.appendChild(card);
+                });
+            }
+
+            function openLessonModalById(id) {
+                const lesson = currentLessons.find(
+                    (l) => String(l.id) === String(id),
+                );
+                if (lesson) {
+                    openLessonModal(lesson);
+                }
+            }
+
+            function openLessonModal(lesson) {
+                document.getElementById("lessonId").value = lesson.id || "";
+                document.getElementById("lessonTitle").value =
+                    lesson.title || "";
+                document.getElementById("lessonDescription").value =
+                    lesson.description || "";
+                document.getElementById("lessonResources").value =
+                    lesson.resources_code || "";
+                document.getElementById("lessonOrder").value =
+                    lesson.sort_order ?? 0;
+                document.getElementById("lessonModal").style.display = "block";
+            }
+
+            function closeLessonModal() {
+                document.getElementById("lessonModal").style.display = "none";
+                document.getElementById("lessonForm").reset();
+            }
+
+            document
+                .getElementById("lessonForm")
+                ?.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    const courseId =
+                        document.getElementById("videoCourseSelect").value;
+                    if (!courseId) {
+                        showNotification("اختر الكورس أولاً", "error");
+                        return;
+                    }
+
+                    const formData = new FormData(this);
+                    const lessonId = formData.get("lesson_id");
+                    formData.set("course_id", courseId);
+                    formData.delete("action");
+
+                    const url = lessonId
+                        ? `/api/admin/lessons/${lessonId}`
+                        : "/api/admin/lessons";
+                    const method = lessonId ? "PUT" : "POST";
+
+                    // Always use FormData to support optional video file replacement
+                    // Laravel needs _method spoofing for PUT with multipart
+                    let fetchOptions;
+                    if (lessonId) {
+                        formData.append("_method", "PUT");
+                        fetchOptions = {
+                            method: "POST",
+                            credentials: "include",
+                            body: formData,
+                        };
+                    } else {
+                        fetchOptions = {
+                            method: method,
+                            credentials: "include",
+                            body: formData,
+                        };
+                    }
+
+                    try {
+                        const response = await fetch(url, fetchOptions);
+
+                        const text = await response.text();
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (_) {
+                            console.error("Invalid JSON on lesson save:", text);
+                            showNotification(
+                                "استجابة غير صالحة من الخادم عند حفظ الدرس",
+                                "error",
+                            );
+                            return;
+                        }
+
+                        if (data.success) {
+                            showNotification("تم حفظ الدرس بنجاح", "success");
+                            closeLessonModal();
+                            loadCourseLessons(courseId);
+                        } else {
+                            showNotification(
+                                data.message || "فشل في حفظ الدرس",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving lesson:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            async function deleteLesson(id) {
+                if (
+                    !confirm(
+                        "سيتم حذف الدرس والفيديو من قاعدة البيانات. هل أنت متأكد؟",
+                    )
+                )
+                    return;
+                const courseId =
+                    document.getElementById("videoCourseSelect").value;
+                try {
+                    const response = await fetch(`/api/admin/lessons/${id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                    });
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (_) {
+                        console.error("Invalid JSON on delete lesson:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند حذف الدرس",
+                            "error",
+                        );
+                        return;
+                    }
+                    if (data.success) {
+                        showNotification("تم حذف الدرس بنجاح", "success");
+                        loadCourseLessons(courseId);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف الدرس",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting lesson:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            async function reorderLesson(id, direction) {
+                const courseId =
+                    document.getElementById("videoCourseSelect").value;
+                try {
+                    const response = await fetch(
+                        `/api/admin/lessons/${id}/reorder`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({ direction }),
+                        },
+                    );
+                    const text = await response.text();
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (_) {
+                        console.error("Invalid JSON on reorder lesson:", text);
+                        showNotification(
+                            "استجابة غير صالحة من الخادم عند ترتيب الدرس",
+                            "error",
+                        );
+                        return;
+                    }
+                    if (data.success) {
+                        loadCourseLessons(courseId);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في ترتيب الدرس",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error reordering lesson:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Display courses in grid
+            function displayCourses(courses) {
+                const grid = document.getElementById("coursesGrid");
+                grid.innerHTML = "";
+
+                courses.forEach((course) => {
+                    const card = document.createElement("div");
+                    card.className = "platform-card";
+                    card.innerHTML = `
+                    <div class="platform-header">
+                        <h3 class="platform-title">${course.title}</h3>
+                        <span class="platform-status ${
+                            course.is_active
+                                ? "status-active"
+                                : "status-inactive"
+                        }">
+                            ${course.is_active ? "نشط" : "غير نشط"}
+                        </span>
+                    </div>
+                    <div class="platform-stats">
+                        <div><i class="fas fa-layer-group"></i> ${course.category}</div>
+                        <div><i class="fas fa-chart-line"></i> ${course.level}</div>
+                        <div><i class="fas fa-play-circle"></i> ${course.lessons_count ?? 0} درس</div>
+                        <div><i class="fas fa-calendar"></i> ${new Date(course.created_at).toLocaleDateString("ar")}</div>
+                    </div>
+                    <div class="platform-actions">
+                        <button class="action-btn edit-btn" onclick="editCourse(${
+                            course.id
+                        })">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                        <button class="action-btn toggle-btn ${course.is_active ? "deactivate-btn" : "activate-btn"}" onclick="toggleCourseActive(${
+                            course.id
+                        })">
+                            <i class="fas fa-${course.is_active ? "ban" : "check"}"></i> ${course.is_active ? "تعطيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteCourse(${
+                            course.id
+                        })">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                    grid.appendChild(card);
+                });
+            }
+
+            // Edit course
+            async function editCourse(id) {
+                try {
+                    const response = await fetch(`/api/admin/courses/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const course = data.course;
+                        document.getElementById(
+                            "courseModalTitle",
+                        ).textContent = "تعديل الكورس";
+                        document.getElementById("courseEditId").value =
+                            course.id;
+                        document.getElementById("courseTitle").value =
+                            course.title;
+                        document.getElementById("courseDescription").value =
+                            course.description;
+                        document.getElementById("courseCategory").value =
+                            course.category;
+                        document.getElementById("courseLevel").value =
+                            course.level;
+                        document.getElementById("courseMainPoints").value =
+                            course.main_points || "";
+
+                        // Hide lessons section for info edit
+                        document.getElementById("courseLogo").style.display =
+                            "none";
+                        document.querySelector(
+                            'label[for="courseLogo"]',
+                        ).style.display = "none";
+                        document.querySelector(
+                            'button[onclick="addLesson()"]',
+                        ).style.display = "none";
+
+                        document.getElementById("courseModal").style.display =
+                            "block";
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات الكورس",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error loading course:", error);
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // Delete course permanently
+            async function deleteCourse(id) {
+                if (
+                    !confirm(
+                        "تحذير: سيتم حذف هذا الكورس نهائياً من قاعدة البيانات مع جميع الدروس والفيديوهات المرتبطة به. هل أنت متأكد؟",
+                    )
+                ) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/admin/courses/${id}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showNotification(
+                            "تم حذف الكورس نهائياً من قاعدة البيانات مع جميع الدروس والفيديوهات",
+                            "success",
+                        );
+                        loadCourses(); // Reload the list
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف الكورس",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error deleting course:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Toggle course active status
+            async function toggleCourseActive(id) {
+                try {
+                    // First, get the current course data
+                    const response = await fetch(`/api/admin/courses/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showNotification(
+                            data.message || "فشل في تحميل بيانات الكورس",
+                            "error",
+                        );
+                        return;
+                    }
+
+                    const course = data.course;
+                    const currentActive = Boolean(course.is_active);
+                    const newActiveStatus = !currentActive;
+                    const actionText = newActiveStatus ? "تفعيل" : "تعطيل";
+
+                    if (!confirm(`هل أنت متأكد من ${actionText} هذا الكورس؟`)) {
+                        return;
+                    }
+
+                    // Send toggle request
+                    const updateResponse = await fetch(
+                        `/api/admin/courses/${course.id}`,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                is_active: newActiveStatus ? 1 : 0,
+                            }),
+                        },
+                    );
+                    const updateData = await updateResponse.json();
+
+                    if (updateData.success) {
+                        showNotification(
+                            newActiveStatus
+                                ? "تم تفعيل الكورس وأصبح مرئي للمستخدمين"
+                                : "تم تعطيل الكورس ولن يظهر للمستخدمين",
+                            "success",
+                        );
+                        loadCourses(); // Reload the list
+                    } else {
+                        showNotification(
+                            updateData.message || "فشل في تحديث حالة الكورس",
+                            "error",
+                        );
+                    }
+                } catch (error) {
+                    console.error("Error toggling course status:", error);
+                    showNotification(
+                        "حدث خطأ في الاتصال: " + error.message,
+                        "error",
+                    );
+                }
+            }
+
+            // Handle course form submission for edit
+            document
+                .getElementById("courseForm")
+                .addEventListener("submit", async function (e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const courseId = formData.get("id");
+                    formData.delete("action");
+
+                    try {
+                        const response = await fetch(
+                            `/api/admin/courses/${courseId}`,
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                credentials: "include",
+                                body: JSON.stringify(
+                                    Object.fromEntries(formData),
+                                ),
+                            },
+                        );
+
+                        const text = await response.text();
+                        let result;
+                        try {
+                            result = JSON.parse(text);
+                        } catch (parseErr) {
+                            console.error("Invalid JSON on course save:", text);
+                            showNotification(
+                                "استجابة غير صالحة من الخادم عند حفظ الكورس",
+                                "error",
+                            );
+                            return;
+                        }
+
+                        if (result.success) {
+                            showNotification(
+                                "تم تحديث معلومات الكورس بنجاح",
+                                "success",
+                            );
+                            closeCourseModal();
+                            loadCourses(); // Reload the list
+                        } else {
+                            showNotification(
+                                result.message || "فشل في حفظ الكورس",
+                                "error",
+                            );
+                        }
+                    } catch (error) {
+                        console.error("Error saving course:", error);
+                        showNotification("حدث خطأ في الاتصال", "error");
+                    }
+                });
+
+            // Close course modal
+            function closeCourseModal() {
+                document.getElementById("courseModal").style.display = "none";
+            }
+
+            // ===== END COURSES MANAGEMENT FUNCTIONS =====
+
+            function showNotification(message, type = "info") {
+                const notification = document.getElementById("notification");
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = "block";
+
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 5000);
+            }
+
+            // Format numbers
+            function formatNumber(num) {
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+                if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+                return num.toString();
+            }
+
+            // Allow adding features with Enter key
+            document
+                .getElementById("featureInput")
+                .addEventListener("keypress", function (e) {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        addFeature();
+                    }
+                });
+
+            // Upload functionality
+            const courseIdSelect = document.getElementById("courseId");
+            const newCourseFields =
+                document.getElementById("new-course-fields");
+            const newCourseTitleInput =
+                document.getElementById("newCourseTitle");
+            const courseLoader = document.getElementById("course-loader");
+            const newCoursePointsInput =
+                document.getElementById("newCoursePoints");
+
+            // Load Existing Courses for Upload
+            async function loadCoursesForUpload() {
+                courseLoader.style.display = "inline-block";
+                try {
+                    const response = await fetch("/api/admin/courses", {
+                        credentials: "include",
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showNotification(
+                            "Failed to load courses: " + data.message,
+                            "error",
+                        );
+                        return;
+                    }
+
+                    courseIdSelect.innerHTML =
+                        '<option value="">-- اختر أو أنشئ --</option><option value="new">-- إنشاء كورس جديد --</option>';
+
+                    const categories = {};
+                    data.courses.forEach((course) => {
+                        const category = course.category || "Uncategorized";
+                        if (!categories[category]) {
+                            categories[category] = [];
+                        }
+                        categories[category].push(course);
+                    });
+
+                    for (const category in categories) {
+                        const optgroup = document.createElement("optgroup");
+                        optgroup.label = category;
+                        categories[category].forEach((course) => {
+                            const option = document.createElement("option");
+                            option.value = course.id;
+                            option.textContent = course.title;
+                            optgroup.appendChild(option);
+                        });
+                        courseIdSelect.appendChild(optgroup);
+                    }
+
+                    courseIdSelect.value = "";
+                } catch (error) {
+                    console.error("Fetch Error:", error);
+                    showNotification(
+                        "Error connecting to the server to load courses.",
+                        "error",
+                    );
+                    courseIdSelect.innerHTML =
+                        '<option value="">-- فشل التحميل --</option><option value="new">-- إنشاء كورس جديد --</option>';
+                } finally {
+                    courseLoader.style.display = "none";
+                }
+            }
+
+            window.addEventListener("load", loadCoursesForUpload);
+
+            // Toggle New Course Fields
+            courseIdSelect.addEventListener("change", () => {
+                if (courseIdSelect.value === "new") {
+                    newCourseFields.style.display = "block";
+                    newCourseTitleInput.required = true;
+                    newCoursePointsInput.required = true;
+                } else {
+                    newCourseFields.style.display = "none";
+                    newCourseTitleInput.required = false;
+                    newCoursePointsInput.required = false;
+                }
+            });
+
+            // File preview functionality
+            const videoFilesInput = document.getElementById("videoFiles");
+            const fileListContainer = document.getElementById("file-list");
+
+            videoFilesInput.addEventListener("change", () => {
+                fileListContainer.innerHTML = "";
+                const files = videoFilesInput.files;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const title =
+                        file.name.substring(0, file.name.lastIndexOf(".")) ||
+                        file.name;
+
+                    const fileEntry = document.createElement("div");
+                    fileEntry.className = "file-entry";
+
+                    let previewHTML = "";
+                    const fileType = file.type.split("/")[0];
+
+                    if (fileType === "video") {
+                        const videoURL = URL.createObjectURL(file);
+                        previewHTML = `<video muted src="${videoURL}"></video>`;
+                    } else {
+                        previewHTML = `<i class="fas fa-file-video fa-icon"></i><p>${file.name.substring(0, 15)}...</p>`;
+                    }
+
+                    fileEntry.innerHTML = `
+                    <div class="file-preview">
+                        ${previewHTML}
+                    </div>
+                    <div class="file-info">
+                        <div class="form-group">
+                            <label>عنوان الدرس (${i + 1})</label>
+                            <input type="text" name="titles[]" value="${title}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="desc-${i}">وصف الدرس</label>
+                            <textarea name="descriptions[]" id="desc-${i}" rows="3" placeholder="أضف وصفاً موجزاً لهذا الدرس..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="code-${i}">الكود المستخدم في الدرس (اختياري)</label>
+                            <textarea name="codes[]" id="code-${i}" rows="5" placeholder="أضف الكود المستخدم في هذا الدرس..."></textarea>
+                        </div>
+                    </div>
+                `;
+                    fileListContainer.appendChild(fileEntry);
+                }
+            });
+
+            // Handle form submission and progress indicators
+            const uploadForm = document.getElementById("uploadForm");
+            const submitButton = document.getElementById("submit-button");
+            const progressContainer = document.getElementById(
+                "upload-progress-container",
+            );
+            const progressBar = document.getElementById("upload-progress-bar");
+            const statusText = document.getElementById("upload-status");
+
+            if (uploadForm) {
+                uploadForm.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const videoFiles =
+                        document.getElementById("videoFiles").files;
+
+                    if (!uploadForm.checkValidity()) {
+                        uploadForm.reportValidity();
+                        return;
+                    }
+                    if (videoFiles.length === 0) {
+                        alert("يرجى اختيار ملف فيديو واحد على الأقل.");
+                        return;
+                    }
+
+                    progressContainer.style.display = "block";
+                    submitButton.disabled = true;
+                    submitButton.innerHTML =
+                        '<i class="fas fa-spinner fa-spin"></i> جاري الرفع...';
+
+                    const formData = new FormData(uploadForm);
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/api/admin/upload", true);
+                    xhr.withCredentials = true;
+
+                    xhr.upload.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            const pct = Math.round(
+                                (evt.loaded / evt.total) * 100,
+                            );
+                            progressBar.style.width = pct + "%";
+                            progressBar.textContent = pct + "%";
+
+                            if (pct < 30)
+                                statusText.textContent =
+                                    "جاري تحضير الملفات للرفع...";
+                            else if (pct < 60)
+                                statusText.textContent =
+                                    "جاري رفع الفيديوهات (" +
+                                    videoFiles.length +
+                                    " ملفات)...";
+                            else if (pct < 90)
+                                statusText.textContent =
+                                    "جاري معالجة الدروس وحفظها في قاعدة البيانات...";
+                            else
+                                statusText.textContent =
+                                    "جاري إنهاء العملية...";
+                        }
+                    };
+
+                    xhr.onload = function () {
+                        progressBar.style.width = "100%";
+                        progressBar.textContent = "100%";
+
+                        let data = {};
+                        try {
+                            data = JSON.parse(xhr.responseText);
+                        } catch (err) {}
+
+                        if (
+                            xhr.status >= 200 &&
+                            xhr.status < 300 &&
+                            data.success
+                        ) {
+                            statusText.textContent =
+                                "✅ " + (data.message || "تمت العملية بنجاح!");
+                            uploadForm.reset();
+                            document.getElementById("file-list").innerHTML = "";
+                            setTimeout(
+                                () =>
+                                    (window.location.href =
+                                        "admin.html?tab=courses"),
+                                2000,
+                            );
+                        } else {
+                            progressContainer.style.display = "none";
+                            submitButton.disabled = false;
+                            submitButton.innerHTML =
+                                '<i class="fas fa-save"></i> رفع الدروس والحفظ';
+                            alert(
+                                "حدث خطأ: " +
+                                    (data.message ||
+                                        "فشل الرفع، يرجى المحاولة مرة أخرى."),
+                            );
+                        }
+                    };
+
+                    xhr.onerror = function () {
+                        progressContainer.style.display = "none";
+                        submitButton.disabled = false;
+                        submitButton.innerHTML =
+                            '<i class="fas fa-save"></i> رفع الدروس والحفظ';
+                        alert(
+                            "خطأ في الاتصال بالخادم. تأكد من تشغيل Laravel على المنفذ 8000.",
+                        );
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+        </script>
+    </body>
+</html>

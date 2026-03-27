@@ -14,6 +14,7 @@ class AdminCourseController extends Controller
     public function index()
     {
         $courses = Course::withCount('lessons')->orderBy('id', 'desc')->get();
+
         return response()->json(['success' => true, 'courses' => $courses]);
     }
 
@@ -21,9 +22,10 @@ class AdminCourseController extends Controller
     public function show($id)
     {
         $course = Course::find($id);
-        if (!$course) {
+        if (! $course) {
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
+
         return response()->json(['success' => true, 'course' => $course]);
     }
 
@@ -31,12 +33,12 @@ class AdminCourseController extends Controller
     public function store(Request $request)
     {
         $course = Course::create([
-            'title'       => $request->input('title'),
+            'title' => $request->input('title'),
             'description' => $request->input('description'),
             'main_points' => $request->input('main_points'),
-            'category'    => $request->input('category'),
-            'level'       => $request->input('level', 'Beginner'),
-            'is_active'   => $request->input('is_active', 1),
+            'category' => $request->input('category'),
+            'level' => $request->input('level', 'Beginner'),
+            'is_active' => $request->input('is_active', 1),
         ]);
 
         return response()->json(['success' => true, 'message' => 'تم إنشاء الكورس بنجاح', 'course' => $course], 201);
@@ -46,7 +48,7 @@ class AdminCourseController extends Controller
     public function update(Request $request, $id)
     {
         $course = Course::find($id);
-        if (!$course) {
+        if (! $course) {
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
@@ -60,11 +62,38 @@ class AdminCourseController extends Controller
     public function destroy($id)
     {
         $course = Course::find($id);
-        if (!$course) {
+        if (! $course) {
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
+        // Remove user_assignments first (RESTRICT FK blocks cascade delete of assignments)
+        $assignmentIds = DB::table('assignments')->where('course_id', $id)->pluck('id');
+        if ($assignmentIds->isNotEmpty()) {
+            DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
+        }
+
+        // Delete lesson video files from storage
+        $lessons = Lesson::where('course_id', $id)->select('video_path')->get();
+        foreach ($lessons as $lesson) {
+            if ($lesson->video_path) {
+                $relativePath = str_replace('\\', '/', $lesson->video_path);
+                $videoPath = storage_path('app/'.$relativePath);
+                if (is_file($videoPath)) {
+                    @unlink($videoPath);
+                }
+            }
+        }
+
+        // Delete course logo file
+        if ($course->logo_path) {
+            $logoPath = public_path(ltrim($course->logo_path, '/'));
+            if (is_file($logoPath)) {
+                @unlink($logoPath);
+            }
+        }
+
         $course->delete();
+
         return response()->json(['success' => true, 'message' => 'تم حذف الكورس بنجاح']);
     }
 
@@ -72,13 +101,14 @@ class AdminCourseController extends Controller
     public function lessons($courseId)
     {
         $lessons = Lesson::where('course_id', $courseId)
-            ->select('id', 'title', 'description', 'sort_order', 'resources_code', 'video_data', 'video_mime', 'views', 'created_at', 'updated_at')
+            ->select('id', 'title', 'description', 'sort_order', 'resources_code', 'video_path', 'video_mime_type', 'views', 'created_at', 'updated_at')
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
             ->map(function ($l) {
                 $arr = $l->toArray();
-                $arr['video_url'] = url('/api/stream-video?lesson_id=' . $l->id);
+                $arr['video_url'] = url('/api/stream-video?lesson_id='.$l->id);
+
                 return $arr;
             });
 
@@ -88,39 +118,38 @@ class AdminCourseController extends Controller
     /** POST /api/admin/lessons - upload lesson video */
     public function storeLesson(Request $request)
     {
-        $courseId   = $request->input('course_id');
-        $title      = $request->input('title');
-        $description= $request->input('description', '');
-        $sortOrder  = (int) $request->input('sort_order', 0);
-        $resources  = $request->input('resources_code', '');
+        $courseId = $request->input('course_id');
+        $title = $request->input('title');
+        $description = $request->input('description', '');
+        $sortOrder = (int) $request->input('sort_order', 0);
+        $resources = $request->input('resources_code', '');
 
-        if (!$request->hasFile('video')) {
+        if (! $request->hasFile('video')) {
             return response()->json(['success' => false, 'message' => 'No video file provided'], 400);
         }
 
-        $file     = $request->file('video');
+        $file = $request->file('video');
         $mimeType = $file->getMimeType();
 
-        // Store file in original project videos dir for compatibility
         $course = Course::find($courseId);
         $catDir = $course ? $course->category : 'misc';
-        $dest   = base_path('../programming-academy/videos/' . $catDir . '/' . $courseId);
-        if (!is_dir($dest)) {
+        $dest = storage_path('app/videos/'.$catDir.'/'.$courseId);
+        if (! is_dir($dest)) {
             mkdir($dest, 0755, true);
         }
 
-        $filename = 'lesson_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $filename = 'lesson_'.uniqid().'.'.$file->getClientOriginalExtension();
         $file->move($dest, $filename);
 
-        $relativePath = 'videos/' . $catDir . '/' . $courseId . '/' . $filename;
+        $relativePath = 'videos/'.$catDir.'/'.$courseId.'/'.$filename;
 
         $lesson = Lesson::create([
-            'course_id'      => $courseId,
-            'title'          => $title,
-            'description'    => $description,
-            'sort_order'     => $sortOrder,
-            'video_data'     => $relativePath,
-            'video_mime'     => $mimeType,
+            'course_id' => $courseId,
+            'title' => $title,
+            'description' => $description,
+            'sort_order' => $sortOrder,
+            'video_path' => $relativePath,
+            'video_mime_type' => $mimeType,
             'resources_code' => $resources,
         ]);
 
@@ -131,11 +160,37 @@ class AdminCourseController extends Controller
     public function updateLesson(Request $request, $id)
     {
         $lesson = Lesson::find($id);
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['success' => false, 'message' => 'الدرس غير موجود'], 404);
         }
 
         $lesson->fill($request->only(['title', 'description', 'sort_order', 'resources_code']));
+
+        // Handle optional video replacement
+        if ($request->hasFile('video') || $request->hasFile('lesson_video')) {
+            $file = $request->file('video') ?: $request->file('lesson_video');
+            $mimeType = $file->getMimeType();
+            $course = Course::find($lesson->course_id);
+            $catDir = $course ? $course->category : 'misc';
+            $dest = storage_path('app/videos/'.$catDir.'/'.$lesson->course_id);
+            if (! is_dir($dest)) {
+                mkdir($dest, 0755, true);
+            }
+            $filename = 'lesson_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $file->move($dest, $filename);
+
+            // Delete old video only after the new file is saved successfully
+            if ($lesson->video_path) {
+                $oldPath = storage_path('app/'.str_replace('\\', '/', $lesson->video_path));
+                if (is_file($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
+            $lesson->video_path = 'videos/'.$catDir.'/'.$lesson->course_id.'/'.$filename;
+            $lesson->video_mime_type = $mimeType;
+        }
+
         $lesson->save();
 
         return response()->json(['success' => true, 'message' => 'تم تحديث الدرس بنجاح']);
@@ -145,11 +200,21 @@ class AdminCourseController extends Controller
     public function destroyLesson($id)
     {
         $lesson = Lesson::find($id);
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['success' => false, 'message' => 'الدرس غير موجود'], 404);
         }
 
+        // Delete video file from storage if it's a file-based lesson
+        if ($lesson->video_path) {
+            $relativePath = str_replace('\\', '/', $lesson->video_path);
+            $videoPath = storage_path('app/'.$relativePath);
+            if (is_file($videoPath)) {
+                @unlink($videoPath);
+            }
+        }
+
         $lesson->delete();
+
         return response()->json(['success' => true, 'message' => 'تم حذف الدرس بنجاح']);
     }
 
@@ -157,7 +222,7 @@ class AdminCourseController extends Controller
     public function reorderLesson(Request $request, $id)
     {
         $lesson = Lesson::find($id);
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['success' => false, 'message' => 'الدرس غير موجود'], 404);
         }
 
@@ -191,22 +256,24 @@ class AdminCourseController extends Controller
     public function uploadLogo(Request $request, $id)
     {
         $course = Course::find($id);
-        if (!$course) {
+        if (! $course) {
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
-        if (!$request->hasFile('logo')) {
+        if (! $request->hasFile('logo')) {
             return response()->json(['success' => false, 'message' => 'No file provided'], 400);
         }
 
         $file = $request->file('logo');
-        $dest = base_path('../programming-academy/uploads/logos');
-        if (!is_dir($dest)) mkdir($dest, 0755, true);
+        $dest = public_path('uploads/logos');
+        if (! is_dir($dest)) {
+            mkdir($dest, 0755, true);
+        }
 
-        $filename = 'logo_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $filename = 'logo_'.uniqid().'.'.$file->getClientOriginalExtension();
         $file->move($dest, $filename);
 
-        $course->logo_path = 'uploads/logos/' . $filename;
+        $course->logo_path = 'uploads/logos/'.$filename;
         $course->save();
 
         return response()->json(['success' => true, 'logo_path' => $course->logo_path]);

@@ -14,9 +14,15 @@ class AdminAssignmentController extends Controller
     public function index()
     {
         $assignments = DB::table('assignments as a')
-            ->select('a.*', DB::raw('COUNT(ua.id) as submission_count'))
+            ->select(
+                'a.*',
+                'c.title as course_title',
+                'c.category',
+                DB::raw('COUNT(ua.id) as submission_count')
+            )
+            ->leftJoin('courses as c', 'a.course_id', '=', 'c.id')
             ->leftJoin('user_assignments as ua', 'a.id', '=', 'ua.assignment_id')
-            ->groupBy('a.id')
+            ->groupBy('a.id', 'c.title', 'c.category')
             ->orderBy('a.id', 'desc')
             ->get();
 
@@ -64,8 +70,23 @@ class AdminAssignmentController extends Controller
         if (!$assignment) {
             return response()->json(['success' => false, 'message' => 'التكليف غير موجود'], 404);
         }
+        // Delete submissions first to avoid FK constraint violation
+        DB::table('user_assignments')->where('assignment_id', $id)->delete();
         $assignment->delete();
         return response()->json(['success' => true, 'message' => 'تم حذف التكليف بنجاح']);
+    }
+
+    /** PATCH /api/admin/assignments/{id}/toggle */
+    public function toggle($id)
+    {
+        $assignment = Assignment::find($id);
+        if (!$assignment) {
+            return response()->json(['success' => false, 'message' => 'التكليف غير موجود'], 404);
+        }
+        $assignment->is_active = !$assignment->is_active;
+        $assignment->save();
+        $status = $assignment->is_active ? 'مفعّل' : 'معطّل';
+        return response()->json(['success' => true, 'is_active' => $assignment->is_active, 'message' => "تم {$status} التكليف"]);
     }
 
     /** GET /api/admin/assignments/{id}/submissions */

@@ -67,8 +67,52 @@ class AdminPlatformController extends Controller
         if (!$platform) {
             return response()->json(['success' => false, 'message' => 'المنصة غير موجودة'], 404);
         }
+
+        // Delete logo file from uploads
+        if ($platform->logo_url) {
+            $logoPath = public_path(ltrim($platform->logo_url, '/'));
+            if (is_file($logoPath)) {
+                @unlink($logoPath);
+            }
+        }
+
         $platform->delete();
         return response()->json(['success' => true, 'message' => 'تم حذف المنصة بنجاح']);
+    }
+
+    /** POST /api/admin/platforms/upload-logo */
+    public function uploadLogo(Request $request)
+    {
+        if (!$request->hasFile('logo')) {
+            return response()->json(['success' => false, 'message' => 'لم يتم إرفاق ملف'], 400);
+        }
+
+        $file = $request->file('logo');
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (!in_array($file->getMimeType(), $allowed)) {
+            return response()->json(['success' => false, 'message' => 'نوع الملف غير مسموح به. يُسمح فقط بـ JPEG/PNG/GIF/WebP'], 400);
+        }
+
+        if ($file->getSize() > 2 * 1024 * 1024) {
+            return response()->json(['success' => false, 'message' => 'حجم الملف يتجاوز 2MB'], 400);
+        }
+
+        $safeName    = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $safeName    = trim(preg_replace('/_+/', '_', $safeName), '_') ?: 'platform_logo';
+        $filename    = 'logo_' . uniqid() . '_' . $safeName . '.' . strtolower($file->getClientOriginalExtension());
+        $logosDir    = public_path('uploads/logos');
+
+        if (!is_dir($logosDir)) {
+            mkdir($logosDir, 0755, true);
+        }
+
+        $file->move($logosDir, $filename);
+
+        return response()->json([
+            'success'  => true,
+            'logo_url' => '/uploads/logos/' . $filename,
+        ]);
     }
 
     // ---- Examples ----

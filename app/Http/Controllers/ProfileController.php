@@ -18,22 +18,22 @@ class ProfileController extends Controller
             return response()->json(['success' => false], 401);
         }
 
-        $user = User::select('id', 'username', 'firstName', 'lastName', 'email', 'avatar_data', 'avatar_mime_type', 'preferred_language')
+        $user = User::select('id', 'username', 'firstName', 'lastName', 'email', 'avatar_path', 'preferred_language')
             ->find($userId);
 
         if (!$user) {
             return response()->json(['success' => false]);
         }
 
-        $avatar = null;
-        if (!empty($user->avatar_data)) {
-            $avatar = 'data:' . $user->avatar_mime_type . ';base64,' . base64_encode($user->avatar_data);
-        }
+        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         $request->session()->put('language', $user->preferred_language ?? 'ar');
 
+        $roles = $user->roles()->pluck('name')->toArray();
+
         return response()->json([
             'success' => true,
+            'roles'   => $roles,
             'user' => [
                 'id'        => $user->id,
                 'username'  => $user->username,
@@ -42,6 +42,7 @@ class ProfileController extends Controller
                 'email'     => $user->email,
                 'avatar'    => $avatar,
                 'language'  => $user->preferred_language ?? 'ar',
+                'roles'     => $roles,
             ],
         ]);
     }
@@ -59,10 +60,7 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
-        $avatar = null;
-        if (!empty($user->avatar_data)) {
-            $avatar = 'data:' . $user->avatar_mime_type . ';base64,' . base64_encode($user->avatar_data);
-        }
+        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         return response()->json([
             'success' => true,
@@ -140,30 +138,48 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم.'], 400);
         }
 
-        $imageData = file_get_contents($file->getRealPath());
-
         $user = User::find($userId);
-        $user->avatar_data      = $imageData;
-        $user->avatar_mime_type = $mimeType;
+
+        // Delete old avatar file if it exists
+        if (!empty($user->avatar_path)) {
+            $oldFile = public_path(ltrim($user->avatar_path, '/'));
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
+        }
+
+        // Save new file to public/uploads/avatars/
+        $ext      = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = 'avatar_' . $userId . '_' . uniqid() . '.' . $ext;
+        $dest     = public_path('uploads/avatars');
+        if (!is_dir($dest)) {
+            mkdir($dest, 0755, true);
+        }
+        $file->move($dest, $filename);
+
+        $avatarPath = '/uploads/avatars/' . $filename;
+
+        $user->avatar_path = $avatarPath;
         $user->save();
 
-        $avatar = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
-
-        return response()->json(['success' => true, 'message' => 'تم تحديث الصورة بنجاح.', 'avatar' => $avatar]);
+        return response()->json(['success' => true, 'message' => 'تم تحديث الصورة بنجاح.', 'avatar' => asset($avatarPath)]);
     }
 
     /** GET /api/avatar/{userId} */
     public function getAvatar($userId)
     {
-        $user = User::select('avatar_data', 'avatar_mime_type')->find($userId);
+        $user = User::select('avatar_path')->find($userId);
 
-        if (!$user || empty($user->avatar_data)) {
+        if (!$user || empty($user->avatar_path)) {
             return response()->json(['success' => false, 'message' => 'No avatar'], 404);
         }
 
-        return response($user->avatar_data)
-            ->header('Content-Type', $user->avatar_mime_type)
-            ->header('Cache-Control', 'public, max-age=3600');
+        $filePath = public_path(ltrim($user->avatar_path, '/'));
+        if (!is_file($filePath)) {
+            return response()->json(['success' => false, 'message' => 'No avatar'], 404);
+        }
+
+        return response()->file($filePath, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     /** POST /api/update-language */

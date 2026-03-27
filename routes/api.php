@@ -1,61 +1,64 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\LessonController;
-use App\Http\Controllers\ProgressController;
-use App\Http\Controllers\VideoStreamController;
-use App\Http\Controllers\PathController;
-use App\Http\Controllers\PlatformController;
-use App\Http\Controllers\ChallengeController;
-use App\Http\Controllers\AssignmentController;
-use App\Http\Controllers\ExampleController;
-use App\Http\Controllers\AiController;
-use App\Http\Controllers\LeaderboardController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Admin\AdminAssignmentController;
+use App\Http\Controllers\Admin\AdminChallengeController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminCourseController;
 use App\Http\Controllers\Admin\AdminPlatformController;
-use App\Http\Controllers\Admin\AdminChallengeController;
-use App\Http\Controllers\Admin\AdminAssignmentController;
 use App\Http\Controllers\Admin\AdminUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AiController;
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ExampleController;
+use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\PathController;
+use App\Http\Controllers\PlatformController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\VideoStreamController;
+use Illuminate\Support\Facades\Route;
 
 // ============================================================
 // PUBLIC ROUTES (no auth required)
 // ============================================================
 
 // Auth
-Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout',   [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/check-availability', [AuthController::class, 'checkAvailability']);
-Route::post('/forgot-password',   [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password',    [AuthController::class, 'resetPassword']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Public listings
-Route::get('/courses',   [CourseController::class, 'index']);
+Route::get('/courses', [CourseController::class, 'index']);
 Route::get('/platforms', [PlatformController::class, 'index']);
 Route::get('/challenges', [ChallengeController::class, 'index']);
 Route::get('/challenge-stats', [ChallengeController::class, 'stats']);
 Route::get('/user-challenge-progress', [ChallengeController::class, 'userProgress']);
-Route::get('/examples',  [ExampleController::class, 'index']);
+Route::get('/examples', [ExampleController::class, 'index']);
 Route::get('/examples/{id}', [ExampleController::class, 'show']);
 Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
 // Paths
-Route::get('/paths',        [PathController::class, 'index']);
+Route::get('/paths', [PathController::class, 'index']);
 Route::get('/paths/{path}', [PathController::class, 'show']);
 
 // Platform stats / recommendations
-Route::get('/platform-stats',         [PlatformController::class, 'stats']);
-Route::get('/platform-recommendations',[PlatformController::class, 'recommendations']);
+Route::get('/platform-stats', [PlatformController::class, 'stats']);
+Route::get('/platform-recommendations', [PlatformController::class, 'recommendations']);
 
 // Reviews
-Route::get('/reviews',  [ReviewController::class, 'index']);
+Route::get('/reviews', [ReviewController::class, 'index']);
 Route::post('/reviews', [ReviewController::class, 'store']);
+
+// Public avatar endpoint for profile/review images
+Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
 
 // Courses with assignments (public - category filter)
 Route::get('/courses-with-assignments', [AssignmentController::class, 'coursesWithAssignments']);
@@ -69,46 +72,43 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/user/status', [ProfileController::class, 'status']);
 
     // Profile
-    Route::get('/profile',        [ProfileController::class, 'show']);
-    Route::post('/profile',       [ProfileController::class, 'update']);
-    Route::put('/profile',        [ProfileController::class, 'update']);
-    Route::delete('/profile',     [ProfileController::class, 'destroy']);
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
     Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);
     Route::post('/update-language', [ProfileController::class, 'updateLanguage']);
     Route::post('/save-user-preferences', [ProfileController::class, 'savePreferences']);
 
-    // Avatar (also accessible without full auth for display)
-    Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
-
     // Courses (user-specific)
-    Route::get('/user-courses',                         [CourseController::class, 'userCourses']);
-    Route::delete('/course-progress/{courseId}',        [CourseController::class, 'deleteCourseProgress']);
+    Route::get('/user-courses', [CourseController::class, 'userCourses']);
+    Route::delete('/course-progress/{courseId}', [CourseController::class, 'deleteCourseProgress']);
 
     // Lessons
     Route::get('/lessons', [LessonController::class, 'index']);
 
     // Progress
-    Route::post('/progress',       [ProgressController::class, 'update']);
-    Route::get('/user-progress',   [ProgressController::class, 'userProgress']);
+    Route::post('/progress', [ProgressController::class, 'update']);
+    Route::get('/user-progress', [ProgressController::class, 'userProgress']);
 
     // Video streaming
     Route::get('/stream-video', [VideoStreamController::class, 'stream']);
 
     // Platform interactions
     Route::post('/toggle-bookmark', [PlatformController::class, 'toggleBookmark']);
-    Route::post('/rate-platform',   [PlatformController::class, 'ratePlatform']);
+    Route::post('/rate-platform', [PlatformController::class, 'ratePlatform']);
 
     // Challenges
     Route::post('/challenges/submit', [ChallengeController::class, 'submit']);
 
     // Assignments
-    Route::get('/assignments',                   [AssignmentController::class, 'index']);
-    Route::post('/assignments/submit',           [AssignmentController::class, 'submit']);
+    Route::get('/assignments', [AssignmentController::class, 'index']);
+    Route::post('/assignments/submit', [AssignmentController::class, 'submit']);
 
     // AI
-    Route::post('/ai/helper',            [AiController::class, 'general']);
+    Route::post('/ai/helper', [AiController::class, 'general']);
     Route::post('/ai/helper-challenges', [AiController::class, 'challenges']);
-    Route::post('/ai/helper-projects',   [AiController::class, 'projects']);
+    Route::post('/ai/helper-projects', [AiController::class, 'projects']);
 });
 
 // ============================================================
@@ -120,54 +120,56 @@ Route::middleware(['auth.session', 'admin'])->prefix('admin')->group(function ()
     Route::get('/stats', [AdminController::class, 'stats']);
 
     // Courses & Lessons
-    Route::get('/courses',             [AdminCourseController::class, 'index']);
-    Route::post('/courses',            [AdminCourseController::class, 'store']);
-    Route::get('/courses/{id}',        [AdminCourseController::class, 'show']);
-    Route::put('/courses/{id}',        [AdminCourseController::class, 'update']);
-    Route::delete('/courses/{id}',     [AdminCourseController::class, 'destroy']);
-    Route::get('/courses/{id}/lessons',[AdminCourseController::class, 'lessons']);
+    Route::get('/courses', [AdminCourseController::class, 'index']);
+    Route::post('/courses', [AdminCourseController::class, 'store']);
+    Route::get('/courses/{id}', [AdminCourseController::class, 'show']);
+    Route::put('/courses/{id}', [AdminCourseController::class, 'update']);
+    Route::delete('/courses/{id}', [AdminCourseController::class, 'destroy']);
+    Route::get('/courses/{id}/lessons', [AdminCourseController::class, 'lessons']);
     Route::post('/courses/{id}/upload-logo', [AdminCourseController::class, 'uploadLogo']);
 
-    Route::post('/lessons',            [AdminCourseController::class, 'storeLesson']);
-    Route::put('/lessons/{id}',        [AdminCourseController::class, 'updateLesson']);
-    Route::delete('/lessons/{id}',     [AdminCourseController::class, 'destroyLesson']);
+    Route::post('/lessons', [AdminCourseController::class, 'storeLesson']);
+    Route::put('/lessons/{id}', [AdminCourseController::class, 'updateLesson']);
+    Route::delete('/lessons/{id}', [AdminCourseController::class, 'destroyLesson']);
     Route::post('/lessons/{id}/reorder', [AdminCourseController::class, 'reorderLesson']);
 
     // Platforms & Examples
-    Route::get('/platforms',            [AdminPlatformController::class, 'index']);
-    Route::post('/platforms',           [AdminPlatformController::class, 'store']);
-    Route::get('/platforms/{id}',       [AdminPlatformController::class, 'show']);
-    Route::put('/platforms/{id}',       [AdminPlatformController::class, 'update']);
-    Route::delete('/platforms/{id}',    [AdminPlatformController::class, 'destroy']);
+    Route::get('/platforms', [AdminPlatformController::class, 'index']);
+    Route::post('/platforms', [AdminPlatformController::class, 'store']);
+    Route::post('/platforms/upload-logo', [AdminPlatformController::class, 'uploadLogo']);
+    Route::get('/platforms/{id}', [AdminPlatformController::class, 'show']);
+    Route::put('/platforms/{id}', [AdminPlatformController::class, 'update']);
+    Route::delete('/platforms/{id}', [AdminPlatformController::class, 'destroy']);
 
-    Route::get('/examples',             [AdminPlatformController::class, 'examples']);
-    Route::post('/examples',            [AdminPlatformController::class, 'storeExample']);
-    Route::get('/examples/{id}',        [AdminPlatformController::class, 'showExample']);
-    Route::put('/examples/{id}',        [AdminPlatformController::class, 'updateExample']);
-    Route::delete('/examples/{id}',     [AdminPlatformController::class, 'destroyExample']);
+    Route::get('/examples', [AdminPlatformController::class, 'examples']);
+    Route::post('/examples', [AdminPlatformController::class, 'storeExample']);
+    Route::get('/examples/{id}', [AdminPlatformController::class, 'showExample']);
+    Route::put('/examples/{id}', [AdminPlatformController::class, 'updateExample']);
+    Route::delete('/examples/{id}', [AdminPlatformController::class, 'destroyExample']);
 
     // Challenges
-    Route::get('/challenges',           [AdminChallengeController::class, 'index']);
-    Route::post('/challenges',          [AdminChallengeController::class, 'store']);
-    Route::get('/challenges/{id}',      [AdminChallengeController::class, 'show']);
-    Route::put('/challenges/{id}',      [AdminChallengeController::class, 'update']);
-    Route::delete('/challenges/{id}',   [AdminChallengeController::class, 'destroy']);
+    Route::get('/challenges', [AdminChallengeController::class, 'index']);
+    Route::post('/challenges', [AdminChallengeController::class, 'store']);
+    Route::get('/challenges/{id}', [AdminChallengeController::class, 'show']);
+    Route::put('/challenges/{id}', [AdminChallengeController::class, 'update']);
+    Route::delete('/challenges/{id}', [AdminChallengeController::class, 'destroy']);
 
     // Assignments
-    Route::get('/assignments',                              [AdminAssignmentController::class, 'index']);
-    Route::post('/assignments',                             [AdminAssignmentController::class, 'store']);
-    Route::get('/assignments/{id}',                         [AdminAssignmentController::class, 'show']);
-    Route::put('/assignments/{id}',                         [AdminAssignmentController::class, 'update']);
-    Route::delete('/assignments/{id}',                      [AdminAssignmentController::class, 'destroy']);
-    Route::get('/assignments/{id}/submissions',             [AdminAssignmentController::class, 'submissions']);
-    Route::post('/assignments/{submissionId}/grade',        [AdminAssignmentController::class, 'grade']);
+    Route::get('/assignments', [AdminAssignmentController::class, 'index']);
+    Route::post('/assignments', [AdminAssignmentController::class, 'store']);
+    Route::get('/assignments/{id}', [AdminAssignmentController::class, 'show']);
+    Route::put('/assignments/{id}', [AdminAssignmentController::class, 'update']);
+    Route::delete('/assignments/{id}', [AdminAssignmentController::class, 'destroy']);
+    Route::patch('/assignments/{id}/toggle', [AdminAssignmentController::class, 'toggle']);
+    Route::get('/assignments/{id}/submissions', [AdminAssignmentController::class, 'submissions']);
+    Route::post('/assignments/{submissionId}/grade', [AdminAssignmentController::class, 'grade']);
 
     // Upload (courses + lessons with videos)
     Route::post('/upload', [AdminUploadController::class, 'upload']);
 
     // Users
-    Route::get('/users',                    [AdminUserController::class, 'index']);
-    Route::get('/users/{id}',               [AdminUserController::class, 'show']);
+    Route::get('/users', [AdminUserController::class, 'index']);
+    Route::get('/users/{id}', [AdminUserController::class, 'show']);
     Route::post('/users/{id}/toggle-admin', [AdminUserController::class, 'toggleAdmin']);
-    Route::delete('/users/{id}',            [AdminUserController::class, 'destroy']);
+    Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 });

@@ -32,6 +32,7 @@ class AssignmentController extends Controller
                 $j->on('ua.assignment_id', '=', 'a.id')->where('ua.user_id', '=', $userId)
             )
             ->where('a.course_id', $courseId)
+            ->where('a.is_active', 1)
             ->orderBy('a.assignment_order')
             ->get();
 
@@ -51,12 +52,13 @@ class AssignmentController extends Controller
         $query = DB::table('courses as c')
             ->select(
                 'c.id', 'c.title', 'c.description', 'c.category', 'c.logo_path',
-                DB::raw('COUNT(DISTINCT a.id) as assignment_count')
+                DB::raw('COUNT(DISTINCT CASE WHEN a.is_active = 1 THEN a.id END) as assignment_count')
             )
             ->join('assignments as a', 'c.id', '=', 'a.course_id')
             ->where('c.category', $category)
             ->where('c.is_active', 1)
             ->groupBy('c.id', 'c.title', 'c.description', 'c.category', 'c.logo_path')
+            ->having(DB::raw('COUNT(DISTINCT CASE WHEN a.is_active = 1 THEN a.id END)'), '>', 0)
             ->orderBy('c.title');
 
         $courses = $query->get();

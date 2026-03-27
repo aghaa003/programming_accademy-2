@@ -8,10 +8,8 @@ class Lesson extends Model
 {
     protected $fillable = [
         'course_id', 'title', 'description', 'sort_order',
-        'video_data', 'video_mime', 'resources_code', 'views',
+        'video_path', 'video_mime_type', 'resources_code', 'views',
     ];
-
-    protected $hidden = ['video_data'];
 
     public function course()
     {

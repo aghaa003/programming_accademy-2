@@ -1,0 +1,2081 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>خارطة الطريق البرمجية - أكاديمية البرمجة المتكاملة</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3a0ca3;
+        --accent-color: #4cc9f0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --frontend-color: #7209b7;
+        --backend-color: #f72585;
+        --basics-color: #4cc9f0;
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: linear-gradient(135deg, #f5f7ff 0%, #e6e9ff 100%);
+        color: var(--dark-color);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      /*navbar*/
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --success: #4ade80;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --card-bg: #ffffff;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+        --border-radius-small: 5px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding-top: 80px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header & Navbar */
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-img {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--accent), var(--primary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: var(--transition);
+        position: relative;
+        display: block;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 100;
+      }
+
+      .dropdown:hover .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .dropdown-menu a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+        transition: var(--transition);
+      }
+
+      .dropdown-menu a:hover {
+        background-color: #f5f5f5;
+        color: var(--primary);
+      }
+
+      .dropdown-menu a:last-child {
+        border-bottom: none;
+      }
+
+      .login-btn {
+        background-color: var(--accent);
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+      }
+
+      .login-btn:hover {
+        background-color: #3ab0d9;
+      }
+
+      /* User Profile Dropdown */
+      .user-profile {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .user-avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+      }
+
+      .user-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        border-radius: 10px;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: var(--transition);
+        z-index: 1000;
+      }
+
+      .user-profile:hover .user-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 0.5rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--gray);
+      }
+
+      .logout-btn {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-small);
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background: #dc2626;
+      }
+
+      /* ============================================
+         MOBILE MENU STYLES
+         ============================================ */
+
+      .mobile-menu-btn {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        z-index: 1001;
+      }
+
+      .mobile-menu-btn span {
+        width: 25px;
+        height: 3px;
+        background: white;
+        margin: 3px 0;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+
+      .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+
+      /* Mobile Menu Overlay */
+      .mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+
+      .mobile-menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .mobile-nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: white;
+        padding: 2rem;
+        overflow-y: auto;
+        transition: var(--transition);
+        z-index: 1000;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-nav-links.active {
+        right: 0;
+      }
+
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .mobile-nav-header h2 {
+        color: var(--primary);
+      }
+
+      .close-mobile-menu {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--dark);
+        cursor: pointer;
+      }
+
+      .mobile-nav-links ul {
+        list-style: none;
+      }
+
+      .mobile-nav-links li {
+        margin-bottom: 1rem;
+      }
+
+      .mobile-nav-links a {
+        display: block;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-nav-links a:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown {
+        position: relative;
+      }
+
+      .mobile-dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        color: var(--dark);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: var(--transition);
+      }
+
+      .mobile-dropdown-toggle:hover {
+        background-color: #f0f4ff;
+        color: var(--primary);
+      }
+
+      .mobile-dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-right: 1rem;
+      }
+
+      .mobile-dropdown-menu.active {
+        max-height: 500px;
+      }
+
+      .mobile-dropdown-menu a {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--dark);
+      }
+
+      .user-profile-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+
+        border-radius: 10px;
+        margin-top: 1rem;
+      }
+
+      .user-info-mobile {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .nav-links {
+          display: none;
+        }
+
+        .mobile-menu-btn {
+          display: flex;
+        }
+
+        .mobile-nav-links.active {
+          right: 0;
+        }
+
+        .dropdown-content {
+          position: static;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          box-shadow: none;
+          background: rgba(67, 97, 238, 0.05);
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+
+        .logo h1 {
+          font-size: 1rem;
+        }
+      }
+
+      /* Demo Content */
+      .demo-content {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .demo-content h1 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .demo-content p {
+        font-size: 1.1rem;
+        color: var(--dark);
+        margin-bottom: 2rem;
+      }
+
+      .demo-info {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .demo-info h2 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      .demo-info ul {
+        text-align: right;
+        list-style: none;
+      }
+
+      .demo-info li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .demo-info li:last-child {
+        border-bottom: none;
+      }
+
+      .demo-info li i {
+        margin-left: 10px;
+        color: var(--accent);
+      }
+      /* Hero Section */
+      .roadmap-hero {
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 8rem 5% 4rem;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .roadmap-hero::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0) 70%
+        );
+        border-radius: 50%;
+      }
+
+      .roadmap-hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .roadmap-hero p {
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .path-indicators {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .path-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .path-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .basics .path-icon {
+        background: var(--basics-color);
+      }
+
+      .frontend .path-icon {
+        background: var(--frontend-color);
+      }
+
+      .backend .path-icon {
+        background: var(--backend-color);
+      }
+
+      .path-indicator:hover .path-icon {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Roadmap Container */
+      .roadmap-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 5%;
+        position: relative;
+      }
+
+      .roadmap-path {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        position: relative;
+      }
+
+      .path-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        position: relative;
+        transition: var(--transition);
+        border-right: 5px solid var(--basics-color);
+      }
+
+      .path-section.frontend {
+        border-right-color: var(--frontend-color);
+      }
+
+      .path-section.backend {
+        border-right-color: var(--backend-color);
+      }
+
+      .path-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .path-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .path-icon-lg {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+      }
+
+      .basics .path-icon-lg {
+        background: var(--basics-color);
+      }
+
+      .frontend .path-icon-lg {
+        background: var(--frontend-color);
+      }
+
+      .backend .path-icon-lg {
+        background: var(--backend-color);
+      }
+
+      .path-title {
+        font-size: 2rem;
+        color: var(--dark-color);
+      }
+
+      .path-description {
+        color: #666;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .tech-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: var(--transition);
+        border: 1px solid #e9ecef;
+      }
+
+      .tech-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        background: white;
+      }
+
+      .tech-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+      }
+
+      .tech-card h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .tech-card p {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .path-connector {
+        position: absolute;
+        right: -30px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+      }
+
+      .connector-arrow {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        animation: bounce 2s infinite;
+      }
+
+      /* Footer */
+      .footer {
+        background: linear-gradient(135deg, var(--dark-color), #1a1a1a);
+        color: white;
+        padding: 4rem 5% 2rem;
+        margin-top: 4rem;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 2px;
+        background: var(--primary-color);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: #bbb;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent-color);
+        padding-right: 5px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        transition: var(--transition);
+      }
+
+      .social-links a:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #bbb;
+        font-size: 0.9rem;
+      }
+
+      /* Animations */
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .nav-links {
+          display: none;
+        }
+
+        .menu-toggle {
+          display: block;
+        }
+
+        .navbar.active .nav-links {
+          display: flex;
+          flex-direction: column;
+          position: absolute;
+          top: 100%;
+          right: 0;
+          width: 100%;
+          background: white;
+          padding: 1rem 0;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-content {
+          position: static;
+          opacity: 1;
+          visibility: visible;
+          transform: none;
+          box-shadow: none;
+          background: rgba(67, 97, 238, 0.05);
+          margin-top: 0.5rem;
+          border-radius: 8px;
+        }
+
+        .path-indicators {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .path-connector {
+          display: none;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .roadmap-hero h1 {
+          font-size: 2.5rem;
+        }
+
+        .path-title {
+          font-size: 1.7rem;
+        }
+
+        .path-header {
+          flex-direction: column;
+          text-align: center;
+          gap: 1.5rem;
+        }
+
+        .tech-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .roadmap-hero h1 {
+          font-size: 2rem;
+        }
+
+        .path-section {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <header>
+      <nav class="navbar">
+        <div class="logo">
+          <div class="logo-img">
+            <i class="fas fa-code"></i>
+          </div>
+          <h1>أكاديمية البرمجة المتكاملة</h1>
+          <button id="aiChatFab" class="ai-chat-fab" title="اطلب من الذكاء الاصطناعي">
+            <i class="fas fa-robot"></i>
+          </button>
+        </div>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >تعلم الآن <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+              <a href="challenges.html">التحديات البرمجية</a>
+              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            </div>
+          </li>
+          <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+          <li class="dropdown">
+            <a href="#" class="nav-link"
+              >الكورسات <i class="fas fa-chevron-down"></i
+            ></a>
+            <div class="dropdown-menu">
+              <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+              <a href="path.html?path=frontend">مسار Frontend Developer</a>
+              <a href="path.html?path=backend">مسار Backend Developer</a>
+            </div>
+          </li>
+          <li>
+            <a href="project.html" class="nav-link">التكليفات والمشاريع</a>
+          </li>
+          <li class="user-profile" id="userProfile" style="display: none">
+            <div class="user-avatar-small" id="userAvatarSmall">م</div>
+            <div class="user-dropdown">
+              <div class="user-info">
+                <div class="user-avatar-small" id="dropdownAvatar">م</div>
+                <div>
+                  <div class="user-name" id="dropdownUserName"></div>
+                  <div class="user-email" id="dropdownUserEmail"></div>
+                </div>
+              </div>
+              <a
+                href="profile.html"
+                class="nav-link"
+                style="
+                  display: block;
+                  text-align: right;
+                  margin-bottom: 0.5rem;
+                  color: black;
+                  font-size: large;
+                "
+                ><i
+                  class="fas fa-user-circle profile-icon"
+                  style="margin-left: 10%"
+                ></i
+                >الملف الشخصي</a
+              >
+              <button class="logout-btn" id="logoutBtn">تسجيل الخروج</button>
+            </div>
+          </li>
+          <li id="loginButton">
+            <a href="./login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+          </li>
+        </ul>
+
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav-links" id="mobileNavLinks">
+      <div class="mobile-nav-header">
+        <h2>القائمة</h2>
+      </div>
+      <ul>
+        <li><a href="index.html" class="nav-link">الرئيسية</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">تعلم الآن</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
+            <a href="challenges.html">التحديات البرمجية</a>
+            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+          </div>
+        </li>
+        <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
+        <li class="mobile-dropdown">
+          <div class="mobile-dropdown-toggle">
+            <a href="#" class="nav-link">الكورسات</a>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="mobile-dropdown-menu">
+            <a href="path.html?path=basics">مسار أساسيات البرمجة</a>
+            <a href="path.html?path=frontend">مسار Frontend Developer</a>
+            <a href="path.html?path=backend">مسار Backend Developer</a>
+          </div>
+        </li>
+        <li><a href="project.html" class="nav-link">التكليفات والمشاريع</a></li>
+        <li
+          class="user-profile-mobile"
+          id="userProfileMobile"
+          style="display: none"
+        >
+          <div class="user-info-mobile">
+            <div class="user-avatar-small" id="mobileAvatar"></div>
+            <div>
+              <div class="user-name" id="mobileUserName"></div>
+              <div class="user-email" id="mobileUserEmail"></div>
+            </div>
+          </div>
+          <a href="profile.html" class="nav-link">
+            <i class="fas fa-user-circle"></i> الملف الشخصي
+          </a>
+          <button class="logout-btn" id="mobileLogoutBtn">تسجيل الخروج</button>
+        </li>
+        <li id="loginButtonMobile">
+          <a href="login1.html" class="nav-link login-btn">تسجيل الدخول</a>
+        </li>
+      </ul>
+    </div>
+    <!-- Hero Section -->
+    <section class="roadmap-hero">
+      <h1>خارطة الطريق البرمجية</h1>
+      <p>
+        ابدأ رحلتك في عالم البرمجة من خلال مسارات تعليمية محددة وواضحة. اختر
+        المسار الذي يناسب اهتماماتك وابدأ التعلم اليوم!
+      </p>
+
+      <div class="path-indicators">
+        <div class="path-indicator basics">
+          <div class="path-icon">
+            <i class="fas fa-layer-group"></i>
+          </div>
+          <span>أساسيات البرمجة</span>
+        </div>
+        <div class="path-indicator frontend">
+          <div class="path-icon">
+            <i class="fas fa-palette"></i>
+          </div>
+          <span>Frontend Developer</span>
+        </div>
+        <div class="path-indicator backend">
+          <div class="path-icon">
+            <i class="fas fa-server"></i>
+          </div>
+          <span>Backend Developer</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap Container -->
+    <div class="roadmap-container">
+      <div class="roadmap-path">
+        <!-- Basics Section -->
+        <section class="path-section basics" id="basics">
+          <div class="path-header">
+            <div class="path-icon-lg">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+              <h2 class="path-title">أساسيات البرمجة</h2>
+              <p class="path-description">
+                ابدأ رحلتك البرمجية بتعلم الأساسيات والمفاهيم الأساسية التي
+                تحتاجها لأي مسار برمجي
+              </p>
+            </div>
+          </div>
+
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #659ad2">
+                <i class="fab fa-cuttlefish"></i>
+              </div>
+              <h3>لغة C</h3>
+              <p>لغة برمجة قوية ومناسبة لفهم أساسيات البرمجة وهياكل البيانات</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #00599c">
+                <i class="fab fa-c-plus-plus"></i>
+              </div>
+              <h3>لغة C++</h3>
+              <p>
+                لغة برمجة كائنية التوجه مناسبة لتطوير التطبيقات المعقدة والأداء
+                العالي
+              </p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #9b4f96">
+                <i class="fab fa-microsoft"></i>
+              </div>
+              <h3>لغة C#</h3>
+              <p>
+                لغة برمجة متعددة الاستخدامات من مايكروسوفت لتطوير تطبيقات الويب
+                والألعاب
+              </p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #f29111">
+                <i class="fas fa-database"></i>
+              </div>
+              <h3>قواعد البيانات SQL</h3>
+              <p>
+                لغة الاستعلامات البنيوية لإدارة وتنظيم البيانات في قواعد
+                البيانات العلائقية
+              </p>
+            </div>
+          </div>
+
+          <div class="path-connector">
+            <div class="connector-arrow">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- Frontend Section -->
+        <section class="path-section frontend" id="frontend">
+          <div class="path-header">
+            <div class="path-icon-lg">
+              <i class="fas fa-palette"></i>
+            </div>
+            <div>
+              <h2 class="path-title">مسار Frontend Developer</h2>
+              <p class="path-description">
+                تخصص في تطوير الواجهات الأمامية للمواقع والتطبيقات باستخدام أحدث
+                التقنيات
+              </p>
+            </div>
+          </div>
+
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #e34f26">
+                <i class="fab fa-html5"></i>
+              </div>
+              <h3>HTML5</h3>
+              <p>لغة ترميز النص الفائق لإنشاء هيكل صفحات الويب</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #1572b6">
+                <i class="fab fa-css3-alt"></i>
+              </div>
+              <h3>CSS3</h3>
+              <p>لغة تنسيق لتصميم وتخطيط صفحات الويب وجعلها جذابة بصريًا</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #f7df1e">
+                <i class="fab fa-js"></i>
+              </div>
+              <h3>JavaScript</h3>
+              <p>
+                لغة برمجة لتطوير الواجهات التفاعلية وتطبيقات الويب الديناميكية
+              </p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #61dafb">
+                <i class="fab fa-react"></i>
+              </div>
+              <h3>React</h3>
+              <p>
+                مكتبة JavaScript لبناء واجهات المستخدم التفاعلية والقابلة لإعادة
+                الاستخدام
+              </p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #764abc">
+                <i class="fab fa-angular"></i>
+              </div>
+              <h3>Angular</h3>
+              <p>إطار عمل قوي ومتكامل لبناء تطبيقات الويب الديناميكية</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #4fc08d">
+                <i class="fab fa-vuejs"></i>
+              </div>
+              <h3>Vue.js</h3>
+              <p>
+                إطار عمل تقدمي لبناء واجهات المستخدم وتطبيقات الصفحة الواحدة
+              </p>
+            </div>
+          </div>
+
+          <div class="path-connector">
+            <div class="connector-arrow">
+              <i class="fas fa-arrow-down"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- Backend Section -->
+        <section class="path-section backend" id="backend">
+          <div class="path-header">
+            <div class="path-icon-lg">
+              <i class="fas fa-server"></i>
+            </div>
+            <div>
+              <h2 class="path-title">مسار Backend Developer</h2>
+              <p class="path-description">
+                تخصص في تطوير الخوادم وقواعد البيانات والمنطق الخلفي للتطبيقات
+                والمواقع
+              </p>
+            </div>
+          </div>
+
+          <div class="tech-grid">
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #4479a1">
+                <i class="fab fa-node-js"></i>
+              </div>
+              <h3>Node.js</h3>
+              <p>
+                بيئة تشغيل JavaScript من جانب الخادم لبناء تطبيقات الويب سريعة
+                وقابلة للتطوير
+              </p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #092e20">
+                <i class="fab fa-python"></i>
+              </div>
+              <h3>Python & Django</h3>
+              <p>لغة Python مع إطار عمل Django لبناء تطبيقات ويب قوية وآمنة</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #d00000">
+                <i class="fab fa-java"></i>
+              </div>
+              <h3>Java & Spring</h3>
+              <p>لغة Java مع إطار عمل Spring لتطوير تطبيقات المؤسسات الكبيرة</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #336791">
+                <i class="fas fa-database"></i>
+              </div>
+              <h3>قواعد البيانات</h3>
+              <p>MySQL, PostgreSQL, MongoDB لإدارة وتخزين البيانات بفعالية</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #ff6a00">
+                <i class="fas fa-cloud"></i>
+              </div>
+              <h3>خدمات السحابة</h3>
+              <p>AWS, Azure, Google Cloud لنشر وإدارة التطبيقات في السحابة</p>
+            </div>
+            <div class="tech-card">
+              <div class="tech-icon" style="background: #5a67d8">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h3>الأمان</h3>
+              <p>
+                ممارسات أمنية لحماية التطبيقات والبيانات من التهديدات
+                الإلكترونية
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>عن الأكاديمية</h3>
+          <p>
+            أكاديمية البرمجة المتكاملة تهدف إلى تمكين الأفراد من دخول عالم
+            البرمجة وتطوير مهاراتهم من خلال مناهج شاملة وتطبيق عملي.
+          </p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>روابط سريعة</h3>
+          <ul class="footer-links">
+            <li><a href="index.html">الصفحة الرئيسية</a></li>
+            <li><a href="#">من نحن</a></li>
+            <li><a href="path.html">الكورسات</a></li>
+            <li><a href="project.html">المشاريع</a></li>
+            <li><a href="#">اتصل بنا</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>المسارات التعليمية</h3>
+          <ul class="footer-links">
+            <li><a href="path.html?path=basics">أساسيات البرمجة</a></li>
+            <li>
+              <a href="path.html?path=frontend">تطوير الواجهات الأمامية</a>
+            </li>
+            <li><a href="path.html?path=backend">تطوير الواجهات الخلفية</a></li>
+            <li><a href="#">تطوير التطبيقات المتنقلة</a></li>
+            <li><a href="#">تطوير الويب الشامل</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>اتصل بنا</h3>
+          <ul class="footer-links">
+            <li><i class="fas fa-map-marker-alt"></i> دمشق، سوريا</li>
+            <li><i class="fas fa-phone"></i> +963 123 456 789</li>
+            <li><i class="fas fa-envelope"></i> info@programmingacademy.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
+      </div>
+    </footer>
+    <script src="site-notification.js"></script>
+
+    <script>
+      let currentUser = null;
+
+      // User Interface Update
+      function updateUserInterface() {
+        const currentUser = window.currentUser;
+        const userProfile = document.getElementById("userProfile");
+        const loginButton = document.getElementById("loginButton");
+        const userProfileMobile = document.getElementById("userProfileMobile");
+        const loginButtonMobile = document.getElementById("loginButtonMobile");
+        const favoritesTab = document.querySelector(
+          '[data-filter="favorites"]'
+        );
+
+        if (currentUser) {
+          // Show user profile, hide login
+          userProfile.style.display = "flex";
+          loginButton.style.display = "none";
+          userProfileMobile.style.display = "block";
+          loginButtonMobile.style.display = "none";
+          // Show favorites tab
+          if (favoritesTab) favoritesTab.style.display = "flex";
+
+          // Set user info
+          const initial = currentUser.firstName
+            ? currentUser.firstName.charAt(0)
+            : currentUser.username
+            ? currentUser.username.charAt(0)
+            : "?";
+
+          const username = currentUser.username;
+
+          const email = currentUser.email || currentUser.username;
+
+          // Desktop
+          document.getElementById("dropdownUserName").textContent = username;
+          document.getElementById("dropdownUserEmail").textContent = email;
+
+          // Mobile
+          document.getElementById("mobileUserName").textContent = username;
+          document.getElementById("mobileUserEmail").textContent = email;
+
+          // Avatar
+          const avatars = ["userAvatarSmall", "dropdownAvatar", "mobileAvatar"];
+          avatars.forEach((id) => {
+            const avatar = document.getElementById(id);
+            if (
+              currentUser.avatar
+            ) {
+              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              avatar.textContent = "";
+            } else {
+              avatar.textContent = initial;
+              avatar.style.background =
+                "linear-gradient(135deg, var(--accent), var(--primary))";
+              avatar.style.backgroundImage = "none";
+            }
+          });
+        } else {
+          // Hide user profile, show login
+          userProfile.style.display = "none";
+          loginButton.style.display = "block";
+          userProfileMobile.style.display = "none";
+          loginButtonMobile.style.display = "block";
+          // Hide favorites tab
+          if (favoritesTab) favoritesTab.style.display = "none";
+        }
+      }
+      // Initialize user interface on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        // Fetch user status first
+        fetch("/api/user/status", { credentials: "include" })
+          .then((response) => {
+            if (response.status === 401) {
+              return { success: false, user: null };
+            }
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success && data.user) {
+              window.currentUser = data.user;
+            } else {
+              window.currentUser = null;
+            }
+            updateUserInterface();
+          })
+          .catch((error) => {
+            // Guest mode should not be treated as an error in console
+            window.currentUser = null;
+            updateUserInterface();
+          });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
+        const mobileNavLinks = document.getElementById("mobileNavLinks");
+
+        function toggleMobileMenu() {
+          const isActive = mobileMenuBtn.classList.contains("active");
+          if (isActive) {
+            closeMobileMenuFunc();
+          } else {
+            openMobileMenu();
+          }
+        }
+
+        function openMobileMenu() {
+          mobileMenuBtn.classList.add("active");
+          mobileMenuOverlay.classList.add("active");
+          mobileNavLinks.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeMobileMenuFunc() {
+          mobileMenuBtn.classList.remove("active");
+          mobileMenuOverlay.classList.remove("active");
+          mobileNavLinks.classList.remove("active");
+          document.body.style.overflow = "auto";
+        }
+
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+        }
+        if (mobileMenuOverlay) {
+          mobileMenuOverlay.addEventListener("click", closeMobileMenuFunc);
+        }
+
+        // Mobile Dropdown Toggle
+        document
+          .querySelectorAll(".mobile-dropdown-toggle")
+          .forEach((toggle) => {
+            toggle.addEventListener("click", function (e) {
+              e.preventDefault();
+              const menu = this.nextElementSibling;
+              const icon = this.querySelector("i");
+              menu.classList.toggle("active");
+              if (menu.classList.contains("active")) {
+                icon.classList.remove("fa-chevron-down");
+                icon.classList.add("fa-chevron-up");
+              } else {
+                icon.classList.remove("fa-chevron-up");
+                icon.classList.add("fa-chevron-down");
+              }
+            });
+          });
+
+        // Mobile Logout
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        if (mobileLogoutBtn) {
+          mobileLogoutBtn.addEventListener("click", function () {
+            closeMobileMenuFunc(); // Close menu first
+            fetch("/api/logout", { method: "POST", credentials: "include" })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  updateUserInterface();
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+
+        // Dropdown hover functionality
+        const userProfile = document.getElementById("userProfile");
+        const userDropdown = document.querySelector(".user-dropdown");
+        let dropdownTimeout;
+
+        function showDropdown() {
+          clearTimeout(dropdownTimeout);
+          if (userDropdown) {
+            userDropdown.style.opacity = "1";
+            userDropdown.style.visibility = "visible";
+            userDropdown.style.transform = "translateY(0)";
+          }
+        }
+
+        function hideDropdown() {
+          dropdownTimeout = setTimeout(() => {
+            if (userDropdown) {
+              userDropdown.style.opacity = "0";
+              userDropdown.style.visibility = "hidden";
+              userDropdown.style.transform = "translateY(10px)";
+            }
+          }, 150); // Small delay to allow moving between elements
+        }
+
+        if (userProfile) {
+          userProfile.addEventListener("mouseenter", showDropdown);
+          userProfile.addEventListener("mouseleave", hideDropdown);
+        }
+
+        if (userDropdown) {
+          userDropdown.addEventListener("mouseenter", showDropdown);
+          userDropdown.addEventListener("mouseleave", hideDropdown);
+        }
+
+        // Logout functionality
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function () {
+            fetch("/api/logout", { method: "POST", credentials: "include" })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  window.currentUser = null;
+                  updateUserInterface();
+                  showNotification("تم تسجيل الخروج بنجاح!", "success");
+                } else {
+                  showNotification("خطأ في تسجيل الخروج", "error");
+                }
+              })
+              .catch((error) => {
+                console.error("Logout error:", error);
+                showNotification("خطأ في تسجيل الخروج", "error");
+              });
+          });
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const targetId = this.getAttribute("href");
+          if (targetId === "#") return;
+
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: "smooth",
+            });
+
+            // Close mobile menu if open
+            navbar.classList.remove("active");
+          }
+        });
+      });
+
+      // Animation on scroll for path sections
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.1,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe elements for animation
+      document.querySelectorAll(".path-section").forEach((el) => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(30px)";
+        el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        observer.observe(el);
+      });
+
+      // Add hover effect to tech cards
+      document.querySelectorAll(".tech-card").forEach((card) => {
+        card.addEventListener("mouseenter", function () {
+          this.style.transform = "translateY(-10px)";
+        });
+
+        card.addEventListener("mouseleave", function () {
+          this.style.transform = "translateY(0)";
+        });
+      });
+    </script>
+
+    <!-- AI Chat Modal -->
+    <div id="aiChatModal" class="ai-chat-modal">
+      <div class="ai-chat-container">
+        <div class="ai-chat-header">
+          <div class="ai-chat-title">
+            <i class="fas fa-robot"></i>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </div>
+          <button id="closeAiChat" class="close-ai-chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+              <p>كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة والدروس والتحديات وأي شيء آخر!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-chat-input-area">
+          <textarea
+            id="aiChatInput"
+            class="ai-chat-input"
+            placeholder="اكتب رسالتك هنا..."
+            rows="1"
+          ></textarea>
+          <button id="sendAiMessage" class="send-ai-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* AI Chat Modal Styles */
+      .ai-chat-modal {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 400px;
+        max-height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        display: none;
+        flex-direction: column;
+        z-index: 10000;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .ai-chat-modal.active {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .ai-chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .ai-chat-header {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        padding: 1rem;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .close-ai-chat {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .close-ai-chat:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .ai-chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #f8fafc;
+      }
+
+      .ai-message,
+      .user-message {
+        display: flex;
+        gap: 0.5rem;
+        animation: messageSlideIn 0.3s ease;
+      }
+
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .user-message {
+        justify-content: flex-end;
+      }
+
+      .message-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .user-message .message-avatar {
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        order: 2;
+      }
+
+      .message-content {
+        max-width: 280px;
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message .message-content {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+      }
+
+      .message-content p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .message-content p:first-child {
+        margin-top: 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .ai-chat-input-area {
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        border-radius: 0 0 15px 15px;
+      }
+
+      .ai-chat-input {
+        flex: 1;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        resize: none;
+        max-height: 100px;
+        transition: border-color 0.3s ease;
+      }
+
+      .ai-chat-input:focus {
+        outline: none;
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+      }
+
+      .send-ai-btn {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .send-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+      }
+
+      .send-ai-btn:active {
+        transform: translateY(0);
+      }
+
+      /* AI Chat Floating Button */
+      .ai-chat-fab {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4cc9f0, #4361ee);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        margin-left: 1rem;
+      }
+
+      .ai-chat-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .ai-chat-modal {
+          width: calc(100% - 40px);
+          max-height: 70vh;
+        }
+
+        .message-content {
+          max-width: 200px;
+        }
+      }
+
+      /* RTL Support */
+      [dir="rtl"] .ai-chat-modal {
+        left: auto;
+        right: 20px;
+      }
+
+      [dir="rtl"] .ai-message {
+        flex-direction: row-reverse;
+      }
+
+      [dir="rtl"] .ai-chat-input-area {
+        direction: rtl;
+      }
+    </style>
+
+    <script>
+      // AI Chat Modal Functionality
+      (function () {
+        const aiChatModal = document.getElementById('aiChatModal');
+        const aiChatFab = document.getElementById('aiChatFab');
+        const closeAiChat = document.getElementById('closeAiChat');
+        const aiChatInput = document.getElementById('aiChatInput');
+        const sendAiMessage = document.getElementById('sendAiMessage');
+        const aiChatMessages = document.getElementById('aiChatMessages');
+
+        // Toggle chat modal
+        if (aiChatFab) {
+          aiChatFab.addEventListener('click', () => {
+            aiChatModal.classList.add('active');
+            aiChatInput.focus();
+          });
+        }
+
+        // Close chat modal
+        if (closeAiChat) {
+          closeAiChat.addEventListener('click', () => {
+            aiChatModal.classList.remove('active');
+          });
+        }
+
+        // Send message
+        const sendMessage = async () => {
+          const message = aiChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          addMessage(message, 'user');
+          aiChatInput.value = '';
+          aiChatInput.style.height = 'auto';
+
+          // Show typing indicator
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'ai-message';
+          typingDiv.innerHTML =
+            '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>جاري الكتابة...</p></div>';
+          aiChatMessages.appendChild(typingDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+
+          try {
+            // Call AI helper API
+            const response = await fetch('/api/ai/helper', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: message,
+                type: 'general',
+              }),
+            });
+
+            const data = await response.json();
+            typingDiv.remove();
+
+            if (data.success) {
+              addMessage(data.response, 'ai');
+            } else {
+              addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            typingDiv.remove();
+            addMessage('عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.', 'ai');
+          }
+        };
+
+        if (sendAiMessage) {
+          sendAiMessage.addEventListener('click', sendMessage);
+        }
+
+        if (aiChatInput) {
+          aiChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          });
+
+          // Auto-resize textarea
+          aiChatInput.addEventListener('input', () => {
+            aiChatInput.style.height = 'auto';
+            aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 100) + 'px';
+          });
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+
+          const avatarDiv = document.createElement('div');
+          avatarDiv.className = 'message-avatar';
+          avatarDiv.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+
+          messageDiv.appendChild(avatarDiv);
+          messageDiv.appendChild(contentDiv);
+          aiChatMessages.appendChild(messageDiv);
+          aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+          const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+          };
+          return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+      })();
+    </script>
+  </body>
+</html>
+  </body>
+</html>
