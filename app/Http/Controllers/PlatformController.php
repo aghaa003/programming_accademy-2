@@ -19,8 +19,8 @@ class PlatformController extends Controller
         $language = $request->query('language', 'all');
         $search   = $request->query('search', '');
         $favorites = filter_var($request->query('favorites', false), FILTER_VALIDATE_BOOLEAN);
-        $limit  = (int) $request->query('limit', 50);
-        $offset = (int) $request->query('offset', 0);
+        $limit  = min(max((int) $request->query('limit', 50), 1), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
 
         $query = DB::table('platforms as p')
             ->select(
@@ -59,7 +59,8 @@ class PlatformController extends Controller
             if ($language === 'english') $query->whereIn('p.language', ['english', 'both']);
         }
         if (!empty($search)) {
-            $query->where(fn($q) => $q->where('p.name', 'like', "%$search%")->orWhere('p.description', 'like', "%$search%"));
+            $escapedSearch = str_replace(['%', '_'], ['\%', '\_'], $search);
+            $query->where(fn($q) => $q->where('p.name', 'like', "%{$escapedSearch}%")->orWhere('p.description', 'like', "%{$escapedSearch}%"));
         }
         if ($favorites && $userId) {
             $query->whereExists(fn($q) => $q->from('platform_bookmarks')->whereColumn('platform_id', 'p.id')->where('user_id', $userId));
@@ -87,7 +88,7 @@ class PlatformController extends Controller
             if ($language === 'english') $countQuery->whereIn('p.language', ['english', 'both']);
         }
         if (!empty($search)) {
-            $countQuery->where(fn($q) => $q->where('p.name', 'like', "%$search%")->orWhere('p.description', 'like', "%$search%"));
+            $countQuery->where(fn($q) => $q->where('p.name', 'like', "%{$escapedSearch}%")->orWhere('p.description', 'like', "%{$escapedSearch}%"));
         }
         if ($favorites && $userId) {
             $countQuery->whereExists(fn($q) => $q->from('platform_bookmarks')->whereColumn('platform_id', 'p.id')->where('user_id', $userId));
@@ -128,7 +129,8 @@ class PlatformController extends Controller
             return response()->json(['success' => true, 'bookmarked' => false, 'message' => 'تم إزالة الإشارة المرجعية']);
         }
 
-        PlatformBookmark::create(['user_id' => $userId, 'platform_id' => $platformId]);
+        // insertOrIgnore guards against duplicate inserts from concurrent requests (UNIQUE key is the final guard)
+        DB::table('platform_bookmarks')->insertOrIgnore(['user_id' => $userId, 'platform_id' => $platformId]);
         return response()->json(['success' => true, 'bookmarked' => true, 'message' => 'تمت إضافة الإشارة المرجعية']);
     }
 
@@ -151,14 +153,21 @@ class PlatformController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid rating'], 400);
         }
 
-        PlatformRating::updateOrCreate(
-            ['user_id' => $userId, 'platform_id' => $platformId],
-            ['rating' => $rating]
-        );
+        // Atomic: upsert rating and recalculate average in one transaction
+        DB::transaction(function () use ($userId, $platformId, $rating) {
+            DB::table('platform_ratings')->updateOrInsert(
+                ['user_id' => $userId, 'platform_id' => $platformId],
+                ['rating' => $rating]
+            );
+            DB::table('platforms')
+                ->where('id', $platformId)
+                ->update(['rating' => DB::raw(
+                    '(SELECT ROUND(AVG(r.rating), 2) FROM platform_ratings r WHERE r.platform_id = '.(int)$platformId.')'
+                )]);
+        });
 
-        $avgRating   = PlatformRating::where('platform_id', $platformId)->avg('rating');
-        $ratingCount = PlatformRating::where('platform_id', $platformId)->count();
-        Platform::where('id', $platformId)->update(['rating' => round($avgRating, 2)]);
+        $avgRating   = Platform::where('id', $platformId)->value('rating');
+        $ratingCount = DB::table('platform_ratings')->where('platform_id', $platformId)->count();
 
         return response()->json([
             'success'      => true,

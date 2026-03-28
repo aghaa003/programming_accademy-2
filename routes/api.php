@@ -28,12 +28,16 @@ use Illuminate\Support\Facades\Route;
 // ============================================================
 
 // Auth
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+});
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/check-availability', [AuthController::class, 'checkAvailability']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::middleware('throttle:20,1')->post('/check-availability', [AuthController::class, 'checkAvailability']);
+Route::middleware('throttle:5,1')->group(function () {
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+});
 
 // Public listings
 Route::get('/courses', [CourseController::class, 'index']);

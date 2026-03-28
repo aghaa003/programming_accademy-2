@@ -1869,6 +1869,7 @@
     </footer>
     <script src="login-modal.js"></script>
     <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
     <script>
       // Global variables
       let currentChallengeId = null;
@@ -2242,8 +2243,8 @@
             <div class="leaderboard-item">
               <div class="leaderboard-rank ${rankClass}">${user.rank}</div>
               <div class="leaderboard-user">
-                <div class="user-avatar">${user.avatar_letter}</div>
-                <div class="user-name">${user.name}</div>
+                <div class="user-avatar">${escapeHtml(user.avatar_letter)}</div>
+                <div class="user-name">${escapeHtml(user.name)}</div>
               </div>
               <div class="leaderboard-score">${pointsFormatted} نقطة</div>
             </div>
@@ -2356,8 +2357,8 @@
           </div>
           <div class="challenge-body">
             <div class="challenge-content">
-              <h3 class="challenge-title">${challenge.title}</h3>
-              <p class="challenge-description">${challenge.description}</p>
+              <h3 class="challenge-title">${escapeHtml(challenge.title)}</h3>
+              <p class="challenge-description">${escapeHtml(challenge.description)}</p>
             </div>
             <div class="challenge-stats">
               <div class="challenge-stat">

@@ -11,6 +11,7 @@ class Assignment extends Model
     protected $fillable = [
         'course_id', 'title', 'description', 'requirements',
         'difficulty', 'language', 'due_date', 'is_active',
+        'question', 'assignment_order',
     ];
 
     protected $casts = [

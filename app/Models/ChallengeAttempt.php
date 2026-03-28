@@ -18,7 +18,6 @@ class ChallengeAttempt extends Model
     ];
 
     public $timestamps = false;
-    const CREATED_AT = 'created_at';
 
     public function user()
     {

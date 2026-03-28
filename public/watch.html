@@ -1026,6 +1026,7 @@
         </style>
         <script src="login-modal.js"></script>
         <script src="site-notification.js"></script>
+        <script src="escapeHtml.js"></script>
     </head>
     <body>
         <header>
@@ -1656,7 +1657,11 @@
                         const avatar = document.getElementById(id);
                         if (avatar) {
                             if (currentUser.avatar) {
-                                avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+                                const safeAvatar = currentUser.avatar.replace(
+                                    /["']/g,
+                                    "",
+                                );
+                                avatar.style.background = `url('${safeAvatar}') no-repeat center center / cover`;
                                 avatar.textContent = "";
                             } else {
                                 avatar.textContent = initial;
@@ -1946,7 +1951,7 @@
                     lessonElement.innerHTML = `
                     <div class="item-number">${index + 1}</div>
                     <div class="item-content">
-                        <div class="item-title">${lesson.title}</div>
+                        <div class="item-title">${escapeHtml(lesson.title)}</div>
                     </div>
                     <div class="item-status">
                         <i class="fas fa-check"></i>
@@ -2191,16 +2196,16 @@
                     const item = document.createElement("li");
                     item.className = "resource-item";
                     const linkText = resource.text;
+                    const safeCode = currentLesson.resources_code
+                        ? escapeHtml(
+                              currentLesson.resources_code
+                                  .replace(/\n/g, "\\n")
+                                  .replace(/\r/g, ""),
+                          )
+                        : "";
                     const onclickAttr =
                         index === 0
-                            ? `onclick="showCodeModal('${
-                                  currentLesson.resources_code
-                                      ? currentLesson.resources_code
-                                            .replace(/'/g, "\\'")
-                                            .replace(/\n/g, "\\n")
-                                            .replace(/\r/g, "")
-                                      : ""
-                              }')"`
+                            ? `onclick="showCodeModal(this.dataset.code)" data-code="${safeCode}"`
                             : "";
                     const hrefAttr =
                         index === 1

@@ -826,6 +826,7 @@
     <!-- user-manager.js is optional / not present in workspace; commented out to avoid 404 -->
     <!-- <script src="user-manager.js"></script> -->
     <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
   </head>
   <body>
     <header>
@@ -1290,26 +1291,26 @@
           courseCard.className = "course-card";
 
           const lastLessonText = course.last_lesson_title
-            ? `آخر درس: ${course.last_lesson_title}`
+            ? `آخر درس: ${escapeHtml(course.last_lesson_title)}`
             : "لم تبدأ بعد";
           let logoIconHTML = "";
           if (course.logo_path) {
             // Show uploaded logo
-            logoIconHTML = `<img src="${course.logo_path}" alt="${course.title}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-left: 15px;">`;
+            logoIconHTML = `<img src="${escapeHtml(course.logo_path)}" alt="${escapeHtml(course.title)}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-left: 15px;">`;
           } else {
             // Show automatic icon based on course title
             const iconClass = course.icon_class || getIconClass(course.title);
             const colorClass =
               course.color_class || getColorClass(course.title);
-            logoIconHTML = `<div class="course-icon-large ${colorClass}" style="margin-left: 15px;"><i class="${iconClass}"></i></div>`;
+            logoIconHTML = `<div class="course-icon-large ${escapeHtml(colorClass)}" style="margin-left: 15px;"><i class="${escapeHtml(iconClass)}"></i></div>`;
           }
 
           courseCard.innerHTML = `
             <div class="course-card-header">
               ${logoIconHTML}
               <div class="course-card-header-content">
-                <h3>${course.title}</h3>
-                <p>${course.description || "وصف الدورة"}</p>
+                <h3>${escapeHtml(course.title)}</h3>
+                <p>${escapeHtml(course.description || "وصف الدورة")}</p>
               </div>
             </div>
             <div class="course-card-progress">
@@ -1336,7 +1337,7 @@
               </button>
               <button class="course-action-btn btn" style="background: #ef4444;" onclick="deleteCourseProgress(${
                 course.id
-              }, '${course.title}')">
+              }, '${escapeHtml(course.title).replace(/'/g, "&#39;")}')">
                 حذف
               </button>
             </div>

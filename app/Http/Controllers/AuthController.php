@@ -31,6 +31,9 @@ class AuthController extends Controller
         // Load roles
         $roles = $user->roles()->pluck('name')->toArray();
 
+        // Regenerate session ID to prevent session fixation attacks
+        $request->session()->regenerate();
+
         // Store in session
         $request->session()->put('user_id', $user->id);
         $request->session()->put('roles', $roles);
@@ -57,7 +60,7 @@ class AuthController extends Controller
                 60 * 24 * 30, // minutes
                 '/',
                 null,
-                false, // not HTTPS-only (local dev)
+                (bool) env('SESSION_SECURE_COOKIE', false), // HTTPS-only in production
                 true   // HttpOnly
             ));
         }
@@ -69,8 +72,12 @@ class AuthController extends Controller
     {
         $data = $request->all();
 
-        if (empty($data['firstName']) || empty($data['email']) || empty($data['username']) || empty($data['password'])) {
+        if (empty($data['firstName']) || empty($data['email']) || empty($data['username']) || empty($data['password']) || mb_strlen($data['password']) < 6) {
             return response()->json(['success' => false, 'message' => 'الرجاء ملء جميع الحقول المطلوبة.'], 400);
+        }
+
+        if (mb_strlen($data['password']) > 72) {
+            return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
         }
 
         $phone = isset($data['phone']) && $data['phone'] !== '' ? trim($data['phone']) : null;
@@ -85,18 +92,25 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
         }
 
-        $user = User::create([
-            'firstName' => trim($data['firstName']),
-            'lastName' => trim($data['lastName'] ?? ''),
-            'email' => trim($data['email']),
-            'phone' => $phone,
-            'username' => trim($data['username']),
-            'password' => Hash::make($data['password']),
-            'country' => $data['country'] ?? null,
-            'experience' => $data['experience'] ?? null,
-            'goal' => $data['goal'] ?? null,
-            'interest' => $data['interest'] ?? null,
-        ]);
+        try {
+            $user = User::create([
+                'firstName' => trim($data['firstName']),
+                'lastName' => trim($data['lastName'] ?? ''),
+                'email' => trim($data['email']),
+                'phone' => $phone,
+                'username' => trim($data['username']),
+                'password' => Hash::make($data['password']),
+                'country' => $data['country'] ?? null,
+                'experience' => $data['experience'] ?? null,
+                'goal' => $data['goal'] ?? null,
+                'interest' => $data['interest'] ?? null,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->errorInfo[1] === 1062) {
+                return response()->json(['success' => false, 'message' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
+            }
+            throw $e;
+        }
 
         // Assign default 'student' role (role_id=1)
         $user->roles()->attach(1);
@@ -167,7 +181,7 @@ class AuthController extends Controller
 
         PasswordReset::updateOrCreate(
             ['email' => $email],
-            ['token' => $token, 'expires_at' => $expiresAt]
+            ['token' => hash('sha256', $token), 'expires_at' => $expiresAt]
         );
 
         // Send password reset email via configured mailer (Gmail SMTP)
@@ -199,7 +213,11 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
         }
 
-        $reset = PasswordReset::where('token', $token)
+        if (mb_strlen($password) > 72) {
+            return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
+        }
+
+        $reset = PasswordReset::where('token', hash('sha256', $token))
             ->where('expires_at', '>', now())
             ->first();
 

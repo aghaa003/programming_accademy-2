@@ -19,7 +19,6 @@ class UserAssignment extends Model
     ];
 
     public $timestamps = false;
-    const CREATED_AT = 'submitted_at';
 
     public function user()
     {

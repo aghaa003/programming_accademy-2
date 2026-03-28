@@ -42,7 +42,11 @@ class VideoStreamController extends Controller
         }
 
         $fileSize = filesize($videoPath);
-        $mimeType = $lesson->video_mime_type ?: 'video/mp4';
+        // Whitelist MIME type — never use raw DB value directly in response headers (header injection)
+        $allowedMimes = ['video/mp4', 'video/webm', 'video/ogg', 'video/x-msvideo', 'video/quicktime'];
+        $mimeType = in_array($lesson->video_mime_type, $allowedMimes, true)
+            ? $lesson->video_mime_type
+            : 'video/mp4';
 
         $start = 0;
         $end = $fileSize - 1;

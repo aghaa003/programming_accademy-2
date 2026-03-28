@@ -24,7 +24,7 @@ class LessonController extends Controller
             return response()->json(['success' => false, 'message' => 'Missing course_id'], 400);
         }
 
-        $course = Course::find($courseId);
+        $course = Course::where('id', $courseId)->where('is_active', 1)->first();
         if (!$course) {
             return response()->json(['success' => false, 'message' => 'Course not found'], 404);
         }

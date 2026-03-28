@@ -874,6 +874,7 @@
         </style>
         <script src="login-modal.js"></script>
         <script src="site-notification.js"></script>
+        <script src="escapeHtml.js"></script>
     </head>
     <body>
         <!-- Header & Navbar -->
@@ -1271,10 +1272,10 @@
                 let iconHTML;
                 if (course.logo_path) {
                     const logoPath = course.logo_path;
-                    iconHTML = `<img src="${logoPath}" alt="${course.title}"
-                            onerror="console.error('Failed to load logo:', this.src); this.style.display='none'; this.parentElement.innerHTML='<i class=\\'${course.icon_class}\\'></i>';">`;
+                    iconHTML = `<img src="${escapeHtml(logoPath)}" alt="${escapeHtml(course.title)}"
+                            onerror="this.style.display='none'; this.parentElement.textContent='\uD83D\uDCBB';">`;
                 } else {
-                    iconHTML = `<i class="${course.icon_class}"></i>`;
+                    iconHTML = `<i class="${escapeHtml(course.icon_class)}"></i>`;
                 }
 
                 // إنشاء قائمة النقاط الرئيسية
@@ -1283,7 +1284,7 @@
                         ? course.main_points
                               .map(
                                   (point) =>
-                                      `<li><i class="fas fa-check"></i> ${point}</li>`,
+                                      `<li><i class="fas fa-check"></i> ${escapeHtml(point)}</li>`,
                               )
                               .join("")
                         : '<li><i class="fas fa-check"></i> محتوى شامل ومفصل</li><li><i class="fas fa-check"></i> أمثلة عملية وتطبيقات</li>';
@@ -1293,11 +1294,11 @@
                     <div class="card-icon ${course.color_class}">
                         ${iconHTML}
                     </div>
-                    <h3 class="card-title">${course.title}</h3>
-                    <div class="card-level">المستوى: ${course.level || "مبتدئ"}</div>
+                    <h3 class="card-title">${escapeHtml(course.title)}</h3>
+                    <div class="card-level">المستوى: ${escapeHtml(course.level || "مبتدئ")}</div>
                 </div>
                 <div class="card-content">
-                    <p class="card-description">${course.description || "تعلم أساسيات البرمجة بطريقة احترافية ومنظمة."}</p>
+                    <p class="card-description">${escapeHtml(course.description || "تعلم أساسيات البرمجة بطريقة احترافية ومنظمة.")}</p>
                     <ul class="card-features">
                         ${featuresHTML}
                         <li><i class="fas fa-check"></i> ${course.lesson_count} درس متاح</li>

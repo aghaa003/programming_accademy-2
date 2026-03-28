@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChallengeAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -103,7 +104,10 @@ class AiController extends Controller
             }
 
             // Must contain actual code constructs — reject plain text
-            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body {', '.class', '#id', '{', '}', '()', '=>', '==', '!=', '<=', '>='];
+            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body {', '.class', '#id', '{', '}', '()', '=>', '==', '!=', '<=', '>=',
+                // SQL keywords
+                'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
+            ];
             $hasCodeIndicators = false;
             foreach ($codeIndicators as $indicator) {
                 if (stripos($code, $indicator) !== false) {
@@ -175,43 +179,39 @@ class AiController extends Controller
 
             $updatedCompletion = false;
             if ($challengeId && $userId) {
-                $existingProgress = DB::table('user_challenges')
+                // Insert a stub row on first visit (safe to ignore if row already exists)
+                DB::table('user_challenges')->insertOrIgnore([
+                    'user_id'      => $userId,
+                    'challenge_id' => $challengeId,
+                    'attempts'     => 0,
+                    'completed'    => 0,
+                ]);
+
+                $updateData = [
+                    'attempts'      => DB::raw('attempts + 1'),
+                    'last_attempted' => now(),
+                ];
+
+                // Only update completion/score on a fresh attempt (not redo)
+                if ($verdict === 'yes' && ! $isRedo) {
+                    $updateData['completed'] = 1;
+                    // Use DB-level GREATEST to avoid race condition on concurrent submissions
+                    $updateData['best_score'] = DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challengePoints.')');
+                    $updatedCompletion = true;
+                }
+
+                DB::table('user_challenges')
                     ->where('user_id', $userId)
                     ->where('challenge_id', $challengeId)
-                    ->first();
+                    ->update($updateData);
+            }
 
-                if ($existingProgress) {
-                    $newAttempts = ((int) ($existingProgress->attempts ?? 0)) + 1;
-                    $updateData = [
-                        'attempts' => $newAttempts,
-                        'last_attempted' => now(),
-                    ];
-
-                    // Only update completion/score on a fresh attempt (not redo)
-                    if ($verdict === 'yes' && ! $isRedo) {
-                        $updateData['completed'] = 1;
-                        $updateData['best_score'] = max((int) ($existingProgress->best_score ?? 0), $challengePoints);
-                        $updatedCompletion = true;
-                    }
-
-                    DB::table('user_challenges')
-                        ->where('user_id', $userId)
-                        ->where('challenge_id', $challengeId)
-                        ->update($updateData);
-                } else {
-                    DB::table('user_challenges')->insert([
-                        'user_id' => $userId,
-                        'challenge_id' => $challengeId,
-                        'attempts' => 1,
-                        'completed' => ($verdict === 'yes' && ! $isRedo) ? 1 : 0,
-                        'best_score' => ($verdict === 'yes' && ! $isRedo) ? $challengePoints : 0,
-                        'last_attempted' => now(),
-                    ]);
-
-                    if ($verdict === 'yes' && ! $isRedo) {
-                        $updatedCompletion = true;
-                    }
-                }
+            // Record attempt in challenge_attempts
+            if ($challengeId && $userId) {
+                ChallengeAttempt::updateOrCreate(
+                    ['user_id' => $userId, 'challenge_id' => $challengeId],
+                    ['code' => $code, 'completed' => $verdict === 'yes', 'completed_at' => $verdict === 'yes' ? now() : null]
+                );
             }
 
             $aiText = $verdict === 'yes'
@@ -337,7 +337,10 @@ class AiController extends Controller
 
             // Check for programming constructs
             $hasCodeIndicators = false;
-            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body', '.class', '#id'];
+            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body', '.class', '#id',
+                // SQL keywords
+                'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
+            ];
             foreach ($codeIndicators as $indicator) {
                 if (stripos($code, $indicator) !== false) {
                     $hasCodeIndicators = true;
@@ -414,12 +417,19 @@ class AiController extends Controller
 
             $updatedCompletion = false;
             if ($verdict === 'yes' && $assignmentId && $userId) {
-                DB::table('user_assignments')->updateOrInsert(
-                    ['user_id' => $userId, 'assignment_id' => $assignmentId],
-                    ['solution' => $code, 'score' => 100, 'status' => 'graded',
-                        'is_completed' => 1, 'completed_at' => now()]
-                );
-                $updatedCompletion = true;
+                // Only auto-grade if assignment exists and is active
+                $assignmentExists = DB::table('assignments')
+                    ->where('id', $assignmentId)
+                    ->where('is_active', 1)
+                    ->exists();
+                if ($assignmentExists) {
+                    DB::table('user_assignments')->updateOrInsert(
+                        ['user_id' => $userId, 'assignment_id' => $assignmentId],
+                        ['solution' => $code, 'score' => 100, 'status' => 'graded',
+                            'is_completed' => 1, 'completed_at' => now()]
+                    );
+                    $updatedCompletion = true;
+                }
             }
 
             return response()->json([

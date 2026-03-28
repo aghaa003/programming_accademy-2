@@ -11,7 +11,6 @@ class PlatformRating extends Model
     protected $fillable = ['user_id', 'platform_id', 'rating'];
 
     public $timestamps = false;
-    const CREATED_AT = 'created_at';
 
     public function user()
     {

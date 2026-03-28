@@ -1127,6 +1127,7 @@
     </style>
     <script src="login-modal.js"></script>
     <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
   </head>
   <body>
     <!-- Header & Navbar -->
@@ -1748,12 +1749,12 @@
           card.onclick = () => selectCourse(course.id, course.title, card);
           card.innerHTML = `
             <div class="course-header">
-              <h4 class="course-title">${course.title}</h4>
+              <h4 class="course-title">${escapeHtml(course.title)}</h4>
               <span class="assignment-count">${
                 course.assignment_count
               } تكليف</span>
             </div>
-            <div class="course-description">${course.description || ""}</div>
+            <div class="course-description">${escapeHtml(course.description || "")}</div>
           `;
           grid.appendChild(card);
         });

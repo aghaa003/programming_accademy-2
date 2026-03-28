@@ -114,25 +114,40 @@ class CourseController extends Controller
                 $row['logo_path'] = file_exists(public_path($lp)) ? '/'.$lp : null;
             }
 
-            // Get last lesson title
+            // last_lesson_title is resolved after the loop via eager-loaded map
             $row['last_lesson_title'] = null;
-            if ($row['last_lesson_id']) {
-                $lesson = Lesson::find($row['last_lesson_id']);
-                $row['last_lesson_title'] = $lesson->title ?? null;
-            }
 
             return $row;
         }, $rows);
 
+        // Eager-load last lesson titles in one query — avoids N+1
+        $lastLessonIds = array_filter(array_column($courses, 'last_lesson_id'));
+        $lessonTitles = [];
+        if (! empty($lastLessonIds)) {
+            $lessonTitles = Lesson::whereIn('id', $lastLessonIds)
+                ->pluck('title', 'id')
+                ->all();
+        }
+        $courses = array_map(function ($row) use ($lessonTitles) {
+            $row['last_lesson_title'] = isset($row['last_lesson_id'])
+                ? ($lessonTitles[$row['last_lesson_id']] ?? null)
+                : null;
+
+            return $row;
+        }, $courses);
+
         return response()->json(['success' => true, 'courses' => $courses]);
     }
 
-    /** DELETE /api/course-progress/{courseId} */
     public function deleteCourseProgress(Request $request, $courseId)
     {
         $userId = $request->session()->get('user_id');
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+        }
+
+        if (! Course::where('id', $courseId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'الكورس غير موجود.'], 404);
         }
 
         DB::transaction(function () use ($userId, $courseId) {

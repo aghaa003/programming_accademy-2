@@ -1,312 +1,317 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تشغيل المثال - أكاديمية البرمجة المتكاملة</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script src="site-notification.js"></script>
-    <style>
-      :root {
-        --primary: #4361ee;
-        --secondary: #3a0ca3;
-        --accent: #4cc9f0;
-        --success: #4ade80;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --dark: #1e293b;
-        --light: #f8fafc;
-        --gray: #64748b;
-        --card-bg: #ffffff;
-        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        --transition: all 0.3s ease;
-      }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>تشغيل المثال - أكاديمية البرمجة المتكاملة</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <script src="site-notification.js"></script>
+        <script src="escapeHtml.js"></script>
+        <style>
+            :root {
+                --primary: #4361ee;
+                --secondary: #3a0ca3;
+                --accent: #4cc9f0;
+                --success: #4ade80;
+                --warning: #f59e0b;
+                --danger: #ef4444;
+                --dark: #1e293b;
+                --light: #f8fafc;
+                --gray: #64748b;
+                --card-bg: #ffffff;
+                --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                --transition: all 0.3s ease;
+            }
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
 
-      body {
-        background-color: #1e293b;
-        color: white;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+            body {
+                background-color: #1e293b;
+                color: white;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
 
-      .demo-header {
-        background: var(--primary);
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: var(--shadow);
-      }
+            .demo-header {
+                background: var(--primary);
+                padding: 1rem 2rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: var(--shadow);
+            }
 
-      .demo-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-      }
+            .demo-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+            }
 
-      .demo-actions {
-        display: flex;
-        gap: 1rem;
-      }
+            .demo-actions {
+                display: flex;
+                gap: 1rem;
+            }
 
-      .demo-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: var(--transition);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
+            .demo-btn {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: var(--transition);
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
 
-      .demo-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
+            .demo-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
 
-      .demo-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-      }
+            .demo-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
 
-      .demo-iframe {
-        flex: 1;
-        width: 100%;
-        border: none;
-        background: white;
-      }
+            .demo-iframe {
+                flex: 1;
+                width: 100%;
+                border: none;
+                background: white;
+            }
 
-      .demo-runner {
-        flex: 1;
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-      }
+            .demo-runner {
+                flex: 1;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
 
-      .run-button {
-        background: var(--success);
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        margin: 2rem 0;
-      }
+            .run-button {
+                background: var(--success);
+                color: white;
+                border: none;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: var(--transition);
+                margin: 2rem 0;
+            }
 
-      .run-button:hover {
-        background: #22c55e;
-        transform: translateY(-2px);
-      }
+            .run-button:hover {
+                background: #22c55e;
+                transform: translateY(-2px);
+            }
 
-      .special-env-message {
-        background: var(--warning);
-        color: #1e293b;
-        padding: 2rem;
-        border-radius: 10px;
-        max-width: 600px;
-        margin: 2rem auto;
-        text-align: center;
-      }
+            .special-env-message {
+                background: var(--warning);
+                color: #1e293b;
+                padding: 2rem;
+                border-radius: 10px;
+                max-width: 600px;
+                margin: 2rem auto;
+                text-align: center;
+            }
 
-      .special-env-message h3 {
-        margin-bottom: 1rem;
-        color: #1e293b;
-      }
+            .special-env-message h3 {
+                margin-bottom: 1rem;
+                color: #1e293b;
+            }
 
-      .special-env-message p {
-        line-height: 1.6;
-        margin-bottom: 1rem;
-      }
+            .special-env-message p {
+                line-height: 1.6;
+                margin-bottom: 1rem;
+            }
 
-      .env-steps {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 1rem;
-        border-radius: 5px;
-        text-align: right;
-        margin-top: 1rem;
-      }
+            .env-steps {
+                background: rgba(255, 255, 255, 0.9);
+                padding: 1rem;
+                border-radius: 5px;
+                text-align: right;
+                margin-top: 1rem;
+            }
 
-      .env-steps ol {
-        margin: 0;
-        padding-right: 1.5rem;
-      }
+            .env-steps ol {
+                margin: 0;
+                padding-right: 1.5rem;
+            }
 
-      .env-steps li {
-        margin-bottom: 0.5rem;
-        color: #1e293b;
-      }
+            .env-steps li {
+                margin-bottom: 0.5rem;
+                color: #1e293b;
+            }
 
-      .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 60vh;
-        color: var(--gray);
-      }
+            .loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 60vh;
+                color: var(--gray);
+            }
 
-      .spinner {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-      }
+            .spinner {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
 
-      .error {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 60vh;
-        color: var(--danger);
-        text-align: center;
-        padding: 2rem;
-      }
+            .error {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 60vh;
+                color: var(--danger);
+                text-align: center;
+                padding: 2rem;
+            }
 
-      @media (max-width: 768px) {
-        .demo-header {
-          padding: 1rem;
-          flex-direction: column;
-          gap: 1rem;
-        }
+            @media (max-width: 768px) {
+                .demo-header {
+                    padding: 1rem;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
 
-        .demo-title {
-          font-size: 1.2rem;
-        }
+                .demo-title {
+                    font-size: 1.2rem;
+                }
 
-        .demo-actions {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="demo-header">
-      <h1 id="demoTitle" class="demo-title">تحميل المثال...</h1>
-      <div class="demo-actions">
-        <button class="demo-btn" onclick="goBack()">
-          <i class="fas fa-arrow-right"></i> العودة للأمثلة
-        </button>
-        <button class="demo-btn" onclick="openInNewTab()">
-          <i class="fas fa-external-link-alt"></i> فتح في تبويب جديد
-        </button>
-      </div>
-    </div>
+                .demo-actions {
+                    width: 100%;
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="demo-header">
+            <h1 id="demoTitle" class="demo-title">تحميل المثال...</h1>
+            <div class="demo-actions">
+                <button class="demo-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-right"></i> العودة للأمثلة
+                </button>
+                <button class="demo-btn" onclick="openInNewTab()">
+                    <i class="fas fa-external-link-alt"></i> فتح في تبويب جديد
+                </button>
+            </div>
+        </div>
 
-    <div id="loading" class="loading">
-      <div class="spinner">
-        <i class="fas fa-spinner fa-spin"></i>
-      </div>
-      <p>جاري تحضير المثال...</p>
-    </div>
+        <div id="loading" class="loading">
+            <div class="spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>جاري تحضير المثال...</p>
+        </div>
 
-    <div id="error" class="error" style="display: none">
-      <i
-        class="fas fa-exclamation-triangle fa-3x"
-        style="margin-bottom: 1rem"
-      ></i>
-      <h3>خطأ في تحميل المثال</h3>
-      <p id="errorMessage">الرجاء المحاولة مرة أخرى</p>
-    </div>
+        <div id="error" class="error" style="display: none">
+            <i
+                class="fas fa-exclamation-triangle fa-3x"
+                style="margin-bottom: 1rem"
+            ></i>
+            <h3>خطأ في تحميل المثال</h3>
+            <p id="errorMessage">الرجاء المحاولة مرة أخرى</p>
+        </div>
 
-    <div id="demoContent" class="demo-content" style="display: none">
-      <!-- Demo content will be inserted here -->
-    </div>
+        <div id="demoContent" class="demo-content" style="display: none">
+            <!-- Demo content will be inserted here -->
+        </div>
 
-    <script>
-      let currentExample = null;
+        <script>
+            let currentExample = null;
 
-      // Get example ID from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const exampleId = urlParams.get("id");
+            // Get example ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const exampleId = urlParams.get("id");
 
-      if (!exampleId) {
-        showError("معرف المثال مفقود");
-      } else {
-        loadExample(exampleId);
-      }
+            if (!exampleId) {
+                showError("معرف المثال مفقود");
+            } else {
+                loadExample(exampleId);
+            }
 
-      async function loadExample(id) {
-        try {
-          const response = await fetch(`/api/examples/${id}`);
-          const data = await response.json();
+            async function loadExample(id) {
+                try {
+                    const response = await fetch(`/api/examples/${id}`);
+                    const data = await response.json();
 
-          if (data.success) {
-            currentExample = data.example;
-            initializeDemo(data.example);
-          } else {
-            showError(data.message || "فشل في تحميل المثال");
-          }
-        } catch (error) {
-          showError("خطأ في الشبكة: " + error.message);
-        }
-      }
+                    if (data.success) {
+                        currentExample = data.example;
+                        initializeDemo(data.example);
+                    } else {
+                        showError(data.message || "فشل في تحميل المثال");
+                    }
+                } catch (error) {
+                    showError("خطأ في الشبكة: " + error.message);
+                }
+            }
 
-      function initializeDemo(example) {
-        const demoUrl = (example.demo_url || "").trim();
-        if (demoUrl) {
-          window.location.href = demoUrl;
-          return;
-        }
+            function initializeDemo(example) {
+                const demoUrl = (example.demo_url || "").trim();
+                if (demoUrl) {
+                    window.location.href = demoUrl;
+                    return;
+                }
 
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("demoContent").style.display = "flex";
-        document.getElementById("demoTitle").textContent = example.title;
-        document.title = `${example.title} - تشغيل المثال`;
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("demoContent").style.display = "flex";
+                document.getElementById("demoTitle").textContent =
+                    example.title;
+                document.title = `${example.title} - تشغيل المثال`;
 
-        // Check if example requires special environment
-        if (example.requires_special_env && example.special_env_message) {
-          showSpecialEnvironmentMessage(example);
-        } else {
-          // Check if we can run it directly
-          if (canRunDirectly(example)) {
-            setupDirectRunner(example);
-          } else {
-            showInstructions(example);
-          }
-        }
-      }
+                // Check if example requires special environment
+                if (
+                    example.requires_special_env &&
+                    example.special_env_message
+                ) {
+                    showSpecialEnvironmentMessage(example);
+                } else {
+                    // Check if we can run it directly
+                    if (canRunDirectly(example)) {
+                        setupDirectRunner(example);
+                    } else {
+                        showInstructions(example);
+                    }
+                }
+            }
 
-      function canRunDirectly(example) {
-        // Can run JavaScript algorithms, HTML/CSS/JS frontend examples
-        return (
-          (example.category === "algorithms" &&
-            example.code_language.toLowerCase() === "javascript") ||
-          (example.category === "frontend" &&
-            ["html", "javascript", "css"].includes(
-              example.code_language.toLowerCase()
-            ))
-        );
-      }
+            function canRunDirectly(example) {
+                // Can run JavaScript algorithms, HTML/CSS/JS frontend examples
+                return (
+                    (example.category === "algorithms" &&
+                        example.code_language.toLowerCase() === "javascript") ||
+                    (example.category === "frontend" &&
+                        ["html", "javascript", "css"].includes(
+                            example.code_language.toLowerCase(),
+                        ))
+                );
+            }
 
-      function showSpecialEnvironmentMessage(example) {
-        const content = document.getElementById("demoContent");
-        content.innerHTML = `
+            function showSpecialEnvironmentMessage(example) {
+                const content = document.getElementById("demoContent");
+                content.innerHTML = `
                 <div class="special-env-message">
                     <i class="fas fa-tools fa-3x" style="color: #1e293b; margin-bottom: 1rem;"></i>
                     <h3>هذا المثال يحتاج إلى بيئة تشغيل خاصة</h3>
-                    <p>${example.special_env_message}</p>
+                    <p>${escapeHtml(example.special_env_message)}</p>
                     <div class="env-steps">
                         <p><strong>لتشغيل هذا المثال:</strong></p>
                         <ol>
@@ -318,23 +323,23 @@
                     </div>
                 </div>
             `;
-      }
+            }
 
-      function setupDirectRunner(example) {
-        const content = document.getElementById("demoContent");
+            function setupDirectRunner(example) {
+                const content = document.getElementById("demoContent");
 
-        if (
-          example.category === "algorithms" &&
-          example.code_language.toLowerCase() === "javascript"
-        ) {
-          // JavaScript algorithm runner
-          content.innerHTML = `
+                if (
+                    example.category === "algorithms" &&
+                    example.code_language.toLowerCase() === "javascript"
+                ) {
+                    // JavaScript algorithm runner
+                    content.innerHTML = `
                     <div class="demo-runner">
                         <h2 style="margin-bottom: 1rem; color: var(--accent);">
-                            <i class="fas fa-play-circle"></i> ${example.title}
+                            <i class="fas fa-play-circle"></i> ${escapeHtml(example.title)}
                         </h2>
                         <p style="margin-bottom: 2rem; color: var(--gray);">
-                            اضغط على الزر لتشغيل خوارزمية ${example.title}
+                            اضغط على الزر لتشغيل خوارزمية ${escapeHtml(example.title)}
                         </p>
                         <button class="run-button" onclick="runJavaScriptAlgorithm()">
                             <i class="fas fa-play"></i> تشغيل الخوارزمية
@@ -345,62 +350,62 @@
                         </div>
                     </div>
                 `;
-        } else if (example.category === "frontend") {
-          // Frontend iframe runner
-          if (
-            example.code_language.toLowerCase() === "html" &&
-            example.code_snippet.includes("<html")
-          ) {
-            // Full HTML document
-            const blob = new Blob([example.code_snippet], {
-              type: "text/html",
-            });
-            const url = URL.createObjectURL(blob);
-            content.innerHTML = `<iframe class="demo-iframe" src="${url}"></iframe>`;
-          } else {
-            // Simple code display
-            content.innerHTML = `
+                } else if (example.category === "frontend") {
+                    // Frontend iframe runner
+                    if (
+                        example.code_language.toLowerCase() === "html" &&
+                        example.code_snippet.includes("<html")
+                    ) {
+                        // Full HTML document
+                        const blob = new Blob([example.code_snippet], {
+                            type: "text/html",
+                        });
+                        const url = URL.createObjectURL(blob);
+                        content.innerHTML = `<iframe class="demo-iframe" src="${url}"></iframe>`;
+                    } else {
+                        // Simple code display
+                        content.innerHTML = `
                         <div class="demo-runner">
                             <h2 style="margin-bottom: 1rem; color: var(--accent);">
-                                <i class="fas fa-code"></i> ${example.title}
+                                <i class="fas fa-code"></i> ${escapeHtml(example.title)}
                             </h2>
                             <p style="margin-bottom: 2rem; color: var(--gray);">
                                 هذا المثال يحتاج إلى تشغيل محلي. انسخ الكود ولصقه في ملف HTML.
                             </p>
                             <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 5px; text-align: left; direction: ltr;">
                                 <pre style="color: white; margin: 0;">${escapeHtml(
-                                  example.code_snippet
+                                    example.code_snippet,
                                 )}</pre>
                             </div>
                         </div>
                     `;
-          }
-        }
-      }
+                    }
+                }
+            }
 
-      function showInstructions(example) {
-        const content = document.getElementById("demoContent");
-        let instructions = "";
+            function showInstructions(example) {
+                const content = document.getElementById("demoContent");
+                let instructions = "";
 
-        switch (example.category) {
-          case "backend":
-            instructions = `
+                switch (example.category) {
+                    case "backend":
+                        instructions = `
                         <h3>تشغيل كود الخادم (${example.code_language})</h3>
                         <ol>
                             <li>تأكد من تثبيت ${getLanguageRequirements(
-                              example.code_language
+                                example.code_language,
                             )}</li>
                             <li>انسخ الكود إلى ملف مناسب (${getFileExtension(
-                              example.code_language
+                                example.code_language,
                             )})</li>
                             <li>شغل الأمر: <code>${getRunCommand(
-                              example.code_language
+                                example.code_language,
                             )}</code></li>
                         </ol>
                     `;
-            break;
-          case "mobile":
-            instructions = `
+                        break;
+                    case "mobile":
+                        instructions = `
                         <h3>تشغيل تطبيق الجوال</h3>
                         <ol>
                             <li>تأكد من تثبيت Flutter و Dart</li>
@@ -408,9 +413,9 @@
                             <li>شغل الأمر: <code>flutter run</code></li>
                         </ol>
                     `;
-            break;
-          default:
-            instructions = `
+                        break;
+                    default:
+                        instructions = `
                         <h3>كيفية تشغيل هذا المثال</h3>
                         <ol>
                             <li>انسخ الكود من صفحة الأمثلة</li>
@@ -418,9 +423,9 @@
                             <li>شغل الكود في البيئة المناسبة</li>
                         </ol>
                     `;
-        }
+                }
 
-        content.innerHTML = `
+                content.innerHTML = `
                 <div class="demo-runner">
                     <h2 style="margin-bottom: 1rem; color: var(--accent);">
                         <i class="fas fa-info-circle"></i> تعليمات التشغيل
@@ -430,130 +435,140 @@
                     </div>
                 </div>
             `;
-      }
-
-      function runJavaScriptAlgorithm() {
-        if (!currentExample) return;
-
-        try {
-          const result = executeJavaScriptCode(currentExample.code_snippet);
-          document.getElementById("algorithmOutput").style.display = "block";
-          document.getElementById("outputContent").textContent = result;
-        } catch (error) {
-          document.getElementById("algorithmOutput").style.display = "block";
-          document.getElementById("outputContent").textContent =
-            "خطأ: " + error.message;
-          document.getElementById("outputContent").style.color =
-            "var(--danger)";
-        }
-      }
-
-      function executeJavaScriptCode(code) {
-        // Create a safe execution environment without using console.log
-        const logs = [];
-        const sandboxConsole = {
-          log: (...args) => logs.push(args.join(" ")),
-        };
-
-        try {
-          // Wrap code to inject a sandboxed console
-          const wrapped = new Function("console", '"use strict";\n' + code);
-          const result = wrapped(sandboxConsole);
-
-          if (logs.length > 0) {
-            return logs.join("\n");
-          } else if (result !== undefined) {
-            return result.toString();
-          } else {
-            return "تم تشغيل الكود بنجاح (لا توجد نتائج للعرض)";
-          }
-        } catch (error) {
-          throw error;
-        }
-      }
-
-      function getLanguageRequirements(language) {
-        const requirements = {
-          python: "Python 3.x",
-          php: "PHP 8.0+ وخادم محلي (مثل XAMPP)",
-          java: "Java JDK 11+",
-          nodejs: "Node.js 14+",
-          cpp: "C++ Compiler (مثل g++)",
-          c: "C Compiler (مثل gcc)",
-        };
-        return requirements[language.toLowerCase()] || language;
-      }
-
-      function getRunCommand(language) {
-        const commands = {
-          python: "python app.py",
-          php: "php -S localhost:8000",
-          java: "java Main.java",
-          nodejs: "node app.js",
-          cpp: "g++ main.cpp -o main && ./main",
-          c: "gcc main.c -o main && ./main",
-        };
-        return commands[language.toLowerCase()] || "تحقق من تعليمات اللغة";
-      }
-
-      function getFileExtension(language) {
-        const extensions = {
-          javascript: "js",
-          python: "py",
-          php: "php",
-          java: "java",
-          html: "html",
-          css: "css",
-          cpp: "cpp",
-          c: "c",
-          dart: "dart",
-        };
-        return extensions[language.toLowerCase()] || "txt";
-      }
-
-      function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      function showError(message) {
-        document.getElementById("loading").style.display = "none";
-        const errorDiv = document.getElementById("error");
-        document.getElementById("errorMessage").textContent = message;
-        errorDiv.style.display = "flex";
-      }
-
-      function goBack() {
-        // If this demo was opened from the examples page via window.open()
-        // try to close the tab and focus the opener. If that fails (e.g.
-        // browser prevented window.close()), fall back to navigating to
-        // examples.html so the user still gets back to the list.
-        if (window.opener && !window.opener.closed) {
-          try {
-            window.opener.focus();
-          } catch (e) {
-            /* ignore */
-          }
-
-          // Attempt to close this window (works when opened programmatically)
-          window.close();
-
-          // If close() did not work (some browsers block it), navigate back as fallback
-          setTimeout(() => {
-            if (!window.closed) {
-              window.location.href = "examples.html";
             }
-          }, 150);
-        } else {
-          // Not opened by another window — navigate back to examples.html
-          window.location.href = "examples.html";
-        }
-      }
 
-      function openInNewTab() {
-        window.open(window.location.href, "_blank");
-      }
-    </script>
-  </body>
+            function runJavaScriptAlgorithm() {
+                if (!currentExample) return;
+
+                try {
+                    const result = executeJavaScriptCode(
+                        currentExample.code_snippet,
+                    );
+                    document.getElementById("algorithmOutput").style.display =
+                        "block";
+                    document.getElementById("outputContent").textContent =
+                        result;
+                } catch (error) {
+                    document.getElementById("algorithmOutput").style.display =
+                        "block";
+                    document.getElementById("outputContent").textContent =
+                        "خطأ: " + error.message;
+                    document.getElementById("outputContent").style.color =
+                        "var(--danger)";
+                }
+            }
+
+            function executeJavaScriptCode(code) {
+                // Create a safe execution environment without using console.log
+                const logs = [];
+                const sandboxConsole = {
+                    log: (...args) => logs.push(args.join(" ")),
+                };
+
+                try {
+                    // Wrap code to inject a sandboxed console
+                    const wrapped = new Function(
+                        "console",
+                        '"use strict";\n' + code,
+                    );
+                    const result = wrapped(sandboxConsole);
+
+                    if (logs.length > 0) {
+                        return logs.join("\n");
+                    } else if (result !== undefined) {
+                        return result.toString();
+                    } else {
+                        return "تم تشغيل الكود بنجاح (لا توجد نتائج للعرض)";
+                    }
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            function getLanguageRequirements(language) {
+                const requirements = {
+                    python: "Python 3.x",
+                    php: "PHP 8.0+ وخادم محلي (مثل XAMPP)",
+                    java: "Java JDK 11+",
+                    nodejs: "Node.js 14+",
+                    cpp: "C++ Compiler (مثل g++)",
+                    c: "C Compiler (مثل gcc)",
+                };
+                return requirements[language.toLowerCase()] || language;
+            }
+
+            function getRunCommand(language) {
+                const commands = {
+                    python: "python app.py",
+                    php: "php -S localhost:8000",
+                    java: "java Main.java",
+                    nodejs: "node app.js",
+                    cpp: "g++ main.cpp -o main && ./main",
+                    c: "gcc main.c -o main && ./main",
+                };
+                return (
+                    commands[language.toLowerCase()] || "تحقق من تعليمات اللغة"
+                );
+            }
+
+            function getFileExtension(language) {
+                const extensions = {
+                    javascript: "js",
+                    python: "py",
+                    php: "php",
+                    java: "java",
+                    html: "html",
+                    css: "css",
+                    cpp: "cpp",
+                    c: "c",
+                    dart: "dart",
+                };
+                return extensions[language.toLowerCase()] || "txt";
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement("div");
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showError(message) {
+                document.getElementById("loading").style.display = "none";
+                const errorDiv = document.getElementById("error");
+                document.getElementById("errorMessage").textContent = message;
+                errorDiv.style.display = "flex";
+            }
+
+            function goBack() {
+                // If this demo was opened from the examples page via window.open()
+                // try to close the tab and focus the opener. If that fails (e.g.
+                // browser prevented window.close()), fall back to navigating to
+                // examples.html so the user still gets back to the list.
+                if (window.opener && !window.opener.closed) {
+                    try {
+                        window.opener.focus();
+                    } catch (e) {
+                        /* ignore */
+                    }
+
+                    // Attempt to close this window (works when opened programmatically)
+                    window.close();
+
+                    // If close() did not work (some browsers block it), navigate back as fallback
+                    setTimeout(() => {
+                        if (!window.closed) {
+                            window.location.href = "examples.html";
+                        }
+                    }, 150);
+                } else {
+                    // Not opened by another window — navigate back to examples.html
+                    window.location.href = "examples.html";
+                }
+            }
+
+            function openInNewTab() {
+                window.open(window.location.href, "_blank");
+            }
+        </script>
+    </body>
 </html>

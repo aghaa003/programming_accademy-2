@@ -128,6 +128,12 @@ class ProfileController extends Controller
         $newPassword = $request->input('newPassword', $request->input('new_password', ''));
         $currentPassword = $request->input('currentPassword', $request->input('current_password', ''));
         if (! empty($newPassword)) {
+            if (mb_strlen($newPassword) < 6) {
+                return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.'], 400);
+            }
+            if (mb_strlen($newPassword) > 72) {
+                return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
+            }
             if (! Hash::check($currentPassword, $user->password)) {
                 return response()->json(['success' => false, 'message' => 'كلمة المرور الحالية غير صحيحة.'], 400);
             }
@@ -161,14 +167,6 @@ class ProfileController extends Controller
 
         $user = User::find($userId);
 
-        // Delete old avatar file if it exists
-        if (! empty($user->avatar_path)) {
-            $oldFile = public_path(ltrim($user->avatar_path, '/'));
-            if (is_file($oldFile)) {
-                @unlink($oldFile);
-            }
-        }
-
         // Derive extension from validated mime type (never trust client filename)
         $mimeToExt = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
         $ext = $mimeToExt[$mimeType] ?? 'jpg';
@@ -180,9 +178,19 @@ class ProfileController extends Controller
         $file->move($dest, $filename);
 
         $avatarPath = '/uploads/avatars/'.$filename;
+        $oldAvatarPath = $user->avatar_path;
 
+        // Save new path to DB first, then delete old file
         $user->avatar_path = $avatarPath;
         $user->save();
+
+        // Delete old avatar file only after DB write succeeded
+        if (! empty($oldAvatarPath)) {
+            $oldFile = public_path(ltrim($oldAvatarPath, '/'));
+            if (is_file($oldFile)) {
+                @unlink($oldFile);
+            }
+        }
 
         return response()->json(['success' => true, 'message' => 'تم تحديث الصورة بنجاح.', 'avatar' => asset($avatarPath)]);
     }
@@ -213,6 +221,10 @@ class ProfileController extends Controller
         }
 
         $lang = $request->input('language', 'ar');
+        $allowedLanguages = ['ar', 'en'];
+        if (! in_array($lang, $allowedLanguages, true)) {
+            $lang = 'ar';
+        }
         User::where('id', $userId)->update(['preferred_language' => $lang]);
         $request->session()->put('language', $lang);
 
@@ -253,18 +265,32 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
-        DB::transaction(function () use ($userId) {
+        // Collect avatar path before transaction so we can delete the file after
+        $avatarFile = null;
+        if (! empty($user->avatar_path)) {
+            $avatarFile = public_path(ltrim($user->avatar_path, '/'));
+        }
+
+        DB::transaction(function () use ($userId, $user) {
             // Delete related data
             DB::table('user_lesson_progress')->where('user_id', $userId)->delete();
             DB::table('user_course_progress')->where('user_id', $userId)->delete();
             DB::table('user_challenges')->where('user_id', $userId)->delete();
+            DB::table('challenge_attempts')->where('user_id', $userId)->delete();
             DB::table('user_assignments')->where('user_id', $userId)->delete();
             DB::table('platform_bookmarks')->where('user_id', $userId)->delete();
             DB::table('platform_ratings')->where('user_id', $userId)->delete();
             DB::table('user_roles')->where('user_id', $userId)->delete();
             DB::table('user_preferences')->where('user_id', $userId)->delete();
+            DB::table('academy_reviews')->where('user_id', $userId)->delete();
+            DB::table('password_resets')->where('email', $user->email)->delete();
             User::where('id', $userId)->delete();
         });
+
+        // Delete avatar file only after DB transaction succeeded
+        if ($avatarFile && is_file($avatarFile)) {
+            @unlink($avatarFile);
+        }
 
         $request->session()->flush();
 

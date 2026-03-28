@@ -2191,6 +2191,7 @@
     </footer>
 
     <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
     <script>
       // Global variables
       let currentFilters = {
@@ -2330,8 +2331,9 @@
           "linear-gradient(135deg, #06b6d4, #0891b2)",
         ];
         const colorIndex = platform.name.length % logoColors.length;
-        const logoStyle = platform.logo_url
-          ? `background-image: url('${platform.logo_url}'); background-size: cover;`
+        const safeLogoUrl = platform.logo_url && /^https?:\/\//i.test(platform.logo_url) ? platform.logo_url.replace(/["']/g, '') : '';
+        const logoStyle = safeLogoUrl
+          ? `background-image: url('${safeLogoUrl}'); background-size: cover;`
           : `background: ${logoColors[colorIndex]}`;
 
         // Create rating stars and summary
@@ -2339,7 +2341,7 @@
 
         // Create features
         const featuresHTML = platform.features
-          .map((feature) => `<span class="platform-feature">${feature}</span>`)
+          .map((feature) => `<span class="platform-feature">${escapeHtml(feature)}</span>`)
           .join("");
 
         // Format numbers
@@ -2354,20 +2356,20 @@
           </div>
           <div class="platform-header">
             <div class="platform-logo" style="${logoStyle}">
-              ${platform.logo_url ? "" : `<i class="fas fa-code"></i>`}
+              ${safeLogoUrl ? "" : `<i class="fas fa-code"></i>`}
             </div>
             <div class="platform-rating">
               ${ratingDisplay}
             </div>
           </div>
           <div class="platform-body">
-            <h3 class="platform-title">${platform.name}</h3>
-            <p class="platform-description">${platform.description}</p>
+            <h3 class="platform-title">${escapeHtml(platform.name)}</h3>
+            <p class="platform-description">${escapeHtml(platform.description)}</p>
             <div class="platform-features">
               ${featuresHTML}
             </div>
             <div class="platform-footer">
-              <a href="${platform.url}" class="platform-link" target="_blank">
+              <a href="${escapeHtml(platform.url)}" class="platform-link" target="_blank" rel="noopener noreferrer">
                 <span>زيارة الموقع</span>
                 <i class="fas fa-external-link-alt"></i>
               </a>
@@ -2763,7 +2765,7 @@
           "recommendationExplanation"
         );
 
-        explanationDiv.innerHTML = explanation;
+        explanationDiv.innerHTML = escapeHtml(explanation);
 
         let html = "";
 
@@ -2780,28 +2782,28 @@
                   </div>
                 </div>
                 <div class="platform-body">
-                  <h4 class="platform-title">${platform.name}</h4>
-                  <p class="platform-description">${platform.description}</p>
+                  <h4 class="platform-title">${escapeHtml(platform.name)}</h4>
+                  <p class="platform-description">${escapeHtml(platform.description)}</p>
                   <div class="match-reason" style="background: rgba(67, 97, 238, 0.05); padding: 0.5rem; border-radius: 5px; font-size: 0.8rem; color: var(--dark); margin-bottom: 1rem;">
-                    لماذا يناسبك: ${
+                    لماذا يناسبك: ${escapeHtml(
                       platform.match_reason || "مناسب لمستواك وأهدافك"
-                    }
+                    )}
                   </div>
                   ${
                     features
                       ? `<div class="platform-features">${features
                           .split(" • ")
                           .map(
-                            (f) => `<span class="platform-feature">${f}</span>`
+                            (f) => `<span class="platform-feature">${escapeHtml(f)}</span>`
                           )
                           .join("")}</div>`
                       : ""
                   }
                 </div>
                 <div class="platform-footer">
-                  <a href="${
+                  <a href="${escapeHtml(
                     platform.url
-                  }" class="platform-link" target="_blank">
+                  )}" class="platform-link" target="_blank" rel="noopener noreferrer">
                     <i class="fas fa-external-link-alt"></i>
                     زيارة المنصة
                   </a>
@@ -3030,7 +3032,8 @@
             if (
               currentUser.avatar
             ) {
-              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              const safeAvatar = currentUser.avatar.replace(/["']/g, '');
+              avatar.style.background = `url('${safeAvatar}') no-repeat center center / cover`;
               avatar.textContent = "";
             } else {
               avatar.textContent = initial;

@@ -608,9 +608,22 @@
                                     window.location.search,
                                 );
                                 if (urlParams.has("redirect")) {
-                                    redirectUrl = decodeURIComponent(
+                                    const requested = decodeURIComponent(
                                         urlParams.get("redirect"),
                                     );
+                                    // Only allow relative redirects to prevent open-redirect attacks
+                                    if (
+                                        requested.startsWith("/") &&
+                                        !requested.startsWith("//")
+                                    ) {
+                                        redirectUrl = requested;
+                                    } else if (
+                                        requested.startsWith("./") ||
+                                        requested.match(/^[a-zA-Z0-9_-]+\.html/)
+                                    ) {
+                                        redirectUrl = requested;
+                                    }
+                                    // External URLs (http://, https://, //) are silently ignored
                                 }
                                 setTimeout(() => {
                                     window.location.href = redirectUrl;

@@ -59,6 +59,14 @@ class AdminCourseController extends Controller
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
+        // Validate required fields if they are being changed — same rules as store()
+        if ($request->has('title') && empty(trim($request->input('title', '')))) {
+            return response()->json(['success' => false, 'message' => 'عنوان الكورس مطلوب.'], 400);
+        }
+        if ($request->has('category') && empty(trim($request->input('category', '')))) {
+            return response()->json(['success' => false, 'message' => 'تصنيف الكورس مطلوب.'], 400);
+        }
+
         $course->fill($request->only(['title', 'description', 'main_points', 'category', 'level', 'is_active']));
         $course->save();
 
@@ -73,40 +81,44 @@ class AdminCourseController extends Controller
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
-        // Remove user_assignments first (RESTRICT FK blocks cascade delete of assignments)
-        $assignmentIds = DB::table('assignments')->where('course_id', $id)->pluck('id');
-        if ($assignmentIds->isNotEmpty()) {
-            DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
-        }
-
-        // Remove user progress records for lessons and course
-        $lessonIds = DB::table('lessons')->where('course_id', $id)->pluck('id');
-        if ($lessonIds->isNotEmpty()) {
-            DB::table('user_lesson_progress')->whereIn('lesson_id', $lessonIds)->delete();
-        }
-        DB::table('user_course_progress')->where('course_id', $id)->delete();
-
-        // Delete lesson video files from storage
+        // Collect file paths before the transaction so we can delete them after
         $lessons = Lesson::where('course_id', $id)->select('video_path')->get();
-        foreach ($lessons as $lesson) {
-            if ($lesson->video_path) {
-                $relativePath = str_replace('\\', '/', $lesson->video_path);
-                $videoPath = storage_path('app/'.$relativePath);
-                if (is_file($videoPath)) {
-                    @unlink($videoPath);
-                }
+        $videoPaths = $lessons->filter(fn ($l) => $l->video_path)
+            ->map(fn ($l) => storage_path('app/'.str_replace('\\', '/', $l->video_path)))
+            ->all();
+        $logoPath = $course->logo_path ? public_path(ltrim($course->logo_path, '/')) : null;
+
+        DB::transaction(function () use ($id) {
+            // Remove user_assignments first (RESTRICT FK blocks cascade delete of assignments)
+            $assignmentIds = DB::table('assignments')->where('course_id', $id)->pluck('id');
+            if ($assignmentIds->isNotEmpty()) {
+                DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
+            }
+            // Explicitly delete assignments to avoid RESTRICT FK failure on course delete
+            DB::table('assignments')->where('course_id', $id)->delete();
+
+            // Remove user progress records for lessons and course
+            $lessonIds = DB::table('lessons')->where('course_id', $id)->pluck('id');
+            if ($lessonIds->isNotEmpty()) {
+                DB::table('user_lesson_progress')->whereIn('lesson_id', $lessonIds)->delete();
+            }
+            DB::table('user_course_progress')->where('course_id', $id)->delete();
+
+            // Explicitly delete lessons to avoid RESTRICT FK failure on course delete
+            DB::table('lessons')->where('course_id', $id)->delete();
+
+            Course::find($id)->delete();
+        });
+
+        // Delete files only after DB transaction succeeded
+        foreach ($videoPaths as $videoPath) {
+            if (is_file($videoPath)) {
+                @unlink($videoPath);
             }
         }
-
-        // Delete course logo file
-        if ($course->logo_path) {
-            $logoPath = public_path(ltrim($course->logo_path, '/'));
-            if (is_file($logoPath)) {
-                @unlink($logoPath);
-            }
+        if ($logoPath && is_file($logoPath)) {
+            @unlink($logoPath);
         }
-
-        $course->delete();
 
         return response()->json(['success' => true, 'message' => 'تم حذف الكورس بنجاح']);
     }
@@ -138,6 +150,15 @@ class AdminCourseController extends Controller
         $sortOrder = (int) $request->input('sort_order', 0);
         $resources = $request->input('resources_code', '');
 
+        // N32: Validate title is not empty
+        if (empty(trim($title ?? ''))) {
+            return response()->json(['success' => false, 'message' => 'عنوان الدرس مطلوب.'], 400);
+        }
+
+        if (! $courseId || ! Course::where('id', $courseId)->where('is_active', 1)->exists()) {
+            return response()->json(['success' => false, 'message' => 'الكورس غير موجود أو غير مفعّل.'], 422);
+        }
+
         if (! $request->hasFile('video')) {
             return response()->json(['success' => false, 'message' => 'No video file provided'], 400);
         }
@@ -146,7 +167,7 @@ class AdminCourseController extends Controller
         $mimeType = $file->getMimeType();
 
         $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
-        if (!in_array($mimeType, $allowedVideoMimes)) {
+        if (! in_array($mimeType, $allowedVideoMimes)) {
             return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
         }
         $videoMimeToExt = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov', 'video/x-msvideo' => 'avi', 'video/mpeg' => 'mpeg'];
@@ -185,6 +206,11 @@ class AdminCourseController extends Controller
             return response()->json(['success' => false, 'message' => 'الدرس غير موجود'], 404);
         }
 
+        // N33: Validate title is not blanked on update
+        if ($request->has('title') && empty(trim($request->input('title', '')))) {
+            return response()->json(['success' => false, 'message' => 'عنوان الدرس مطلوب.'], 400);
+        }
+
         $lesson->fill($request->only(['title', 'description', 'sort_order', 'resources_code']));
 
         // Handle optional video replacement
@@ -193,7 +219,7 @@ class AdminCourseController extends Controller
             $mimeType = $file->getMimeType();
 
             $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
-            if (!in_array($mimeType, $allowedVideoMimes)) {
+            if (! in_array($mimeType, $allowedVideoMimes)) {
                 return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
             }
             $videoMimeToExt = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov', 'video/x-msvideo' => 'avi', 'video/mpeg' => 'mpeg'];
@@ -234,15 +260,22 @@ class AdminCourseController extends Controller
         }
 
         // Delete video file from storage if it's a file-based lesson
+        $videoPath = null;
         if ($lesson->video_path) {
             $relativePath = str_replace('\\', '/', $lesson->video_path);
             $videoPath = storage_path('app/'.$relativePath);
-            if (is_file($videoPath)) {
-                @unlink($videoPath);
-            }
         }
 
-        $lesson->delete();
+        DB::transaction(function () use ($lesson) {
+            // Clean orphaned user_lesson_progress rows for this lesson
+            DB::table('user_lesson_progress')->where('lesson_id', $lesson->id)->delete();
+            $lesson->delete();
+        });
+
+        // Delete video file only after DB transaction succeeded
+        if ($videoPath && is_file($videoPath)) {
+            @unlink($videoPath);
+        }
 
         return response()->json(['success' => true, 'message' => 'تم حذف الدرس بنجاح']);
     }
@@ -271,11 +304,13 @@ class AdminCourseController extends Controller
         }
 
         if ($swap) {
-            $swapOrder = $swap->sort_order;
-            $swap->sort_order = $currentOrder;
-            $lesson->sort_order = $swapOrder;
-            $swap->save();
-            $lesson->save();
+            DB::transaction(function () use ($swap, $lesson, $currentOrder) {
+                $swapOrder = $swap->sort_order;
+                $swap->sort_order = $currentOrder;
+                $lesson->sort_order = $swapOrder;
+                $swap->save();
+                $lesson->save();
+            });
         }
 
         return response()->json(['success' => true, 'message' => 'تم إعادة ترتيب الدرس']);
@@ -294,12 +329,31 @@ class AdminCourseController extends Controller
         }
 
         $file = $request->file('logo');
+        $mimeType = $file->getMimeType();
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (! in_array($mimeType, $allowed)) {
+            return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ JPEG, PNG, GIF, WebP فقط.'], 400);
+        }
+
+        // Derive extension from validated MIME — never trust the client-supplied filename
+        $mimeToExt = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        $ext = $mimeToExt[$mimeType];
+
         $dest = public_path('uploads/logos');
         if (! is_dir($dest)) {
             mkdir($dest, 0755, true);
         }
 
-        $filename = 'logo_'.uniqid().'.'.$file->getClientOriginalExtension();
+        // Delete old logo file before saving the new one
+        if ($course->logo_path) {
+            $oldLogo = public_path(ltrim(str_replace('\\', '/', $course->logo_path), '/'));
+            if (is_file($oldLogo)) {
+                @unlink($oldLogo);
+            }
+        }
+
+        $filename = 'logo_'.uniqid().'.'.$ext;
         $file->move($dest, $filename);
 
         $course->logo_path = 'uploads/logos/'.$filename;

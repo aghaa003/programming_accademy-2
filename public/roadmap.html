@@ -1430,7 +1430,8 @@
             if (
               currentUser.avatar
             ) {
-              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              const safeAvatar = currentUser.avatar.replace(/["']/g, '');
+              avatar.style.background = `url('${safeAvatar}') no-repeat center center / cover`;
               avatar.textContent = "";
             } else {
               avatar.textContent = initial;

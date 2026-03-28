@@ -13,6 +13,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
     />
     <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
     <style>
       :root {
         --primary: #4361ee;
@@ -1605,11 +1606,11 @@
                     <span class="example-category">${getCategoryText(
                       example.category
                     )}</span>
-                    <h3>${example.title}</h3>
-                    <p>${example.description}</p>
+                    <h3>${escapeHtml(example.title)}</h3>
+                    <p>${escapeHtml(example.description)}</p>
                     <div class="example-tech">
                         ${example.technologies
-                          .map((tech) => `<span>${tech}</span>`)
+                          .map((tech) => `<span>${escapeHtml(tech)}</span>`)
                           .join("")}
                     </div>
                     <button class="code-toggle"

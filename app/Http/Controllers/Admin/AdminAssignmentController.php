@@ -32,11 +32,23 @@ class AdminAssignmentController extends Controller
     /** POST /api/admin/assignments */
     public function store(Request $request)
     {
+        $courseId  = (int) $request->input('course_id');
+        $question  = trim($request->input('question', ''));
+        $order     = max(1, (int) $request->input('assignment_order', 1));
+        $difficulty = max(1, min(5, (int) $request->input('difficulty', 1)));
+
+        if (!$courseId || !\DB::table('courses')->where('id', $courseId)->where('is_active', 1)->exists()) {
+            return response()->json(['success' => false, 'message' => 'الكورس غير موجود أو غير مفعّل.'], 422);
+        }
+        if (empty($question)) {
+            return response()->json(['success' => false, 'message' => 'نص السؤال مطلوب.'], 422);
+        }
+
         $assignment = Assignment::create([
-            'course_id'        => $request->input('course_id'),
-            'question'         => $request->input('question'),
-            'assignment_order' => (int) $request->input('assignment_order', 1),
-            'difficulty'       => (int) $request->input('difficulty', 1),
+            'course_id'        => $courseId,
+            'question'         => $question,
+            'assignment_order' => $order,
+            'difficulty'       => $difficulty,
         ]);
         return response()->json(['success' => true, 'message' => 'تم إضافة التكليف بنجاح', 'assignment' => $assignment], 201);
     }
@@ -58,7 +70,23 @@ class AdminAssignmentController extends Controller
         if (!$assignment) {
             return response()->json(['success' => false, 'message' => 'التكليف غير موجود'], 404);
         }
-        $assignment->fill($request->only(['course_id', 'question', 'assignment_order', 'difficulty']));
+
+        // Validate course_id if it is being changed
+        if ($request->has('course_id')) {
+            $courseId = (int) $request->input('course_id');
+            if (!$courseId || !\DB::table('courses')->where('id', $courseId)->where('is_active', 1)->exists()) {
+                return response()->json(['success' => false, 'message' => 'الكورس غير موجود أو غير مفعّل.'], 422);
+            }
+        }
+
+        $data = $request->only(['course_id', 'question', 'assignment_order', 'difficulty']);
+        if (isset($data['difficulty'])) {
+            $data['difficulty'] = max(1, min(5, (int) $data['difficulty']));
+        }
+        if (isset($data['assignment_order'])) {
+            $data['assignment_order'] = max(1, (int) $data['assignment_order']);
+        }
+        $assignment->fill($data);
         $assignment->save();
         return response()->json(['success' => true, 'message' => 'تم تحديث التكليف', 'assignment' => $assignment]);
     }
@@ -70,9 +98,10 @@ class AdminAssignmentController extends Controller
         if (!$assignment) {
             return response()->json(['success' => false, 'message' => 'التكليف غير موجود'], 404);
         }
-        // Delete submissions first to avoid FK constraint violation
-        DB::table('user_assignments')->where('assignment_id', $id)->delete();
-        $assignment->delete();
+        DB::transaction(function () use ($id, $assignment) {
+            DB::table('user_assignments')->where('assignment_id', $id)->delete();
+            $assignment->delete();
+        });
         return response()->json(['success' => true, 'message' => 'تم حذف التكليف بنجاح']);
     }
 
@@ -107,7 +136,11 @@ class AdminAssignmentController extends Controller
     {
         $score = (int) $request->input('score');
 
-        DB::table('user_assignments')
+        if ($score < 0 || $score > 100) {
+            return response()->json(['success' => false, 'message' => 'الدرجة يجب أن تكون بين 0 و 100.'], 422);
+        }
+
+        $affected = DB::table('user_assignments')
             ->where('id', $submissionId)
             ->update([
                 'score'        => $score,
@@ -115,6 +148,10 @@ class AdminAssignmentController extends Controller
                 'is_completed' => $score >= 70 ? 1 : 0,
                 'completed_at' => $score >= 70 ? now() : null,
             ]);
+
+        if ($affected === 0) {
+            return response()->json(['success' => false, 'message' => 'التسليم غير موجود.'], 404);
+        }
 
         return response()->json(['success' => true, 'message' => 'تم تصحيح التكليف']);
     }

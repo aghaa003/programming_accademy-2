@@ -17,7 +17,6 @@ class UserLessonProgress extends Model
     ];
 
     public $timestamps = false;
-    const UPDATED_AT = 'updated_at';
 
     public function user()
     {

@@ -85,26 +85,25 @@ class AssignmentController extends Controller
             return response()->json(['success' => false, 'message' => 'التكليف غير موجود.'], 404);
         }
 
-        DB::table('user_assignments')
-            ->updateOrInsert(
-                ['user_id' => $userId, 'assignment_id' => $assignmentId],
-                ['solution' => $solution, 'submitted_at' => now()]
-            );
-
-        // Simulate scoring
-        $score     = rand(70, 100);
+        // Simulate scoring — range 0-100 so the 70-point threshold can actually fail
+        $score     = rand(0, 100);
         $threshold = 70;
         $completed = $score >= $threshold;
 
-        DB::table('user_assignments')
-            ->where('user_id', $userId)
-            ->where('assignment_id', $assignmentId)
-            ->update([
-                'score'        => $score,
-                'status'       => 'graded',
-                'is_completed' => $completed ? 1 : 0,
-                'completed_at' => $completed ? now() : null,
-            ]);
+        // Single atomic upsert — no partial-write risk
+        DB::transaction(function () use ($userId, $assignmentId, $solution, $score, $completed) {
+            DB::table('user_assignments')->updateOrInsert(
+                ['user_id' => $userId, 'assignment_id' => $assignmentId],
+                [
+                    'solution'     => $solution,
+                    'submitted_at' => now(),
+                    'score'        => $score,
+                    'status'       => 'graded',
+                    'is_completed' => $completed ? 1 : 0,
+                    'completed_at' => $completed ? now() : null,
+                ]
+            );
+        });
 
         return response()->json([
             'success' => true,

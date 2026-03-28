@@ -16,8 +16,6 @@ class UserCourseProgress extends Model
     ];
 
     public $timestamps = false;
-    const UPDATED_AT = 'last_accessed';
-    const CREATED_AT = 'started_at';
 
     public function user()
     {

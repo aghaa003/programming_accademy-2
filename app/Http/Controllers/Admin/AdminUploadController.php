@@ -46,9 +46,9 @@ class AdminUploadController extends Controller
                         return response()->json(['success' => false, 'message' => 'Logo file exceeds 5MB limit.'], 400);
                     }
 
-                    $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', pathinfo($logoFile->getClientOriginalName(), PATHINFO_FILENAME));
-                    $safeName = trim(preg_replace('/_+/', '_', $safeName), '_') ?: 'course_logo';
-                    $logoFilename = 'logo_'.uniqid().'_'.$safeName.'.'.strtolower($logoFile->getClientOriginalExtension());
+                    $logoMimeToExt = ['image/jpeg' => 'jpg', 'image/jpg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+                    $logoExt = $logoMimeToExt[$logoFile->getMimeType()] ?? 'jpg';
+                    $logoFilename = 'logo_'.uniqid().'.'.$logoExt;
 
                     $logosDir = public_path('uploads/logos');
                     if (! is_dir($logosDir)) {
@@ -101,6 +101,8 @@ class AdminUploadController extends Controller
 
             $titles = $request->input('titles', []);
             if (count($videos) !== count($titles)) {
+                DB::rollBack();
+
                 return response()->json(['success' => false, 'message' => 'عدد الفيديوهات لا يتطابق مع عدد العناوين.'], 400);
             }
 
@@ -118,11 +120,20 @@ class AdminUploadController extends Controller
             $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
             $videoMimeToExt = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov', 'video/x-msvideo' => 'avi', 'video/mpeg' => 'mpeg'];
 
+            $movedFiles = [];
+
             for ($i = 0; $i < count($videos); $i++) {
                 $video = $videos[$i];
                 $videoMime = $video->getMimeType();
 
                 if (! in_array($videoMime, $allowedVideoMimes)) {
+                    // Roll back DB and delete any files already moved in previous iterations
+                    DB::rollBack();
+                    foreach ($movedFiles as $f) {
+                        if (file_exists($f)) {
+                            @unlink($f);
+                        }
+                    }
                     return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
                 }
 
@@ -130,6 +141,7 @@ class AdminUploadController extends Controller
                 $uniqueFilename = uniqid('lesson_', true).'.'.$ext;
 
                 $video->move($courseUploadDir, $uniqueFilename);
+                $movedFiles[] = $courseUploadDir.DIRECTORY_SEPARATOR.$uniqueFilename;
 
                 $relativePath = 'videos/'.$safeCategory.'/'.$courseId.'/'.$uniqueFilename;
 
@@ -138,7 +150,7 @@ class AdminUploadController extends Controller
                     'title' => $titles[$i],
                     'description' => $request->input("descriptions.{$i}"),
                     'video_path' => $relativePath,
-                    'video_mime_type' => $video->getClientMimeType(),
+                    'video_mime_type' => $videoMime,
                     'resources_code' => $request->input("codes.{$i}"),
                     'sort_order' => $baseSortOrder + $i + 1,
                 ]);
@@ -155,6 +167,18 @@ class AdminUploadController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            foreach ($movedFiles ?? [] as $movedFile) {
+                if (file_exists($movedFile)) {
+                    @unlink($movedFile);
+                }
+            }
+            // Clean up orphaned logo file if course creation was rolled back
+            if (! empty($courseLogoPath)) {
+                $logoFullPath = public_path($courseLogoPath);
+                if (is_file($logoFullPath)) {
+                    @unlink($logoFullPath);
+                }
+            }
             \Log::error('AdminUploadController error: '.$e->getMessage());
 
             return response()->json(['success' => false, 'message' => 'فشل رفع الملفات، يرجى المحاولة مجدداً.'], 500);
@@ -163,7 +187,7 @@ class AdminUploadController extends Controller
 
     private function sanitizeFolderName(string $name): string
     {
-        $name = preg_replace('/[^\w\-\s\.]/u', '', $name);
+        $name = preg_replace('/[^\w\-\s]/u', '', $name);
         $name = trim(str_replace(' ', '_', $name));
 
         return empty($name) ? 'default_folder' : mb_substr($name, 0, 100, 'UTF-8');
