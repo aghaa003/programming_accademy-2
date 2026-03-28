@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,18 +15,18 @@ class ProfileController extends Controller
     {
         $userId = $request->session()->get('user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false], 401);
         }
 
         $user = User::select('id', 'username', 'firstName', 'lastName', 'email', 'avatar_path', 'preferred_language')
             ->find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false]);
         }
 
-        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
+        $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         $request->session()->put('language', $user->preferred_language ?? 'ar');
 
@@ -33,16 +34,16 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => true,
-            'roles'   => $roles,
+            'roles' => $roles,
             'user' => [
-                'id'        => $user->id,
-                'username'  => $user->username,
+                'id' => $user->id,
+                'username' => $user->username,
                 'firstName' => $user->firstName,
-                'lastName'  => $user->lastName,
-                'email'     => $user->email,
-                'avatar'    => $avatar,
-                'language'  => $user->preferred_language ?? 'ar',
-                'roles'     => $roles,
+                'lastName' => $user->lastName,
+                'email' => $user->email,
+                'avatar' => $avatar,
+                'language' => $user->preferred_language ?? 'ar',
+                'roles' => $roles,
             ],
         ]);
     }
@@ -51,34 +52,34 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $user = User::with('roles')->find($userId);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 
-        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
+        $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         return response()->json([
             'success' => true,
             'user' => [
-                'id'                 => $user->id,
-                'username'           => $user->username,
-                'firstName'          => $user->firstName,
-                'lastName'           => $user->lastName,
-                'email'              => $user->email,
-                'phone'              => $user->phone,
-                'country'            => $user->country,
-                'experience'         => $user->experience,
-                'goal'               => $user->goal,
-                'interest'           => $user->interest,
+                'id' => $user->id,
+                'username' => $user->username,
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'country' => $user->country,
+                'experience' => $user->experience,
+                'goal' => $user->goal,
+                'interest' => $user->interest,
                 'preferred_language' => $user->preferred_language,
-                'joinDate'           => $user->joinDate,
-                'avatar'             => $avatar,
-                'roles'              => $user->roles->pluck('name'),
+                'joinDate' => $user->joinDate,
+                'avatar' => $avatar,
+                'roles' => $user->roles->pluck('name'),
             ],
         ]);
     }
@@ -87,13 +88,33 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $user = User::find($userId);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
+
+        // Check phone uniqueness (exclude current user)
+        if ($request->has('phone') && ! empty($request->input('phone'))) {
+            $phoneExists = User::where('phone', $request->input('phone'))
+                ->where('id', '!=', $userId)
+                ->exists();
+            if ($phoneExists) {
+                return response()->json(['success' => false, 'message' => 'رقم الهاتف مستخدم بالفعل من قبل حساب آخر.'], 409);
+            }
+        }
+
+        // Check email uniqueness (exclude current user)
+        if ($request->has('email') && ! empty($request->input('email'))) {
+            $emailExists = User::where('email', $request->input('email'))
+                ->where('id', '!=', $userId)
+                ->exists();
+            if ($emailExists) {
+                return response()->json(['success' => false, 'message' => 'البريد الإلكتروني مستخدم بالفعل من قبل حساب آخر.'], 409);
+            }
         }
 
         $allowed = ['firstName', 'lastName', 'email', 'phone', 'country', 'experience', 'goal', 'interest', 'preferred_language'];
@@ -104,10 +125,10 @@ class ProfileController extends Controller
         }
 
         // Password change — accept both camelCase and snake_case field names
-        $newPassword     = $request->input('newPassword', $request->input('new_password', ''));
+        $newPassword = $request->input('newPassword', $request->input('new_password', ''));
         $currentPassword = $request->input('currentPassword', $request->input('current_password', ''));
-        if (!empty($newPassword)) {
-            if (!Hash::check($currentPassword, $user->password)) {
+        if (! empty($newPassword)) {
+            if (! Hash::check($currentPassword, $user->password)) {
                 return response()->json(['success' => false, 'message' => 'كلمة المرور الحالية غير صحيحة.'], 400);
             }
             $user->password = Hash::make($newPassword);
@@ -122,42 +143,43 @@ class ProfileController extends Controller
     public function uploadAvatar(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
-        if (!$request->hasFile('avatar')) {
+        if (! $request->hasFile('avatar')) {
             return response()->json(['success' => false, 'message' => 'No file uploaded'], 400);
         }
 
-        $file     = $request->file('avatar');
+        $file = $request->file('avatar');
         $mimeType = $file->getMimeType();
-        $allowed  = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-        if (!in_array($mimeType, $allowed)) {
+        if (! in_array($mimeType, $allowed)) {
             return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم.'], 400);
         }
 
         $user = User::find($userId);
 
         // Delete old avatar file if it exists
-        if (!empty($user->avatar_path)) {
+        if (! empty($user->avatar_path)) {
             $oldFile = public_path(ltrim($user->avatar_path, '/'));
             if (is_file($oldFile)) {
                 @unlink($oldFile);
             }
         }
 
-        // Save new file to public/uploads/avatars/
-        $ext      = $file->getClientOriginalExtension() ?: 'jpg';
-        $filename = 'avatar_' . $userId . '_' . uniqid() . '.' . $ext;
-        $dest     = public_path('uploads/avatars');
-        if (!is_dir($dest)) {
+        // Derive extension from validated mime type (never trust client filename)
+        $mimeToExt = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        $ext = $mimeToExt[$mimeType] ?? 'jpg';
+        $filename = 'avatar_'.$userId.'_'.uniqid().'.'.$ext;
+        $dest = public_path('uploads/avatars');
+        if (! is_dir($dest)) {
             mkdir($dest, 0755, true);
         }
         $file->move($dest, $filename);
 
-        $avatarPath = '/uploads/avatars/' . $filename;
+        $avatarPath = '/uploads/avatars/'.$filename;
 
         $user->avatar_path = $avatarPath;
         $user->save();
@@ -170,12 +192,12 @@ class ProfileController extends Controller
     {
         $user = User::select('avatar_path')->find($userId);
 
-        if (!$user || empty($user->avatar_path)) {
+        if (! $user || empty($user->avatar_path)) {
             return response()->json(['success' => false, 'message' => 'No avatar'], 404);
         }
 
         $filePath = public_path(ltrim($user->avatar_path, '/'));
-        if (!is_file($filePath)) {
+        if (! is_file($filePath)) {
             return response()->json(['success' => false, 'message' => 'No avatar'], 404);
         }
 
@@ -186,7 +208,7 @@ class ProfileController extends Controller
     public function updateLanguage(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
@@ -201,17 +223,17 @@ class ProfileController extends Controller
     public function savePreferences(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
-        \App\Models\UserPreference::updateOrCreate(
+        UserPreference::updateOrCreate(
             ['user_id' => $userId],
             [
-                'preferred_level'    => $request->input('level', $request->input('preferred_level')),
+                'preferred_level' => $request->input('level', $request->input('preferred_level')),
                 'preferred_language' => $request->input('language', $request->input('preferred_language')),
-                'goals'              => $request->input('goal', $request->input('goals')),
-                'time_commitment'    => $request->input('time_commitment'),
+                'goals' => $request->input('goal', $request->input('goals')),
+                'time_commitment' => $request->input('time_commitment'),
             ]
         );
 
@@ -222,12 +244,12 @@ class ProfileController extends Controller
     public function destroy(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $user = User::find($userId);
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
 

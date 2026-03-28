@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\PasswordReset;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -16,6 +16,7 @@ class AuthController extends Controller
     {
         $identifier = $request->input('identifier', '');
         $password   = $request->input('password', '');
+        $remember   = (bool) $request->input('remember', false);
 
         if (empty($identifier) || empty($password)) {
             return response()->json(['success' => false, 'message' => 'الرجاء إدخال اسم المستخدم وكلمة المرور.'], 400);
@@ -23,7 +24,7 @@ class AuthController extends Controller
 
         $user = User::where('username', $identifier)->orWhere('email', $identifier)->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             return response()->json(['success' => false, 'message' => 'بيانات الاعتماد غير صحيحة.'], 401);
         }
 
@@ -35,9 +36,9 @@ class AuthController extends Controller
         $request->session()->put('roles', $roles);
 
         // Build avatar
-        $avatar = !empty($user->avatar_path) ? asset($user->avatar_path) : null;
+        $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
-        return response()->json([
+        $response = response()->json([
             'success'   => true,
             'message'   => 'تم تسجيل الدخول بنجاح!',
             'id'        => $user->id,
@@ -47,6 +48,21 @@ class AuthController extends Controller
             'email'     => $user->email,
             'avatar'    => $avatar,
         ]);
+
+        if ($remember) {
+            // 30-day encrypted cookie so the session can be restored automatically
+            $response->withCookie(Cookie::make(
+                'remember_user',
+                Crypt::encryptString((string) $user->id),
+                60 * 24 * 30, // minutes
+                '/',
+                null,
+                false, // not HTTPS-only (local dev)
+                true   // HttpOnly
+            ));
+        }
+
+        return $response;
     }
 
     public function register(Request $request)
@@ -70,16 +86,16 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'firstName'  => trim($data['firstName']),
-            'lastName'   => trim($data['lastName'] ?? ''),
-            'email'      => trim($data['email']),
-            'phone'      => $phone,
-            'username'   => trim($data['username']),
-            'password'   => Hash::make($data['password']),
-            'country'    => $data['country'] ?? null,
+            'firstName' => trim($data['firstName']),
+            'lastName' => trim($data['lastName'] ?? ''),
+            'email' => trim($data['email']),
+            'phone' => $phone,
+            'username' => trim($data['username']),
+            'password' => Hash::make($data['password']),
+            'country' => $data['country'] ?? null,
             'experience' => $data['experience'] ?? null,
-            'goal'       => $data['goal'] ?? null,
-            'interest'   => $data['interest'] ?? null,
+            'goal' => $data['goal'] ?? null,
+            'interest' => $data['interest'] ?? null,
         ]);
 
         // Assign default 'student' role (role_id=1)
@@ -91,14 +107,16 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->session()->flush();
-        return response()->json(['success' => true, 'message' => 'تم تسجيل الخروج بنجاح.']);
+
+        return response()->json(['success' => true, 'message' => 'تم تسجيل الخروج بنجاح.'])
+            ->withCookie(Cookie::forget('remember_user'));
     }
 
     public function checkAvailability(Request $request)
     {
-        $email    = trim($request->input('email', ''));
+        $email = trim($request->input('email', ''));
         $username = trim($request->input('username', ''));
-        $phone    = trim($request->input('phone', ''));
+        $phone = trim($request->input('phone', ''));
 
         $conflicts = [];
 
@@ -114,10 +132,17 @@ class AuthController extends Controller
 
         if (count($conflicts) > 0) {
             $parts = [];
-            if (in_array('email',    $conflicts)) $parts[] = 'البريد الإلكتروني';
-            if (in_array('username', $conflicts)) $parts[] = 'اسم المستخدم';
-            if (in_array('phone',    $conflicts)) $parts[] = 'رقم الهاتف';
-            $message = implode('، ', $parts) . ' مسجل بالفعل. الرجاء اختيار قيمة أخرى.';
+            if (in_array('email', $conflicts)) {
+                $parts[] = 'البريد الإلكتروني';
+            }
+            if (in_array('username', $conflicts)) {
+                $parts[] = 'اسم المستخدم';
+            }
+            if (in_array('phone', $conflicts)) {
+                $parts[] = 'رقم الهاتف';
+            }
+            $message = implode('، ', $parts).' مسجل بالفعل. الرجاء اختيار قيمة أخرى.';
+
             return response()->json(['success' => false, 'message' => $message, 'fields' => $conflicts], 409);
         }
 
@@ -129,10 +154,13 @@ class AuthController extends Controller
         $email = $request->input('email', '');
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             // Security: don't reveal whether email exists
             return response()->json(['success' => true, 'message' => 'تم إرسال رابط إعادة تعيين كلمة المرور.']);
         }
+
+        // Clean up any expired tokens for this email
+        PasswordReset::where('email', $email)->where('expires_at', '<', now())->delete();
 
         $token = bin2hex(random_bytes(32));
         $expiresAt = now()->addHours(2);
@@ -143,16 +171,16 @@ class AuthController extends Controller
         );
 
         // Send password reset email via configured mailer (Gmail SMTP)
-        $resetLink = config('app.url') . '/reset-password.html?token=' . $token;
-        $subject   = 'إعادة تعيين كلمة المرور - أكاديمية البرمجة';
-        $body      = "مرحباً،\n\nلقد طلبت إعادة تعيين كلمة المرور لحسابك في أكاديمية البرمجة.\n\n"
-                   . "انقر على الرابط التالي لإعادة تعيين كلمة المرور:\n{$resetLink}\n\n"
-                   . "هذا الرابط صالح لمدة ساعتين.\n\nإذا لم تطلب هذا، يرجى تجاهل هذا البريد.\n\n"
-                   . "مع خالص التحية،\nفريق أكاديمية البرمجة";
+        $resetLink = config('app.url').'/reset-password.html?token='.$token;
+        $subject = 'إعادة تعيين كلمة المرور - أكاديمية البرمجة';
+        $body = "مرحباً،\n\nلقد طلبت إعادة تعيين كلمة المرور لحسابك في أكاديمية البرمجة.\n\n"
+                   ."انقر على الرابط التالي لإعادة تعيين كلمة المرور:\n{$resetLink}\n\n"
+                   ."هذا الرابط صالح لمدة ساعتين.\n\nإذا لم تطلب هذا، يرجى تجاهل هذا البريد.\n\n"
+                   ."مع خالص التحية،\nفريق أكاديمية البرمجة";
 
         Mail::raw($body, function ($message) use ($email, $subject) {
             $message->to($email)
-                    ->subject($subject);
+                ->subject($subject);
         });
 
         return response()->json(['success' => true, 'message' => 'تم إرسال رابط إعادة تعيين كلمة المرور.']);
@@ -160,7 +188,7 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request)
     {
-        $token    = $request->input('token', '');
+        $token = $request->input('token', '');
         $password = $request->input('password', '');
 
         if (empty($token) || empty($password)) {
@@ -175,12 +203,12 @@ class AuthController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$reset) {
+        if (! $reset) {
             return response()->json(['success' => false, 'message' => 'الرابط غير صالح أو منتهي الصلاحية.'], 400);
         }
 
         $user = User::where('email', $reset->email)->first();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود.'], 404);
         }
 

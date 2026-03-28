@@ -27,7 +27,9 @@ class ExampleController extends Controller
         if ($category !== 'all')   $query->where('category', $category);
         if ($difficulty !== 'all') $query->where('difficulty', $difficulty);
         if (!empty($search)) {
-            $query->where(fn($q) => $q->where('title', 'like', "%$search%")->orWhere('description', 'like', "%$search%"));
+            // Strip LIKE wildcards to prevent runaway pattern matching
+            $safeSearch = str_replace(['%', '_', '\\'], ['\%', '\_', '\\\\'], $search);
+            $query->where(fn($q) => $q->where('title', 'like', '%' . $safeSearch . '%')->orWhere('description', 'like', '%' . $safeSearch . '%'));
         }
 
         $examples = $query->get()->map(function ($e) {

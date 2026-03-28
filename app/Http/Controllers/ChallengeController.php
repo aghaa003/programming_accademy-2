@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Challenge;
-use App\Models\UserChallenge;
 use App\Models\ChallengeAttempt;
+use App\Models\UserChallenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,10 +42,10 @@ class ChallengeController extends Controller
     /** GET /api/challenge-stats */
     public function stats(Request $request)
     {
-        $totalChallenges  = DB::table('challenges')->where('is_active', 1)->count();
-        $activeUsers      = DB::table('user_challenges')->distinct()->count('user_id');
+        $totalChallenges = DB::table('challenges')->where('is_active', 1)->count();
+        $activeUsers = DB::table('user_challenges')->distinct()->count('user_id');
         $totalCompletions = DB::table('user_challenges')->where('completed', 1)->count();
-        $totalAttempts    = (int) DB::table('user_challenges')->sum('attempts');
+        $totalAttempts = (int) DB::table('user_challenges')->sum('attempts');
 
         if ($totalAttempts > 0) {
             $avgRating = round(min(($totalCompletions / $totalAttempts) * 5, 5.0), 1);
@@ -55,11 +55,11 @@ class ChallengeController extends Controller
 
         return response()->json([
             'success' => true,
-            'stats'   => [
-                'total_challenges'  => $totalChallenges,
-                'active_users'      => $activeUsers ?: DB::table('users')->count(),
+            'stats' => [
+                'total_challenges' => $totalChallenges,
+                'active_users' => $activeUsers ?: DB::table('users')->count(),
                 'total_completions' => $totalCompletions,
-                'average_rating'    => $avgRating,
+                'average_rating' => $avgRating,
             ],
         ]);
     }
@@ -68,14 +68,14 @@ class ChallengeController extends Controller
     public function userProgress(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'showLogin' => true]);
         }
 
         $attemptedChallenges = DB::table('user_challenges')->where('user_id', $userId)->count();
-        $completedCount      = DB::table('user_challenges')->where('user_id', $userId)->where('completed', 1)->count();
-        $totalPoints         = DB::table('user_challenges')->where('user_id', $userId)->sum('best_score');
-        $successRate         = $attemptedChallenges > 0 ? round(($completedCount * 100.0) / $attemptedChallenges, 1) : 0;
+        $completedCount = DB::table('user_challenges')->where('user_id', $userId)->where('completed', 1)->count();
+        $totalPoints = DB::table('user_challenges')->where('user_id', $userId)->sum('best_score');
+        $successRate = $attemptedChallenges > 0 ? round(($completedCount * 100.0) / $attemptedChallenges, 1) : 0;
 
         // Per-category breakdown
         $categories = DB::table('challenges as c')
@@ -93,30 +93,31 @@ class ChallengeController extends Controller
             ->get()
             ->map(function ($row) {
                 $map = [
-                    'algorithms'      => 'الخوارزميات',
+                    'algorithms' => 'الخوارزميات',
                     'data-structures' => 'هياكل البيانات',
-                    'web'             => 'تطوير الويب',
-                    'database'        => 'قواعد البيانات',
+                    'web' => 'تطوير الويب',
+                    'database' => 'قواعد البيانات',
                 ];
                 $pct = $row->total_in_category > 0
                     ? round(($row->completed_in_category / $row->total_in_category) * 100, 1)
                     : 0;
+
                 return [
-                    'category'               => $row->category,
-                    'category_name'          => $map[$row->category] ?? $row->category,
-                    'total_in_category'      => (int) $row->total_in_category,
-                    'completed_in_category'  => (int) $row->completed_in_category,
-                    'progress_percentage'    => $pct,
+                    'category' => $row->category,
+                    'category_name' => $map[$row->category] ?? $row->category,
+                    'total_in_category' => (int) $row->total_in_category,
+                    'completed_in_category' => (int) $row->completed_in_category,
+                    'progress_percentage' => $pct,
                 ];
             });
 
         return response()->json([
-            'success'    => true,
-            'stats'      => [
-                'completed_challenges'  => $completedCount,
-                'total_points'          => (int) $totalPoints,
-                'attempted_challenges'  => $attemptedChallenges,
-                'success_rate'          => $successRate,
+            'success' => true,
+            'stats' => [
+                'completed_challenges' => $completedCount,
+                'total_points' => (int) $totalPoints,
+                'attempted_challenges' => $attemptedChallenges,
+                'success_rate' => $successRate,
             ],
             'categories' => $categories,
         ]);
@@ -126,27 +127,32 @@ class ChallengeController extends Controller
     public function submit(Request $request)
     {
         $userId = $request->session()->get('user_id');
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $challengeId = $request->input('challenge_id');
-        $code        = $request->input('code', '');
-        $completed   = (bool) $request->input('completed', false);
+        $code = $request->input('code', '');
+        $completed = (bool) $request->input('completed', false);
 
         $challenge = Challenge::find($challengeId);
-        if (!$challenge) {
+        if (! $challenge) {
             return response()->json(['success' => false, 'message' => 'Challenge not found'], 404);
         }
 
         // Upsert user_challenges
         $userChallenge = UserChallenge::firstOrNew(['user_id' => $userId, 'challenge_id' => $challengeId]);
-        $userChallenge->attempts       = ($userChallenge->attempts ?? 0) + 1;
+        $userChallenge->attempts = ($userChallenge->attempts ?? 0) + 1;
         $userChallenge->last_attempted = now();
 
         if ($completed) {
-            $userChallenge->completed  = true;
-            $userChallenge->best_score = max($userChallenge->best_score ?? 0, $challenge->points);
+            $userChallenge->completed = true;
+            // Use DB-level GREATEST to avoid race condition on concurrent submissions
+            DB::table('user_challenges')
+                ->where('user_id', $userId)
+                ->where('challenge_id', $challengeId)
+                ->update(['best_score' => DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challenge->points.')')]);
+            $userChallenge->isDirty('best_score') && $userChallenge->offsetUnset('best_score');
         }
         $userChallenge->save();
 
@@ -157,9 +163,9 @@ class ChallengeController extends Controller
         );
 
         return response()->json([
-            'success'    => true,
-            'message'    => $completed ? 'تهانينا! تم حل التحدي بنجاح.' : 'تم حفظ المحاولة.',
-            'completed'  => $completed,
+            'success' => true,
+            'message' => $completed ? 'تهانينا! تم حل التحدي بنجاح.' : 'تم حفظ المحاولة.',
+            'completed' => $completed,
             'best_score' => $userChallenge->best_score,
         ]);
     }

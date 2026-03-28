@@ -13,6 +13,7 @@ class AdminUserController extends Controller
     {
         $users = User::select('id', 'firstName', 'lastName', 'username', 'email', 'phone', 'country', 'experience', 'joinDate', 'is_admin')
             ->orderBy('joinDate', 'desc')
+            ->limit(500)
             ->get()
             ->map(function ($u) {
                 $u->roles = $u->roles()->pluck('name');

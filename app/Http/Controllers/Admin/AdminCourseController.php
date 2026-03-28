@@ -32,6 +32,13 @@ class AdminCourseController extends Controller
     /** POST /api/admin/courses */
     public function store(Request $request)
     {
+        if (empty(trim($request->input('title', '')))) {
+            return response()->json(['success' => false, 'message' => 'عنوان الكورس مطلوب.'], 400);
+        }
+        if (empty(trim($request->input('category', '')))) {
+            return response()->json(['success' => false, 'message' => 'تصنيف الكورس مطلوب.'], 400);
+        }
+
         $course = Course::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
@@ -71,6 +78,13 @@ class AdminCourseController extends Controller
         if ($assignmentIds->isNotEmpty()) {
             DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
         }
+
+        // Remove user progress records for lessons and course
+        $lessonIds = DB::table('lessons')->where('course_id', $id)->pluck('id');
+        if ($lessonIds->isNotEmpty()) {
+            DB::table('user_lesson_progress')->whereIn('lesson_id', $lessonIds)->delete();
+        }
+        DB::table('user_course_progress')->where('course_id', $id)->delete();
 
         // Delete lesson video files from storage
         $lessons = Lesson::where('course_id', $id)->select('video_path')->get();
@@ -131,6 +145,13 @@ class AdminCourseController extends Controller
         $file = $request->file('video');
         $mimeType = $file->getMimeType();
 
+        $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
+        if (!in_array($mimeType, $allowedVideoMimes)) {
+            return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
+        }
+        $videoMimeToExt = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov', 'video/x-msvideo' => 'avi', 'video/mpeg' => 'mpeg'];
+        $ext = $videoMimeToExt[$mimeType] ?? 'mp4';
+
         $course = Course::find($courseId);
         $catDir = $course ? $course->category : 'misc';
         $dest = storage_path('app/videos/'.$catDir.'/'.$courseId);
@@ -138,7 +159,7 @@ class AdminCourseController extends Controller
             mkdir($dest, 0755, true);
         }
 
-        $filename = 'lesson_'.uniqid().'.'.$file->getClientOriginalExtension();
+        $filename = 'lesson_'.uniqid().'.'.$ext;
         $file->move($dest, $filename);
 
         $relativePath = 'videos/'.$catDir.'/'.$courseId.'/'.$filename;
@@ -170,13 +191,21 @@ class AdminCourseController extends Controller
         if ($request->hasFile('video') || $request->hasFile('lesson_video')) {
             $file = $request->file('video') ?: $request->file('lesson_video');
             $mimeType = $file->getMimeType();
+
+            $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
+            if (!in_array($mimeType, $allowedVideoMimes)) {
+                return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
+            }
+            $videoMimeToExt = ['video/mp4' => 'mp4', 'video/webm' => 'webm', 'video/quicktime' => 'mov', 'video/x-msvideo' => 'avi', 'video/mpeg' => 'mpeg'];
+            $ext = $videoMimeToExt[$mimeType] ?? 'mp4';
+
             $course = Course::find($lesson->course_id);
             $catDir = $course ? $course->category : 'misc';
             $dest = storage_path('app/videos/'.$catDir.'/'.$lesson->course_id);
             if (! is_dir($dest)) {
                 mkdir($dest, 0755, true);
             }
-            $filename = 'lesson_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $filename = 'lesson_'.uniqid().'.'.$ext;
             $file->move($dest, $filename);
 
             // Delete old video only after the new file is saved successfully

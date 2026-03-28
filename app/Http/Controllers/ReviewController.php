@@ -11,11 +11,16 @@ class ReviewController extends Controller
     public function index()
     {
         $reviews = Review::select('academy_reviews.id', 'academy_reviews.rating', 'academy_reviews.review_text',
-                'users.id as user_id', 'users.firstName', 'users.lastName', 'users.interest')
+                'users.id as user_id', 'users.username', 'users.interest', 'users.avatar_path')
             ->join('users', 'academy_reviews.user_id', '=', 'users.id')
             ->orderByDesc('academy_reviews.id')
             ->limit(6)
-            ->get();
+            ->get()
+            ->map(function ($review) {
+                $review->avatar_url = !empty($review->avatar_path) ? asset($review->avatar_path) : null;
+
+                return $review;
+            });
 
         return response()->json(['success' => true, 'reviews' => $reviews]);
     }
@@ -23,13 +28,12 @@ class ReviewController extends Controller
     /** POST /api/reviews */
     public function store(Request $request)
     {
-        // The original PHP used form data with user_id from JS, not session
-        $userId     = $request->input('user_id');
+        $userId     = $request->session()->get('user_id');
         $rating     = (int) $request->input('rating');
         $reviewText = trim($request->input('review_text', ''));
 
-        if (!$userId || $userId < 1) {
-            return response()->json(['success' => false, 'message' => 'لم يتم تحديد هوية المستخدم. يرجى تسجيل الدخول.'], 401);
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'يجب تسجيل الدخول لإضافة تقييم.'], 401);
         }
 
         if ($rating < 1 || $rating > 5) {

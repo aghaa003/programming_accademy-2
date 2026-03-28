@@ -81,6 +81,10 @@ class AssignmentController extends Controller
             return response()->json(['success' => false, 'message' => 'Assignment ID and solution are required'], 400);
         }
 
+        if (!Assignment::where('id', $assignmentId)->where('is_active', 1)->exists()) {
+            return response()->json(['success' => false, 'message' => 'التكليف غير موجود.'], 404);
+        }
+
         DB::table('user_assignments')
             ->updateOrInsert(
                 ['user_id' => $userId, 'assignment_id' => $assignmentId],

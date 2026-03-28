@@ -53,9 +53,8 @@ Route::get('/paths/{path}', [PathController::class, 'show']);
 Route::get('/platform-stats', [PlatformController::class, 'stats']);
 Route::get('/platform-recommendations', [PlatformController::class, 'recommendations']);
 
-// Reviews
+// Reviews (GET is public, POST requires auth)
 Route::get('/reviews', [ReviewController::class, 'index']);
-Route::post('/reviews', [ReviewController::class, 'store']);
 
 // Public avatar endpoint for profile/review images
 Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
@@ -98,17 +97,22 @@ Route::middleware('auth.session')->group(function () {
     Route::post('/toggle-bookmark', [PlatformController::class, 'toggleBookmark']);
     Route::post('/rate-platform', [PlatformController::class, 'ratePlatform']);
 
-    // Challenges
-    Route::post('/challenges/submit', [ChallengeController::class, 'submit']);
+    // Reviews
+    Route::post('/reviews', [ReviewController::class, 'store']);
+
+    // Challenges (rate-limited: max 30 submissions per minute)
+    Route::middleware('throttle:30,1')->post('/challenges/submit', [ChallengeController::class, 'submit']);
 
     // Assignments
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::post('/assignments/submit', [AssignmentController::class, 'submit']);
 
-    // AI
-    Route::post('/ai/helper', [AiController::class, 'general']);
-    Route::post('/ai/helper-challenges', [AiController::class, 'challenges']);
-    Route::post('/ai/helper-projects', [AiController::class, 'projects']);
+    // AI (rate-limited: max 20 requests per minute to protect Ollama)
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::post('/ai/helper', [AiController::class, 'general']);
+        Route::post('/ai/helper-challenges', [AiController::class, 'challenges']);
+        Route::post('/ai/helper-projects', [AiController::class, 'projects']);
+    });
 });
 
 // ============================================================

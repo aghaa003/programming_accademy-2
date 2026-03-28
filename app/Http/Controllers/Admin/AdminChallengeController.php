@@ -18,6 +18,13 @@ class AdminChallengeController extends Controller
 
     public function store(Request $request)
     {
+        if (empty(trim($request->input('title', '')))) {
+            return response()->json(['success' => false, 'message' => 'عنوان التحدي مطلوب.'], 400);
+        }
+        if (empty(trim($request->input('description', '')))) {
+            return response()->json(['success' => false, 'message' => 'وصف التحدي مطلوب.'], 400);
+        }
+
         $challenge = Challenge::create([
             'title' => $request->input('title'),
             'description' => $request->input('description'),

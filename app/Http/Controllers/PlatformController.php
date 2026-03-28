@@ -117,6 +117,9 @@ class PlatformController extends Controller
         }
 
         $platformId = $request->input('platform_id');
+        if (!$platformId || !\App\Models\Platform::where('id', $platformId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'المنصة غير موجودة.'], 404);
+        }
 
         $existing = PlatformBookmark::where('user_id', $userId)->where('platform_id', $platformId)->first();
 
@@ -139,6 +142,10 @@ class PlatformController extends Controller
 
         $platformId = $request->input('platform_id');
         $rating     = (int) $request->input('rating');
+
+        if (!$platformId || !\App\Models\Platform::where('id', $platformId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'المنصة غير موجودة.'], 404);
+        }
 
         if ($rating < 1 || $rating > 5) {
             return response()->json(['success' => false, 'message' => 'Invalid rating'], 400);
