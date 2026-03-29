@@ -2,41 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Models\PasswordReset;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         $identifier = $request->input('identifier', '');
         $password   = $request->input('password', '');
         $remember   = (bool) $request->input('remember', false);
 
-        if (empty($identifier) || empty($password)) {
-            return response()->json(['success' => false, 'message' => 'الرجاء إدخال اسم المستخدم وكلمة المرور.'], 400);
+        // Empty check now handled by LoginRequest validation above
+
+        // M7: Brute-force lockout — 10 attempts per identifier+IP per 15 minutes
+        $lockKey = 'login_fails_' . sha1($identifier . '|' . $request->ip());
+        if (Cache::get($lockKey, 0) >= 10) {
+            return response()->json(['success' => false, 'message' => 'تم تجاوز الحد المسموح من المحاولات. يرجى المحاولة بعد 15 دقيقة.'], 429);
         }
 
         $user = User::where('username', $identifier)->orWhere('email', $identifier)->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
+            Cache::put($lockKey, Cache::get($lockKey, 0) + 1, now()->addMinutes(15));
             return response()->json(['success' => false, 'message' => 'بيانات الاعتماد غير صحيحة.'], 401);
         }
 
-        // Load roles
+        // M7: Clear lockout counter on successful login
+        Cache::forget($lockKey);
+
+        // Use Sanctum SPA auth — stores user in session via the 'web' guard
+        Auth::login($user, $remember);
+
+        // Load roles for the response payload (no longer stored in session)
         $roles = $user->roles()->pluck('name')->toArray();
 
         // Regenerate session ID to prevent session fixation attacks
         $request->session()->regenerate();
-
-        // Store in session
-        $request->session()->put('user_id', $user->id);
-        $request->session()->put('roles', $roles);
 
         // Build avatar
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
@@ -68,17 +81,11 @@ class AuthController extends Controller
         return $response;
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
 
-        if (empty($data['firstName']) || empty($data['email']) || empty($data['username']) || empty($data['password']) || mb_strlen($data['password']) < 6) {
-            return response()->json(['success' => false, 'message' => 'الرجاء ملء جميع الحقول المطلوبة.'], 400);
-        }
-
-        if (mb_strlen($data['password']) > 72) {
-            return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
-        }
+        // RegisterRequest already enforces min:6, max:72, required fields — no duplicate checks needed
 
         $phone = isset($data['phone']) && $data['phone'] !== '' ? trim($data['phone']) : null;
 
@@ -104,6 +111,7 @@ class AuthController extends Controller
                 'experience' => $data['experience'] ?? null,
                 'goal' => $data['goal'] ?? null,
                 'interest' => $data['interest'] ?? null,
+                'joinDate' => now(),
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             if ($e->errorInfo[1] === 1062) {
@@ -120,7 +128,9 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->flush();
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(['success' => true, 'message' => 'تم تسجيل الخروج بنجاح.'])
             ->withCookie(Cookie::forget('remember_user'));
@@ -163,7 +173,7 @@ class AuthController extends Controller
         return response()->json(['success' => true, 'message' => 'البيانات متوفرة. يمكنك المتابعة.']);
     }
 
-    public function forgotPassword(Request $request)
+    public function forgotPassword(ForgotPasswordRequest $request)
     {
         $email = $request->input('email', '');
         $user = User::where('email', $email)->first();
@@ -200,22 +210,12 @@ class AuthController extends Controller
         return response()->json(['success' => true, 'message' => 'تم إرسال رابط إعادة تعيين كلمة المرور.']);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
         $token = $request->input('token', '');
         $password = $request->input('password', '');
 
-        if (empty($token) || empty($password)) {
-            return response()->json(['success' => false, 'message' => 'بيانات غير مكتملة'], 400);
-        }
-
-        if (mb_strlen($password) < 6) {
-            return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل'], 400);
-        }
-
-        if (mb_strlen($password) > 72) {
-            return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
-        }
+        // ResetPasswordRequest already enforces token and password validation
 
         $reset = PasswordReset::where('token', hash('sha256', $token))
             ->where('expires_at', '>', now())

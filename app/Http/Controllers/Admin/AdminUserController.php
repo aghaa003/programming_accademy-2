@@ -4,17 +4,25 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditLogger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminUserController extends Controller
 {
     /** GET /api/admin/users */
-    public function index()
+    public function index(Request $request)
     {
+        // M4: Paginate admin user list; L5: phone excluded (available via show/{id})
+        $limit  = min((int) $request->query('limit', 20), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = User::count();
+
         $users = User::with('roles')
-            ->select('id', 'firstName', 'lastName', 'username', 'email', 'phone', 'country', 'experience', 'joinDate', 'is_admin')
+            ->select('id', 'firstName', 'lastName', 'username', 'email', 'country', 'experience', 'joinDate')
             ->orderBy('joinDate', 'desc')
-            ->limit(500)
+            ->skip($offset)
+            ->take($limit)
             ->get()
             ->map(function ($u) {
                 $u->roles = $u->roles->pluck('name');
@@ -22,7 +30,7 @@ class AdminUserController extends Controller
                 return $u;
             });
 
-        return response()->json(['success' => true, 'users' => $users]);
+        return response()->json(['success' => true, 'users' => $users, 'total' => $total]);
     }
 
     /** GET /api/admin/users/{id} */
@@ -44,27 +52,27 @@ class AdminUserController extends Controller
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
         }
 
-        $newAdminState = ! $user->is_admin;
+        // M2: admin state is determined by role membership (role_id=2), not a DB column
+        $isCurrentlyAdmin = DB::table('user_roles')->where('user_id', $id)->where('role_id', 2)->exists();
+        $newAdminState = ! $isCurrentlyAdmin;
 
-        // Prevent the last admin from demoting themselves (would lock out all admin access)
+        // Prevent the last admin from being demoted (would lock out all admin access)
         if (! $newAdminState) {
-            $adminCount = User::where('is_admin', true)->count();
+            $adminCount = DB::table('user_roles')->where('role_id', 2)->count();
             if ($adminCount <= 1) {
                 return response()->json(['success' => false, 'message' => 'لا يمكن إزالة صلاحيات آخر مدير في النظام.'], 400);
             }
         }
 
-        // Wrap both writes in a transaction so users.is_admin and user_roles never go out of sync
-        DB::transaction(function () use ($user, $id, $newAdminState) {
-            $user->is_admin = $newAdminState;
-            $user->save();
-
+        DB::transaction(function () use ($id, $newAdminState) {
             if ($newAdminState) {
                 DB::table('user_roles')->insertOrIgnore(['user_id' => $id, 'role_id' => 2]);
             } else {
                 DB::table('user_roles')->where('user_id', $id)->where('role_id', 2)->delete();
             }
         });
+
+        AuditLogger::log(request(), 'toggle_admin', 'User', (int) $id, ['new_state' => $newAdminState]);
 
         return response()->json(['success' => true, 'is_admin' => $newAdminState]);
     }
@@ -78,7 +86,7 @@ class AdminUserController extends Controller
         }
 
         // Prevent admin from deleting their own account via the admin panel
-        $currentUserId = $request->session()->get('user_id');
+        $currentUserId = auth()->id();
         if ((int) $id === (int) $currentUserId) {
             return response()->json(['success' => false, 'message' => 'لا يمكنك حذف حسابك الخاص من لوحة الإدارة. استخدم صفحة الملف الشخصي.'], 400);
         }
@@ -109,6 +117,8 @@ class AdminUserController extends Controller
         if ($avatarFile && is_file($avatarFile)) {
             @unlink($avatarFile);
         }
+
+        AuditLogger::log($request, 'delete_user', 'User', (int) $id, ['username' => $user->username, 'email' => $user->email]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف المستخدم بنجاح']);
     }

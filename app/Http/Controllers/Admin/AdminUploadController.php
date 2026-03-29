@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdminUploadController extends Controller
 {
@@ -145,6 +146,17 @@ class AdminUploadController extends Controller
 
                 $relativePath = 'videos/'.$safeCategory.'/'.$courseId.'/'.$uniqueFilename;
 
+                // N34: Validate each lesson title is non-empty (matches storeLesson() validation)
+                if (empty(trim($titles[$i] ?? ''))) {
+                    DB::rollBack();
+                    foreach ($movedFiles as $f) {
+                        if (file_exists($f)) {
+                            @unlink($f);
+                        }
+                    }
+                    return response()->json(['success' => false, 'message' => 'عنوان الدرس مطلوب لكل فيديو مرفوع.'], 400);
+                }
+
                 Lesson::create([
                     'course_id' => $courseId,
                     'title' => $titles[$i],
@@ -165,7 +177,7 @@ class AdminUploadController extends Controller
                 'lesson_count' => count($videos),
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             foreach ($movedFiles ?? [] as $movedFile) {
                 if (file_exists($movedFile)) {
@@ -179,7 +191,7 @@ class AdminUploadController extends Controller
                     @unlink($logoFullPath);
                 }
             }
-            \Log::error('AdminUploadController error: '.$e->getMessage());
+            Log::error('AdminUploadController error: '.$e->getMessage());
 
             return response()->json(['success' => false, 'message' => 'فشل رفع الملفات، يرجى المحاولة مجدداً.'], 500);
         }

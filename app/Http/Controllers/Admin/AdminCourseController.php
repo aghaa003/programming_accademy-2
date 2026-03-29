@@ -5,17 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminCourseController extends Controller
 {
     /** GET /api/admin/courses */
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::withCount('lessons')->orderBy('id', 'desc')->get();
+        // M4: Paginate admin course list
+        $limit  = min((int) $request->query('limit', 20), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = Course::count();
 
-        return response()->json(['success' => true, 'courses' => $courses]);
+        $courses = Course::withCount('lessons')->orderBy('id', 'desc')->skip($offset)->take($limit)->get();
+
+        return response()->json(['success' => true, 'courses' => $courses, 'total' => $total]);
     }
 
     /** GET /api/admin/courses/{id} */
@@ -48,6 +54,8 @@ class AdminCourseController extends Controller
             'is_active' => $request->input('is_active', 1),
         ]);
 
+        AuditLogger::log($request, 'create_course', 'Course', $course->id, ['title' => $course->title]);
+
         return response()->json(['success' => true, 'message' => 'تم إنشاء الكورس بنجاح', 'course' => $course], 201);
     }
 
@@ -69,6 +77,8 @@ class AdminCourseController extends Controller
 
         $course->fill($request->only(['title', 'description', 'main_points', 'category', 'level', 'is_active']));
         $course->save();
+
+        AuditLogger::log($request, 'update_course', 'Course', $course->id, ['title' => $course->title]);
 
         return response()->json(['success' => true, 'message' => 'تم تحديث الكورس بنجاح', 'course' => $course]);
     }
@@ -119,6 +129,8 @@ class AdminCourseController extends Controller
         if ($logoPath && is_file($logoPath)) {
             @unlink($logoPath);
         }
+
+        AuditLogger::log(request(), 'delete_course', 'Course', (int) $id, ['title' => $course->title]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف الكورس بنجاح']);
     }
@@ -231,22 +243,28 @@ class AdminCourseController extends Controller
             if (! is_dir($dest)) {
                 mkdir($dest, 0755, true);
             }
-            $filename = 'lesson_'.uniqid().'.'.$ext;
-            $file->move($dest, $filename);
-
-            // Delete old video only after the new file is saved successfully
+            // N37: Collect old path before overwriting it, so we can delete after DB save
+            $oldVideoPath = null;
             if ($lesson->video_path) {
-                $oldPath = storage_path('app/'.str_replace('\\', '/', $lesson->video_path));
-                if (is_file($oldPath)) {
-                    @unlink($oldPath);
+                $candidate = storage_path('app/'.str_replace('\\', '/', $lesson->video_path));
+                if (is_file($candidate)) {
+                    $oldVideoPath = $candidate;
                 }
             }
+
+            $filename = 'lesson_'.uniqid().'.'.$ext;
+            $file->move($dest, $filename);
 
             $lesson->video_path = 'videos/'.$catDir.'/'.$lesson->course_id.'/'.$filename;
             $lesson->video_mime_type = $mimeType;
         }
 
         $lesson->save();
+
+        // Delete old video file only after DB write succeeded
+        if (isset($oldVideoPath) && $oldVideoPath) {
+            @unlink($oldVideoPath);
+        }
 
         return response()->json(['success' => true, 'message' => 'تم تحديث الدرس بنجاح']);
     }
@@ -345,19 +363,22 @@ class AdminCourseController extends Controller
             mkdir($dest, 0755, true);
         }
 
-        // Delete old logo file before saving the new one
-        if ($course->logo_path) {
-            $oldLogo = public_path(ltrim(str_replace('\\', '/', $course->logo_path), '/'));
-            if (is_file($oldLogo)) {
-                @unlink($oldLogo);
-            }
-        }
-
         $filename = 'logo_'.uniqid().'.'.$ext;
         $file->move($dest, $filename);
 
+        // N36: Collect old logo path, save new path to DB first, then delete old file
+        $oldLogo = null;
+        if ($course->logo_path) {
+            $oldLogo = public_path(ltrim(str_replace('\\', '/', $course->logo_path), '/'));
+        }
+
         $course->logo_path = 'uploads/logos/'.$filename;
         $course->save();
+
+        // Delete old logo file only after DB write succeeded
+        if ($oldLogo && is_file($oldLogo)) {
+            @unlink($oldLogo);
+        }
 
         return response()->json(['success' => true, 'logo_path' => $course->logo_path]);
     }

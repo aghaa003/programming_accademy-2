@@ -13,12 +13,13 @@ class User extends Authenticatable
     protected $fillable = [
         'firstName', 'lastName', 'email', 'username', 'password',
         'phone', 'country', 'experience', 'goal', 'interest',
-        'preferred_language', 'is_admin', 'avatar_path',
+        'preferred_language', 'avatar_path',
+        // NOTE: 'is_admin' is intentionally excluded — set only via AdminUserController::toggleAdmin()
     ];
 
     protected $hidden = ['password'];
 
-    protected $casts = ['is_admin' => 'boolean'];
+    protected $casts = [];
 
     public $timestamps = false;
 

@@ -5,17 +5,23 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Example;
 use App\Models\Platform;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminPlatformController extends Controller
 {
     /** GET /api/admin/platforms */
-    public function index()
+    public function index(Request $request)
     {
-        $platforms = Platform::orderBy('id', 'desc')->get();
+        // M4: Paginate admin platform list
+        $limit  = min((int) $request->query('limit', 20), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = Platform::count();
 
-        return response()->json(['success' => true, 'platforms' => $platforms]);
+        $platforms = Platform::orderBy('id', 'desc')->skip($offset)->take($limit)->get();
+
+        return response()->json(['success' => true, 'platforms' => $platforms, 'total' => $total]);
     }
 
     /** POST /api/admin/platforms */
@@ -49,6 +55,8 @@ class AdminPlatformController extends Controller
             'logo_url' => $request->input('logo_url'),
             'is_active' => (bool) $request->input('is_active', true),
         ]);
+
+        AuditLogger::log($request, 'create_platform', 'Platform', $platform->id, ['name' => $platform->name]);
 
         return response()->json(['success' => true, 'message' => 'تم إضافة المنصة بنجاح', 'platform' => $platform], 201);
     }
@@ -91,6 +99,8 @@ class AdminPlatformController extends Controller
         $platform->fill($request->only(['name', 'description', 'url', 'category', 'level', 'language', 'user_count', 'problem_count', 'features', 'logo_url', 'is_active']));
         $platform->save();
 
+        AuditLogger::log($request, 'update_platform', 'Platform', $platform->id, ['name' => $platform->name]);
+
         return response()->json(['success' => true, 'message' => 'تم تحديث المنصة بنجاح', 'platform' => $platform]);
     }
 
@@ -123,6 +133,8 @@ class AdminPlatformController extends Controller
         if ($logoPath) {
             @unlink($logoPath);
         }
+
+        AuditLogger::log(request(), 'delete_platform', 'Platform', (int) $platform->id, ['name' => $platform->name]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف المنصة بنجاح']);
     }

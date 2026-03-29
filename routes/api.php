@@ -32,56 +32,62 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
 });
-Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware('throttle:20,1')->post('/check-availability', [AuthController::class, 'checkAvailability']);
 Route::middleware('throttle:5,1')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
 
-// Public listings
-Route::get('/courses', [CourseController::class, 'index']);
-Route::get('/platforms', [PlatformController::class, 'index']);
-Route::get('/challenges', [ChallengeController::class, 'index']);
-Route::get('/challenge-stats', [ChallengeController::class, 'stats']);
-Route::get('/user-challenge-progress', [ChallengeController::class, 'userProgress']);
-Route::get('/examples', [ExampleController::class, 'index']);
-Route::get('/examples/{id}', [ExampleController::class, 'show']);
-Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+// Public listings (rate-limited: 100 requests per minute per IP)
+Route::middleware('throttle:100,1')->group(function () {
+    Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/platforms', [PlatformController::class, 'index']);
+    Route::get('/challenges', [ChallengeController::class, 'index']);
+    Route::get('/challenge-stats', [ChallengeController::class, 'stats']);
+    Route::get('/user-challenge-progress', [ChallengeController::class, 'userProgress']);
+    Route::get('/examples', [ExampleController::class, 'index']);
+    Route::get('/examples/{id}', [ExampleController::class, 'show']);
+    Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
-// Paths
-Route::get('/paths', [PathController::class, 'index']);
-Route::get('/paths/{path}', [PathController::class, 'show']);
+    // Paths
+    Route::get('/paths', [PathController::class, 'index']);
+    Route::get('/paths/{path}', [PathController::class, 'show']);
 
-// Platform stats / recommendations
-Route::get('/platform-stats', [PlatformController::class, 'stats']);
-Route::get('/platform-recommendations', [PlatformController::class, 'recommendations']);
+    // Platform stats / recommendations
+    Route::get('/platform-stats', [PlatformController::class, 'stats']);
+    Route::get('/platform-recommendations', [PlatformController::class, 'recommendations']);
 
-// Reviews (GET is public, POST requires auth)
-Route::get('/reviews', [ReviewController::class, 'index']);
+    // Reviews (GET is public, POST requires auth)
+    Route::get('/reviews', [ReviewController::class, 'index']);
 
-// Public avatar endpoint for profile/review images
-Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
+    // Public avatar endpoint for profile/review images
+    Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
 
-// Courses with assignments (public - category filter)
-Route::get('/courses-with-assignments', [AssignmentController::class, 'coursesWithAssignments']);
+    // Courses with assignments (public - category filter)
+    Route::get('/courses-with-assignments', [AssignmentController::class, 'coursesWithAssignments']);
+});
 
 // ============================================================
-// AUTHENTICATED ROUTES (session auth)
+// AUTHENTICATED ROUTES (Sanctum SPA auth)
 // ============================================================
 
-Route::middleware('auth.session')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
+
     // User status
     Route::get('/user/status', [ProfileController::class, 'status']);
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
-    Route::post('/profile', [ProfileController::class, 'update']);
-    Route::put('/profile', [ProfileController::class, 'update']);
-    Route::delete('/profile', [ProfileController::class, 'destroy']);
-    Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);
-    Route::post('/update-language', [ProfileController::class, 'updateLanguage']);
-    Route::post('/save-user-preferences', [ProfileController::class, 'savePreferences']);
+    Route::middleware('throttle:15,1')->group(function () {
+        Route::post('/profile', [ProfileController::class, 'update']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+        Route::delete('/profile', [ProfileController::class, 'destroy']);
+        Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);
+        Route::post('/update-language', [ProfileController::class, 'updateLanguage']);
+        Route::post('/save-user-preferences', [ProfileController::class, 'savePreferences']);
+    });
 
     // Courses (user-specific)
     Route::get('/user-courses', [CourseController::class, 'userCourses']);
@@ -91,25 +97,27 @@ Route::middleware('auth.session')->group(function () {
     Route::get('/lessons', [LessonController::class, 'index']);
 
     // Progress
-    Route::post('/progress', [ProgressController::class, 'update']);
+    Route::middleware('throttle:60,1')->post('/progress', [ProgressController::class, 'update']);
     Route::get('/user-progress', [ProgressController::class, 'userProgress']);
 
     // Video streaming
     Route::get('/stream-video', [VideoStreamController::class, 'stream']);
 
     // Platform interactions
-    Route::post('/toggle-bookmark', [PlatformController::class, 'toggleBookmark']);
-    Route::post('/rate-platform', [PlatformController::class, 'ratePlatform']);
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/toggle-bookmark', [PlatformController::class, 'toggleBookmark']);
+        Route::post('/rate-platform', [PlatformController::class, 'ratePlatform']);
+    });
 
     // Reviews
-    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::middleware('throttle:20,1')->post('/reviews', [ReviewController::class, 'store']);
 
     // Challenges (rate-limited: max 30 submissions per minute)
     Route::middleware('throttle:30,1')->post('/challenges/submit', [ChallengeController::class, 'submit']);
 
     // Assignments
     Route::get('/assignments', [AssignmentController::class, 'index']);
-    Route::post('/assignments/submit', [AssignmentController::class, 'submit']);
+    Route::middleware('throttle:20,1')->post('/assignments/submit', [AssignmentController::class, 'submit']);
 
     // AI (rate-limited: max 20 requests per minute to protect Ollama)
     Route::middleware('throttle:20,1')->group(function () {
@@ -120,10 +128,10 @@ Route::middleware('auth.session')->group(function () {
 });
 
 // ============================================================
-// ADMIN ROUTES (session auth + admin role)
+// ADMIN ROUTES (Sanctum SPA auth + admin role)
 // ============================================================
 
-Route::middleware(['auth.session', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Stats
     Route::get('/stats', [AdminController::class, 'stats']);
 

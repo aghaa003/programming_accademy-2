@@ -57,7 +57,7 @@ class CourseController extends Controller
     /** GET /api/user-courses  - enrolled courses for logged in user */
     public function userCourses(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -141,7 +141,7 @@ class CourseController extends Controller
 
     public function deleteCourseProgress(Request $request, $courseId)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }

@@ -5,14 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\UserAssignment;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminAssignmentController extends Controller
 {
     /** GET /api/admin/assignments */
-    public function index()
+    public function index(Request $request)
     {
+        // M4: Paginate admin assignment list
+        $limit  = min((int) $request->query('limit', 20), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = DB::table('assignments')->count();
+
         $assignments = DB::table('assignments as a')
             ->select(
                 'a.*',
@@ -24,9 +30,11 @@ class AdminAssignmentController extends Controller
             ->leftJoin('user_assignments as ua', 'a.id', '=', 'ua.assignment_id')
             ->groupBy('a.id', 'c.title', 'c.category')
             ->orderBy('a.id', 'desc')
+            ->skip($offset)
+            ->take($limit)
             ->get();
 
-        return response()->json(['success' => true, 'assignments' => $assignments]);
+        return response()->json(['success' => true, 'assignments' => $assignments, 'total' => $total]);
     }
 
     /** POST /api/admin/assignments */
@@ -50,6 +58,7 @@ class AdminAssignmentController extends Controller
             'assignment_order' => $order,
             'difficulty'       => $difficulty,
         ]);
+        AuditLogger::log($request, 'create_assignment', 'Assignment', $assignment->id, ['course_id' => $courseId]);
         return response()->json(['success' => true, 'message' => 'تم إضافة التكليف بنجاح', 'assignment' => $assignment], 201);
     }
 
@@ -88,6 +97,7 @@ class AdminAssignmentController extends Controller
         }
         $assignment->fill($data);
         $assignment->save();
+        AuditLogger::log($request, 'update_assignment', 'Assignment', $assignment->id);
         return response()->json(['success' => true, 'message' => 'تم تحديث التكليف', 'assignment' => $assignment]);
     }
 
@@ -102,6 +112,7 @@ class AdminAssignmentController extends Controller
             DB::table('user_assignments')->where('assignment_id', $id)->delete();
             $assignment->delete();
         });
+        AuditLogger::log(request(), 'delete_assignment', 'Assignment', (int) $id);
         return response()->json(['success' => true, 'message' => 'تم حذف التكليف بنجاح']);
     }
 

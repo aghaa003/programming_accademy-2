@@ -4,16 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Challenge;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminChallengeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $challenges = Challenge::orderBy('id', 'desc')->get();
+        // M4: Paginate admin challenge list
+        $limit  = min((int) $request->query('limit', 20), 100);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = Challenge::count();
 
-        return response()->json(['success' => true, 'challenges' => $challenges]);
+        $challenges = Challenge::orderBy('id', 'desc')->skip($offset)->take($limit)->get();
+
+        return response()->json(['success' => true, 'challenges' => $challenges, 'total' => $total]);
     }
 
     public function store(Request $request)
@@ -53,6 +59,8 @@ class AdminChallengeController extends Controller
             'solution_template' => $request->input('solution_template'),
             'is_active'         => (bool) $request->input('is_active', true),
         ]);
+
+        AuditLogger::log($request, 'create_challenge', 'Challenge', $challenge->id, ['title' => $challenge->title]);
 
         return response()->json(['success' => true, 'challenge' => $challenge], 201);
     }
@@ -98,6 +106,8 @@ class AdminChallengeController extends Controller
         $challenge->fill($data);
         $challenge->save();
 
+        AuditLogger::log($request, 'update_challenge', 'Challenge', $challenge->id, ['title' => $challenge->title]);
+
         return response()->json(['success' => true, 'challenge' => $challenge]);
     }
 
@@ -113,6 +123,8 @@ class AdminChallengeController extends Controller
             DB::table('user_challenges')->where('challenge_id', $id)->delete();
             $challenge->delete();
         });
+
+        AuditLogger::log(request(), 'delete_challenge', 'Challenge', (int) $id, ['title' => $challenge->title]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف التحدي بنجاح']);
     }

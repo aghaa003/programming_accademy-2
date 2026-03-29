@@ -13,7 +13,7 @@ class PlatformController extends Controller
     /** GET /api/platforms */
     public function index(Request $request)
     {
-        $userId   = $request->session()->get('user_id');
+        $userId   = auth()->id();
         $category = $request->query('category', 'all');
         $level    = $request->query('level', 'all');
         $language = $request->query('language', 'all');
@@ -112,7 +112,7 @@ class PlatformController extends Controller
     /** POST /api/toggle-bookmark */
     public function toggleBookmark(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -137,7 +137,7 @@ class PlatformController extends Controller
     /** POST /api/rate-platform */
     public function ratePlatform(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }

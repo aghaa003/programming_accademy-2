@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
 use App\Models\UserPreference;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class ProfileController extends Controller
     /** GET /api/user/status */
     public function status(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
 
         if (! $userId) {
             return response()->json(['success' => false], 401);
@@ -51,7 +52,7 @@ class ProfileController extends Controller
     /** GET /api/profile */
     public function show(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -85,9 +86,9 @@ class ProfileController extends Controller
     }
 
     /** POST /api/profile */
-    public function update(Request $request)
+    public function update(ProfileUpdateRequest $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -148,7 +149,7 @@ class ProfileController extends Controller
     /** POST /api/upload-avatar */
     public function uploadAvatar(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -204,18 +205,21 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'No avatar'], 404);
         }
 
-        $filePath = public_path(ltrim($user->avatar_path, '/'));
-        if (! is_file($filePath)) {
+        $avatarsBase = realpath(public_path('uploads/avatars'));
+        $resolved    = realpath(public_path(ltrim(str_replace('\\', '/', $user->avatar_path), '/')));
+
+        // Path confinement: ensure resolved path stays within uploads/avatars/
+        if (! $avatarsBase || ! $resolved || ! str_starts_with($resolved, $avatarsBase) || ! is_file($resolved)) {
             return response()->json(['success' => false, 'message' => 'No avatar'], 404);
         }
 
-        return response()->file($filePath, ['Cache-Control' => 'public, max-age=3600']);
+        return response()->file($resolved, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     /** POST /api/update-language */
     public function updateLanguage(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -234,18 +238,40 @@ class ProfileController extends Controller
     /** POST /api/save-user-preferences */
     public function savePreferences(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+        }
+
+        // N35: Validate preference values before storing
+        $allowedLevels = ['beginner', 'intermediate', 'advanced', ''];
+        $allowedLanguages = ['ar', 'en', 'arabic', 'english', ''];
+
+        $level = $request->input('level', $request->input('preferred_level', ''));
+        $language = $request->input('language', $request->input('preferred_language', ''));
+        $goals = $request->input('goal', $request->input('goals', ''));
+        $timeCommitment = $request->input('time_commitment', '');
+
+        if (! in_array($level, $allowedLevels, true)) {
+            return response()->json(['success' => false, 'message' => 'مستوى غير صالح.'], 422);
+        }
+        if (! in_array($language, $allowedLanguages, true)) {
+            return response()->json(['success' => false, 'message' => 'لغة غير صالحة.'], 422);
+        }
+        if (strlen($goals) > 500) {
+            return response()->json(['success' => false, 'message' => 'حقل الأهداف طويل جداً.'], 422);
+        }
+        if (strlen($timeCommitment) > 100) {
+            return response()->json(['success' => false, 'message' => 'حقل الوقت المخصص طويل جداً.'], 422);
         }
 
         UserPreference::updateOrCreate(
             ['user_id' => $userId],
             [
-                'preferred_level' => $request->input('level', $request->input('preferred_level')),
-                'preferred_language' => $request->input('language', $request->input('preferred_language')),
-                'goals' => $request->input('goal', $request->input('goals')),
-                'time_commitment' => $request->input('time_commitment'),
+                'preferred_level' => $level,
+                'preferred_language' => $language,
+                'goals' => $goals,
+                'time_commitment' => $timeCommitment,
             ]
         );
 
@@ -255,7 +281,7 @@ class ProfileController extends Controller
     /** DELETE /api/profile */
     public function destroy(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }

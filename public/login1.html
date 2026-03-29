@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8" />
@@ -436,6 +436,8 @@
             /* Notification styles moved to shared site-notification.js (injected) */
         </style>
         <!-- <script src="user-manager.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="api.js"></script>
     </head>
     <body>
         <div class="floating-shapes">
@@ -532,6 +534,25 @@
             // 1. تأكد من أن هذا الرابط هو المسار الصحيح لمشروعك!
             const LOGIN_API_URL = "/api/login";
 
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return decodeURIComponent(parts.pop().split(";").shift());
+                }
+                return null;
+            }
+
+            async function ensureLoginCsrf() {
+                await fetch("/sanctum/csrf-cookie", {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+            }
+
             // Pre-fill identifier if remember-me was previously checked
             const savedIdentifier = localStorage.getItem("rememberIdentifier");
             if (savedIdentifier) {
@@ -545,7 +566,7 @@
 
             const loginFormEl = document.getElementById("loginForm");
             if (loginFormEl)
-                loginFormEl.addEventListener("submit", function (e) {
+                loginFormEl.addEventListener("submit", async function (e) {
                     e.preventDefault();
 
                     const form = e.target;
@@ -575,17 +596,38 @@
                         remember: remember,
                     };
 
-                    // إرسال طلب Fetch
-                    fetch(LOGIN_API_URL, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(requestData),
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
+                    try {
+                        // ضمان الحصول على CSRF cookie قبل تسجيل الدخول
+                        await ensureLoginCsrf();
+
+                        const csrfToken = getCookie("XSRF-TOKEN");
+                        const response = await fetch(LOGIN_API_URL, {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Accept: "application/json",
+                                "X-Requested-With": "XMLHttpRequest",
+                                ...(csrfToken
+                                    ? { "X-XSRF-TOKEN": csrfToken }
+                                    : {}),
+                            },
+                            body: JSON.stringify(requestData),
+                        });
+
+                        const contentType =
+                            response.headers.get("content-type") || "";
+                        const data = contentType.includes("application/json")
+                            ? await response.json()
+                            : {
+                                  success: false,
+                                  message:
+                                      response.status === 419
+                                          ? "انتهت صلاحية الجلسة. تم تحديث الحماية، حاول مرة أخرى."
+                                          : "استجابة غير متوقعة من الخادم.",
+                              };
+
+                        {
                             if (data.success) {
                                 // نجاح العملية
                                 showNotification(data.message, "success");
@@ -639,19 +681,19 @@
                                 submitButton.disabled = false;
                                 submitButton.textContent = "تسجيل الدخول";
                             }
-                        })
-                        .catch((error) => {
-                            // فشل الاتصال بالخادم
-                            const errorMessage =
-                                "فشل الاتصال بالخادم. حاول مرة أخرى.";
-                            showNotification(errorMessage, "error");
+                        }
+                    } catch (error) {
+                        // فشل الاتصال بالخادم
+                        const errorMessage =
+                            "فشل الاتصال بالخادم. حاول مرة أخرى.";
+                        showNotification(errorMessage, "error");
 
-                            // إعادة تمكين الزر
-                            submitButton.disabled = false;
-                            submitButton.textContent = "تسجيل الدخول";
+                        // إعادة تمكين الزر
+                        submitButton.disabled = false;
+                        submitButton.textContent = "تسجيل الدخول";
 
-                            console.error("Login Error:", error);
-                        });
+                        console.error("Login Error:", error);
+                    }
                 });
 
             // إضافة تأثيرات للعناصر عند التمرير (حافظ عليها)

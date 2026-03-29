@@ -12,7 +12,7 @@ class ChallengeController extends Controller
     /** GET /api/challenges */
     public function index(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
 
         $userCompletionSubquery = DB::table('user_challenges')
             ->select('challenge_id', DB::raw('MAX(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as user_completed'))
@@ -66,7 +66,7 @@ class ChallengeController extends Controller
     /** GET /api/user-challenge-progress */
     public function userProgress(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'showLogin' => true]);
         }
@@ -125,14 +125,16 @@ class ChallengeController extends Controller
     /** POST /api/challenges/submit */
     public function submit(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $challengeId = $request->input('challenge_id');
         $code = $request->input('code', '');
-        $completed = (bool) $request->input('completed', false);
+        // C4: completion is NEVER trusted from the client — only AiController
+        // sets completed=true after AI verification. This endpoint only saves attempts.
+        $completed = false;
 
         $challenge = Challenge::find($challengeId);
         if (! $challenge) {

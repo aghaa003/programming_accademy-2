@@ -29,7 +29,7 @@ class ReviewController extends Controller
     /** POST /api/reviews */
     public function store(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         $rating = (int) $request->input('rating');
         $reviewText = trim($request->input('review_text', ''));
 

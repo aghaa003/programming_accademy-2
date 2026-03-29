@@ -11,7 +11,7 @@ class VideoStreamController extends Controller
     /** GET /api/stream-video?lesson_id=X */
     public function stream(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         if (! $userId) {
             return response('Unauthorized', 401);
         }

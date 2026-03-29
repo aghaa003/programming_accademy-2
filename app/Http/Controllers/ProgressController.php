@@ -13,7 +13,7 @@ class ProgressController extends Controller
     /** POST /api/progress */
     public function update(Request $request)
     {
-        $userId   = $request->session()->get('user_id');
+        $userId   = auth()->id();
         if (!$userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
@@ -37,11 +37,11 @@ class ProgressController extends Controller
         DB::beginTransaction();
         try {
             if ($action === 'update_position') {
-                DB::statement('
-                    INSERT INTO user_lesson_progress (user_id, lesson_id, last_position, updated_at)
-                    VALUES (?, ?, ?, NOW())
-                    ON DUPLICATE KEY UPDATE last_position = VALUES(last_position), updated_at = NOW()
-                ', [$userId, $lessonId, $position]);
+                DB::table('user_lesson_progress')->upsert(
+                    [['user_id' => $userId, 'lesson_id' => $lessonId, 'last_position' => $position, 'updated_at' => now()]],
+                    ['user_id', 'lesson_id'],
+                    ['last_position', 'updated_at']
+                );
 
                 // Only update course row if user has at least one completed lesson
                 $completedCount = UserLessonProgress::where('user_id', $userId)
@@ -58,11 +58,11 @@ class ProgressController extends Controller
                 $message = 'Position saved';
 
             } elseif ($action === 'mark_complete') {
-                DB::statement('
-                    INSERT INTO user_lesson_progress (user_id, lesson_id, completed_at, last_position, updated_at)
-                    VALUES (?, ?, NOW(), ?, NOW())
-                    ON DUPLICATE KEY UPDATE completed_at = NOW(), last_position = VALUES(last_position), updated_at = NOW()
-                ', [$userId, $lessonId, $position]);
+                DB::table('user_lesson_progress')->upsert(
+                    [['user_id' => $userId, 'lesson_id' => $lessonId, 'completed_at' => now(), 'last_position' => $position, 'updated_at' => now()]],
+                    ['user_id', 'lesson_id'],
+                    ['completed_at', 'last_position', 'updated_at']
+                );
                 $message = 'Lesson marked as complete';
 
             } elseif ($action === 'mark_incomplete') {
@@ -99,14 +99,12 @@ class ProgressController extends Controller
                     $lastLessonId = $lastCompleted ? $lastCompleted->lesson_id : $lessonId;
                 }
 
-                DB::statement('
-                    INSERT INTO user_course_progress (user_id, course_id, percentage_completed, last_lesson_id, last_accessed, started_at)
-                    VALUES (?, ?, ?, ?, NOW(), NOW())
-                    ON DUPLICATE KEY UPDATE
-                        percentage_completed = VALUES(percentage_completed),
-                        last_lesson_id = VALUES(last_lesson_id),
-                        last_accessed = NOW()
-                ', [$userId, $courseId, $percentage, $lastLessonId]);
+                DB::table('user_course_progress')->upsert(
+                    [['user_id' => $userId, 'course_id' => $courseId, 'percentage_completed' => $percentage, 'last_lesson_id' => $lastLessonId, 'last_accessed' => now(), 'started_at' => now()]],
+                    ['user_id', 'course_id'],
+                    ['percentage_completed', 'last_lesson_id', 'last_accessed']
+                    // NOTE: started_at is intentionally NOT in the update columns — keeps original enrollment date on conflict
+                );
             } else {
                 DB::table('user_course_progress')
                     ->where('user_id', $userId)
@@ -135,14 +133,14 @@ class ProgressController extends Controller
     /** GET /api/user-progress?user_id=X (admin or self) */
     public function userProgress(Request $request)
     {
-        $sessionUserId = $request->session()->get('user_id');
+        $sessionUserId = auth()->id();
         if (!$sessionUserId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $targetUserId = $request->query('user_id', $sessionUserId);
-        $roles = $request->session()->get('roles', []);
-        if ($targetUserId != $sessionUserId && !in_array('admin', $roles)) {
+        $isAdmin = auth()->user()?->roles->contains('name', 'admin') ?? false;
+        if ($targetUserId != $sessionUserId && ! $isAdmin) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 

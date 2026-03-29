@@ -13,7 +13,7 @@ class LessonController extends Controller
     /** GET /api/lessons?course_id=X */
     public function index(Request $request)
     {
-        $userId   = $request->session()->get('user_id');
+        $userId   = auth()->id();
         $courseId = $request->query('course_id');
 
         if (!$userId) {

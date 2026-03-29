@@ -10,10 +10,9 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $userId = $request->session()->get('user_id');
-        $roles  = $request->session()->get('roles', []);
+        $user = auth()->user();
 
-        if (!$userId || !in_array('admin', $roles)) {
+        if (! $user || ! $user->roles->contains('name', 'admin')) {
             return response()->json(['success' => false, 'message' => 'غير مصرح لك بالوصول إلى هذه الصفحة'], 403);
         }
 

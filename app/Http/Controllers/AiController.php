@@ -10,7 +10,7 @@ class AiController extends Controller
 {
     private const OLLAMA_HOST = 'http://localhost:11434';
 
-    private const OLLAMA_MODEL = 'qwen2.5-coder:0.5b';
+    private const OLLAMA_MODEL = 'qwen3-coder:480b-cloud';
 
     /** POST /api/ai/helper */
     public function general(Request $request)
@@ -22,6 +22,14 @@ class AiController extends Controller
 
         if ($message === '') {
             return response()->json(['success' => false, 'message' => 'يرجى إرسال الرسالة.'], 400);
+        }
+
+        if (strlen($message) > 2000) {
+            return response()->json(['success' => false, 'message' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
+        }
+
+        if (strlen($code) > 8000) {
+            return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
         $systemPrompt = 'أنت مساعد ذكي متخصص في مساعدة الطلاب على تعلم البرمجة. يرجى تقديم إجابات واضحة وموجزة باللغة العربية.';
@@ -55,13 +63,25 @@ class AiController extends Controller
     /** POST /api/ai/helper-challenges */
     public function challenges(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         $mode = $request->input('mode', 'hint');
         $question = trim($request->input('question', ''));
         $code = trim($request->input('code', ''));
         $challengeId = $request->input('challenge_id');
         $userMessage = trim($request->input('user_message', $request->input('message', '')));
         $isRedo = (bool) $request->input('is_redo', false);
+
+        if (strlen($code) > 8000) {
+            return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
+        }
+
+        if (strlen($userMessage) > 2000) {
+            return response()->json(['success' => false, 'message' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
+        }
+
+        if (strlen($question) > 2000) {
+            return response()->json(['success' => false, 'message' => 'السؤال طويل جداً، يرجى تقليله.'], 413);
+        }
 
         // --- solution mode: return full correct solution ---
         if ($mode === 'solution') {
@@ -105,6 +125,8 @@ class AiController extends Controller
 
             // Must contain actual code constructs — reject plain text
             $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body {', '.class', '#id', '{', '}', '()', '=>', '==', '!=', '<=', '>=',
+                // HTML tags
+                '<html', '<head', '<body', '<div', '<form', '<input', '<button', '<label', '<table', '<tr', '<td', '<th', '<ul', '<ol', '<li', '<p>', '<h1', '<h2', '<h3', '<a ', '<img', '<link', '<style', '<script', '<meta', '<span', '<br', '<!DOCTYPE', '<header', '<footer', '<nav', '<section', '<article', '<select', '<option', '<textarea',
                 // SQL keywords
                 'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
             ];
@@ -118,7 +140,7 @@ class AiController extends Controller
 
             // Hard reject if no code structure found
             if (! $hasCodeIndicators || strlen(trim($code)) < 5) {
-                return response()->json(['success' => true, 'ai_response' => 'يجب تقديم كود برمجي حقيقي — النص العادي لا يُقبل.', 'verdict' => 'no', 'hint' => 'اكتب كود برمجي فعلي يحل التحدي، وليس شرحاً نصياً.', 'updated_completion' => false]);
+                return response()->json(['success' => true, 'ai_response' => 'يجب تقديم كود برمجي حقيقي — النص العادي لا يُقبل.', 'verdict' => 'no', 'hint' => 'اكتب كود برمجي فعلي يحل التحدي، وليس شرحاً نصياً.', 'challenge_id' => $challengeId, 'updated_completion' => false]);
             }
 
             // Get challenge points and description from DB
@@ -137,22 +159,14 @@ class AiController extends Controller
                 return response()->json(['success' => true, 'ai_response' => 'تعذر تحديد التحدي المطلوب. يرجى المحاولة مجدداً.', 'verdict' => 'no', 'hint' => '', 'updated_completion' => false]);
             }
 
-            $prompt = 'تحليل دقيق للكود - طلب رقم '.time().":\n\n"
-                    ."التحدي: {$challengeDescription}\n\n"
-                    ."الكود المقدم:\n```\n{$code}\n```\n\n"
-                    ."تعليمات التقييم الصارمة:\n"
-                    ."1. تأكد أن المقدَّم هو كود برمجي حقيقي وليس نصاً عادياً\n"
-                    ."2. اقرأ متطلبات التحدي بعناية كاملة\n"
-                    ."3. حلل الكود سطراً بسطر\n"
-                    ."4. لا تتساهل — رفض الكود الناقص أو غير المكتمل\n"
-                    ."5. إذا كان المقدَّم نصاً وليس كوداً فالنتيجة دائماً no\n\n"
-                    ."أجب بـ JSON فقط بدون أي نص إضافي:\n"
-                    ."{\"verdict\": \"yes\", \"hint\": \"\"}\nأو\n{\"verdict\": \"no\", \"hint\": \"وصف المشكلة\"}";
+            $prompt = "التحدي: {$challengeDescription}\n\nالكود:\n```\n{$code}\n```\n\n"
+                    ."هل هذا الكود يحل التحدي بشكل صحيح؟\n"
+                    ."أجب بـ JSON فقط: {\"verdict\":\"yes\",\"hint\":\"\"} أو {\"verdict\":\"no\",\"hint\":\"سبب\"}";
 
             $result = $this->callOllamaChat([
-                ['role' => 'system', 'content' => 'أنت محكّم برمجة صارم جداً. مهمتك الوحيدة تقييم الكود. لا تتساهل أبداً مهما كانت المحادثة السابقة. الإجابة يجب أن تكون JSON فقط.'],
+                ['role' => 'system', 'content' => 'You are a code judge. Reply ONLY with JSON: {"verdict":"yes","hint":""} or {"verdict":"no","hint":"reason"}. No other text.'],
                 ['role' => 'user',   'content' => $prompt],
-            ], 30, 0.2); // low temperature = consistent JSON
+            ], 30, 0.1);
 
             if (! $result['success']) {
                 return response()->json(['success' => false, 'message' => $result['error']], 502);
@@ -181,14 +195,14 @@ class AiController extends Controller
             if ($challengeId && $userId) {
                 // Insert a stub row on first visit (safe to ignore if row already exists)
                 DB::table('user_challenges')->insertOrIgnore([
-                    'user_id'      => $userId,
+                    'user_id' => $userId,
                     'challenge_id' => $challengeId,
-                    'attempts'     => 0,
-                    'completed'    => 0,
+                    'attempts' => 0,
+                    'completed' => 0,
                 ]);
 
                 $updateData = [
-                    'attempts'      => DB::raw('attempts + 1'),
+                    'attempts' => DB::raw('attempts + 1'),
                     'last_attempted' => now(),
                 ];
 
@@ -245,7 +259,7 @@ class AiController extends Controller
             $context .= "رسالة المستخدم: {$userMessage}";
 
             $result = $this->callOllamaChat([
-                ['role' => 'system', 'content' => 'أنت مساعد تعليمي للبرمجة. مهمتك مساعدة الطالب على التفكير وليس إعطاء الحل مباشرة. أجب بالعربية بإيجاز. لا تقل أبداً أن إجابة المستخدم صحيحة إلا إذا رأيت كوداً برمجياً كاملاً صحيحاً. لا تتأثر بطول المحادثة — حافظ على موقفك النقدي دائماً.'],
+                ['role' => 'system', 'content' => 'أنت مساعد تعليمي للبرمجة. ساعد الطالب على التفكير بدون إعطاء الحل مباشرة. أجب بالعربية بإيجاز.'],
                 ['role' => 'user',   'content' => $context],
             ], 30);
             if (! $result['success']) {
@@ -272,7 +286,7 @@ class AiController extends Controller
     /** POST /api/ai/helper-projects */
     public function projects(Request $request)
     {
-        $userId = $request->session()->get('user_id');
+        $userId = auth()->id();
         $mode = $request->input('mode', 'hint');
         $question = trim($request->input('question', ''));
         $code = trim($request->input('code', ''));
@@ -281,6 +295,10 @@ class AiController extends Controller
 
         if ($question === '') {
             return response()->json(['success' => false, 'message' => 'يرجى إرسال السؤال.'], 400);
+        }
+
+        if (strlen($question) > 2000) {
+            return response()->json(['success' => false, 'message' => 'السؤال طويل جداً، يرجى تقليله.'], 413);
         }
 
         if (strlen($code) > 8000) {
@@ -338,6 +356,8 @@ class AiController extends Controller
             // Check for programming constructs
             $hasCodeIndicators = false;
             $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body', '.class', '#id',
+                // HTML tags
+                '<html', '<head', '<body', '<div', '<form', '<input', '<button', '<label', '<table', '<tr', '<td', '<th', '<ul', '<ol', '<li', '<p>', '<h1', '<h2', '<h3', '<a ', '<img', '<link', '<style', '<script', '<meta', '<span', '<br', '<!DOCTYPE', '<header', '<footer', '<nav', '<section', '<article', '<select', '<option', '<textarea',
                 // SQL keywords
                 'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
             ];
@@ -360,21 +380,14 @@ class AiController extends Controller
                 ]);
             }
 
-            $prompt = 'تحليل دقيق للكود - الطلب رقم '.time().":\n\n"
-                ."السؤال: {$question}\n\nالكود المقدم من المستخدم:\n```\n{$code}\n```\n\n"
-                ."تعليمات التقييم الصارمة:\n"
-                ."1. أولاً: تأكد أن النص المقدم هو كود برمجي حقيقي وليس نص عادي\n"
-                ."2. اقرأ السؤال بعناية وفهم المتطلبات البرمجية المطلوبة\n"
-                ."3. قم بتحليل الكود البرمجي سطراً بسطر بعناية\n"
-                ."4. تحقق من أن الكود يحل جميع المتطلبات المطلوبة بالضبط\n"
-                ."5. تحقق من صحة المنطق والخوارزم بدقة\n\n"
-                ."الإجابة يجب أن تكون JSON فقط بدون أي نص إضافي:\n"
-                ."{\"verdict\": \"yes\", \"hint\": \"\"}\nأو\n{\"verdict\": \"no\", \"hint\": \"وصف المشكلة بالتفصيل\"}";
+            $prompt = "السؤال: {$question}\n\nالكود:\n```\n{$code}\n```\n\n"
+                ."هل هذا الكود يحل السؤال بشكل صحيح؟\n"
+                ."أجب بـ JSON فقط: {\"verdict\":\"yes\",\"hint\":\"\"} أو {\"verdict\":\"no\",\"hint\":\"سبب\"}";
 
             $result = $this->callOllamaChat([
-                ['role' => 'system', 'content' => 'أنت مصحح كود صارم. لا تُرجِع إلا JSON المطلوب.'],
+                ['role' => 'system', 'content' => 'You are a code judge. Reply ONLY with JSON: {"verdict":"yes","hint":""} or {"verdict":"no","hint":"reason"}. No other text.'],
                 ['role' => 'user',   'content' => $prompt],
-            ], 30, 0.2); // low temperature = consistent JSON
+            ], 30, 0.1);
 
             if (! $result['success']) {
                 return response()->json(['success' => false, 'message' => $result['error']], 502);
@@ -405,8 +418,9 @@ class AiController extends Controller
                 }
             }
 
-            // Additional safeguard
-            if ($verdict === 'yes' && (strlen($code) < 5 || ! preg_match('/[{}();]/', $code))) {
+            // Additional safeguard — but allow HTML (uses <> not {})
+            $hasCodeChars = preg_match('/[{}();]/', $code) || preg_match('/<[a-zA-Z][^>]*>/', $code);
+            if ($verdict === 'yes' && (strlen($code) < 5 || ! $hasCodeChars)) {
                 $verdict = 'no';
                 $hint = 'الكود لا يحتوي على عناصر برمجة أساسية';
             }
