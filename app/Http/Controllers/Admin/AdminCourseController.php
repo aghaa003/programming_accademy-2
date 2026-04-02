@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AdminCourseRequest;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\AuditLogger;
@@ -36,23 +37,12 @@ class AdminCourseController extends Controller
     }
 
     /** POST /api/admin/courses */
-    public function store(Request $request)
+    public function store(AdminCourseRequest $request)
     {
-        if (empty(trim($request->input('title', '')))) {
-            return response()->json(['success' => false, 'message' => 'عنوان الكورس مطلوب.'], 400);
-        }
-        if (empty(trim($request->input('category', '')))) {
-            return response()->json(['success' => false, 'message' => 'تصنيف الكورس مطلوب.'], 400);
-        }
-
-        $course = Course::create([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'main_points' => $request->input('main_points'),
-            'category' => $request->input('category'),
-            'level' => $request->input('level', 'Beginner'),
-            'is_active' => $request->input('is_active', 1),
-        ]);
+        $course = Course::create(array_merge(
+            $request->validated(),
+            ['level' => $request->input('level', 'Beginner'), 'is_active' => $request->input('is_active', 1)]
+        ));
 
         AuditLogger::log($request, 'create_course', 'Course', $course->id, ['title' => $course->title]);
 
@@ -60,22 +50,14 @@ class AdminCourseController extends Controller
     }
 
     /** PUT /api/admin/courses/{id} */
-    public function update(Request $request, $id)
+    public function update(AdminCourseRequest $request, $id)
     {
         $course = Course::find($id);
         if (! $course) {
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
-        // Validate required fields if they are being changed — same rules as store()
-        if ($request->has('title') && empty(trim($request->input('title', '')))) {
-            return response()->json(['success' => false, 'message' => 'عنوان الكورس مطلوب.'], 400);
-        }
-        if ($request->has('category') && empty(trim($request->input('category', '')))) {
-            return response()->json(['success' => false, 'message' => 'تصنيف الكورس مطلوب.'], 400);
-        }
-
-        $course->fill($request->only(['title', 'description', 'main_points', 'category', 'level', 'is_active']));
+        $course->fill($request->validated());
         $course->save();
 
         AuditLogger::log($request, 'update_course', 'Course', $course->id, ['title' => $course->title]);
@@ -207,6 +189,8 @@ class AdminCourseController extends Controller
             'resources_code' => $resources,
         ]);
 
+        AuditLogger::log($request, 'create_lesson', 'Lesson', $lesson->id, ['title' => $lesson->title, 'course_id' => $courseId]);
+
         return response()->json(['success' => true, 'message' => 'تم رفع الدرس بنجاح', 'lesson' => $lesson], 201);
     }
 
@@ -266,6 +250,8 @@ class AdminCourseController extends Controller
             @unlink($oldVideoPath);
         }
 
+        AuditLogger::log($request, 'update_lesson', 'Lesson', $lesson->id, ['title' => $lesson->title]);
+
         return response()->json(['success' => true, 'message' => 'تم تحديث الدرس بنجاح']);
     }
 
@@ -294,6 +280,8 @@ class AdminCourseController extends Controller
         if ($videoPath && is_file($videoPath)) {
             @unlink($videoPath);
         }
+
+        AuditLogger::log(request(), 'delete_lesson', 'Lesson', (int) $id, ['title' => $lesson->title, 'course_id' => $lesson->course_id]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف الدرس بنجاح']);
     }

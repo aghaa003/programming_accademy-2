@@ -21,7 +21,7 @@ class ProfileUpdateRequest extends ApiFormRequest
             'goal'              => ['sometimes', 'nullable', 'string', 'max:500'],
             'interest'          => ['sometimes', 'nullable', 'string', 'max:255'],
             'preferred_language' => ['sometimes', 'nullable', 'string', 'max:50'],
-            'newPassword'       => ['sometimes', 'nullable', 'string', 'min:6', 'max:72'],
+            'newPassword'       => ['sometimes', 'nullable', 'string', 'min:8', 'max:72'],
             'currentPassword'   => ['required_with:newPassword', 'nullable', 'string'],
         ];
     }
@@ -30,7 +30,7 @@ class ProfileUpdateRequest extends ApiFormRequest
     {
         return [
             'email.email'              => 'البريد الإلكتروني غير صالح.',
-            'newPassword.min'          => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.',
+            'newPassword.min'          => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.',
             'newPassword.max'          => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.',
             'currentPassword.required_with' => 'يرجى إدخال كلمة المرور الحالية.',
         ];

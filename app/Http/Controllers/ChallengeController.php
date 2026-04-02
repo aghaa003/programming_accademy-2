@@ -141,41 +141,45 @@ class ChallengeController extends Controller
             return response()->json(['success' => false, 'message' => 'Challenge not found'], 404);
         }
 
-        // Upsert user_challenges — insert on first attempt, then use atomic increments
-        DB::table('user_challenges')->insertOrIgnore([
-            'user_id' => $userId,
-            'challenge_id' => $challengeId,
-            'attempts' => 0,
-            'completed' => 0,
-        ]);
+        // Upsert user_challenges and record attempt atomically
+        $bestScore = DB::transaction(function () use ($userId, $challengeId, $completed, $challenge, $code) {
+            DB::table('user_challenges')->insertOrIgnore([
+                'user_id' => $userId,
+                'challenge_id' => $challengeId,
+                'attempts' => 0,
+                'completed' => 0,
+            ]);
 
-        $updateData = [
-            'attempts' => DB::raw('attempts + 1'),
-            'last_attempted' => now(),
-        ];
+            $updateData = [
+                'attempts' => DB::raw('attempts + 1'),
+                'last_attempted' => now(),
+            ];
 
-        if ($completed) {
-            $updateData['completed'] = 1;
-            // Use DB-level GREATEST to avoid race condition on concurrent submissions
-            $updateData['best_score'] = DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challenge->points.')');
-        }
+            if ($completed) {
+                $updateData['completed'] = 1;
+                // Use DB-level GREATEST to avoid race condition on concurrent submissions
+                $updateData['best_score'] = DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challenge->points.')');
+            }
 
-        DB::table('user_challenges')
-            ->where('user_id', $userId)
-            ->where('challenge_id', $challengeId)
-            ->update($updateData);
+            DB::table('user_challenges')
+                ->where('user_id', $userId)
+                ->where('challenge_id', $challengeId)
+                ->update($updateData);
 
-        // Read best_score directly — avoids null crash if row wasn't inserted for any reason
-        $bestScore = (int) (DB::table('user_challenges')
-            ->where('user_id', $userId)
-            ->where('challenge_id', $challengeId)
-            ->value('best_score') ?? 0);
+            // Read best_score directly — avoids null crash if row wasn't inserted for any reason
+            $score = (int) (DB::table('user_challenges')
+                ->where('user_id', $userId)
+                ->where('challenge_id', $challengeId)
+                ->value('best_score') ?? 0);
 
-        // Record attempt (always runs regardless of user_challenges state)
-        ChallengeAttempt::updateOrCreate(
-            ['user_id' => $userId, 'challenge_id' => $challengeId],
-            ['code' => $code, 'completed' => $completed, 'completed_at' => $completed ? now() : null]
-        );
+            // Record attempt (always runs regardless of user_challenges state)
+            ChallengeAttempt::updateOrCreate(
+                ['user_id' => $userId, 'challenge_id' => $challengeId],
+                ['code' => $code, 'completed' => $completed, 'completed_at' => $completed ? now() : null]
+            );
+
+            return $score;
+        });
 
         return response()->json([
             'success' => true,

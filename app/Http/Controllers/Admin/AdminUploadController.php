@@ -138,6 +138,17 @@ class AdminUploadController extends Controller
                     return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
                 }
 
+                // Enforce 500 MB per-video size limit to prevent storage DoS
+                if ($video->getSize() > 500 * 1024 * 1024) {
+                    DB::rollBack();
+                    foreach ($movedFiles as $f) {
+                        if (file_exists($f)) {
+                            @unlink($f);
+                        }
+                    }
+                    return response()->json(['success' => false, 'message' => 'حجم الفيديو يتجاوز الحد المسموح (500 ميجابايت).'], 400);
+                }
+
                 $ext = $videoMimeToExt[$videoMime] ?? 'mp4';
                 $uniqueFilename = uniqid('lesson_', true).'.'.$ext;
 

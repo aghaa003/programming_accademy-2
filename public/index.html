@@ -1271,8 +1271,8 @@
         </style>
         <script src="site-notification.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="api.js"></script>
-</head>
+        <script src="api.js"></script>
+    </head>
     <body>
         <!-- Header & Navbar -->
         <header>
@@ -2099,14 +2099,28 @@
                     if (data.success && data.reviews.length > 0) {
                         container.innerHTML = "";
                         data.reviews.forEach((review) => {
-                            const displayName =
-                                review.username || "مستخدم غير معروف";
-                            const specialty =
-                                review.interest || "متخصص في البرمجة";
-                            const initial = displayName.trim().charAt(0) || "?";
+                            // Escape all user-supplied strings before inserting into innerHTML
+                            // Source: OWASP XSS Prevention Cheat Sheet – HTML Context rule
+                            const esc = (s) =>
+                                String(s == null ? "" : s)
+                                    .replace(/&/g, "&amp;")
+                                    .replace(/</g, "&lt;")
+                                    .replace(/>/g, "&gt;")
+                                    .replace(/"/g, "&quot;")
+                                    .replace(/'/g, "&#039;");
+
+                            const displayName = esc(
+                                review.username || "مستخدم غير معروف",
+                            );
+                            const specialty = esc(
+                                review.interest || "متخصص في البرمجة",
+                            );
+                            const initial = esc(
+                                (review.username || "?").trim().charAt(0),
+                            );
 
                             const avatarImage = review.avatar_url
-                                ? `<img src="${review.avatar_url}" onload="this.previousElementSibling.style.display='none';" alt="${displayName}">`
+                                ? `<img src="${esc(review.avatar_url)}" onload="this.previousElementSibling.style.display='none';" alt="${displayName}">`
                                 : "";
 
                             const cardHtml = `
@@ -2126,7 +2140,7 @@
                             </div>
                         </div>
                         <p class="testimonial-text">
-                            "${review.review_text}"
+                            "${esc(review.review_text)}"
                         </p>
                         <div class="testimonial-meta">
                             <span>${specialty}</span>

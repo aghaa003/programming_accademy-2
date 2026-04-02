@@ -17,6 +17,20 @@ class SecurityHeadersMiddleware
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
+        $response->headers->set('Content-Security-Policy',
+            "default-src 'self'; " .
+            "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com; " .
+            "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; " .
+            "font-src 'self' cdnjs.cloudflare.com; " .
+            "img-src 'self' data: https:; " .
+            "media-src 'self'; " .
+            "connect-src 'self'; " .
+            "object-src 'none'; " .
+            "base-uri 'self'; " .
+            "form-action 'self'; " .
+            "frame-ancestors 'self';"
+        );
+
         // Only enforce HSTS in production HTTPS environments
         if (config('app.env') === 'production' && $request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');

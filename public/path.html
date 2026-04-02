@@ -876,8 +876,8 @@
         <script src="site-notification.js"></script>
         <script src="escapeHtml.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="api.js"></script>
-</head>
+        <script src="api.js"></script>
+    </head>
     <body>
         <!-- Header & Navbar -->
         <header>
@@ -1307,7 +1307,7 @@
                     </ul>
                 </div>
                 <div class="card-footer">
-                    <button class="btn watch-btn" data-course-id="${course.id}" data-language="${course.title}" data-level="${course.level || "مبندئ"}"<i class="fas fa-play-circle"></i> ابدأ المشاهدة
+                    <button class="btn watch-btn" data-course-id="${course.id}" data-language="${escapeHtml(course.title)}" data-level="${escapeHtml(course.level || "مبتدئ")}"><i class="fas fa-play-circle"></i> ابدأ المشاهدة
 </button>
 </div>
 `;

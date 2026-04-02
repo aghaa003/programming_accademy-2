@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReviewRequest;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,23 +28,11 @@ class ReviewController extends Controller
     }
 
     /** POST /api/reviews */
-    public function store(Request $request)
+    public function store(ReviewRequest $request)
     {
-        $userId = auth()->id();
-        $rating = (int) $request->input('rating');
-        $reviewText = trim($request->input('review_text', ''));
-
-        if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'يجب تسجيل الدخول لإضافة تقييم.'], 401);
-        }
-
-        if ($rating < 1 || $rating > 5) {
-            return response()->json(['success' => false, 'message' => 'التقييم غير صالح.'], 400);
-        }
-
-        if (empty($reviewText) || strlen($reviewText) < 5 || strlen($reviewText) > 500) {
-            return response()->json(['success' => false, 'message' => 'نص التقييم مطلوب ويجب أن يكون بين 5 و 500 حرف.'], 400);
-        }
+        $userId     = auth()->id();
+        $rating     = (int) $request->validated()['rating'];
+        $reviewText = trim($request->validated()['review_text']);
 
         // Prevent duplicate reviews from the same user (PHP-level check)
         if (Review::where('user_id', $userId)->exists()) {

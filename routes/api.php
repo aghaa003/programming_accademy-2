@@ -119,12 +119,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::middleware('throttle:20,1')->post('/assignments/submit', [AssignmentController::class, 'submit']);
 
-    // AI (rate-limited: max 20 requests per minute to protect Ollama)
-    Route::middleware('throttle:20,1')->group(function () {
-        Route::post('/ai/helper', [AiController::class, 'general']);
-        Route::post('/ai/helper-challenges', [AiController::class, 'challenges']);
-        Route::post('/ai/helper-projects', [AiController::class, 'projects']);
-    });
+    // AI — per-endpoint limits tuned to Ollama cost per call
+    Route::middleware('throttle:10,1')->post('/ai/helper', [AiController::class, 'general']);           // general chat: lightweight, 10/min
+    Route::middleware('throttle:5,1')->post('/ai/helper-challenges', [AiController::class, 'challenges']); // verify/solution: up to 60s, 5/min
+    Route::middleware('throttle:5,1')->post('/ai/helper-projects', [AiController::class, 'projects']);     // fix/code-check: similarly heavy, 5/min
 });
 
 // ============================================================

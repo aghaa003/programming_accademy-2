@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Disallow: /admin.html
+Disallow: /login1.html
+Disallow: /register.html
+Disallow: /reset-password.html
+Disallow: /forgot-password.html
+Disallow: /profile.html

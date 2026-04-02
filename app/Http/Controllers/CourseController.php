@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\UserCourseProgress;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
@@ -14,41 +15,44 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $category = $request->query('category');
+        $cacheKey = 'courses_' . ($category ?? 'all');
 
-        $query = Course::withCount('lessons')
-            ->where('is_active', 1)
-            ->orderBy('created_at', 'desc');
+        $courses = Cache::remember($cacheKey, 60, function () use ($category) {
+            $query = Course::withCount('lessons')
+                ->where('is_active', 1)
+                ->orderBy('created_at', 'desc');
 
-        if ($category) {
-            $query->where('category', $category);
-        }
-
-        $courses = $query->get()->map(function ($course) {
-            // Parse main_points into array
-            $points = array_values(array_filter(array_map('trim', explode("\n", trim($course->main_points ?? '')))));
-
-            // Normalize logo path
-            $logoPath = null;
-            if (! empty($course->logo_path)) {
-                $lp = ltrim(str_replace('\\', '/', $course->logo_path), '/');
-                if (file_exists(public_path($lp))) {
-                    $logoPath = '/'.$lp;
-                }
+            if ($category) {
+                $query->where('category', $category);
             }
 
-            return [
-                'id' => $course->id,
-                'title' => $course->title,
-                'description' => $course->description,
-                'category' => $course->category,
-                'main_points' => $points,
-                'logo_path' => $logoPath,
-                'created_at' => $course->created_at,
-                'level' => $course->level,
-                'lesson_count' => $course->lessons_count,
-                'icon_class' => $this->iconClass($course->title),
-                'color_class' => $this->colorClass($course->title),
-            ];
+            return $query->get()->map(function ($course) {
+                // Parse main_points into array
+                $points = array_values(array_filter(array_map('trim', explode("\n", trim($course->main_points ?? '')))));
+
+                // Normalize logo path
+                $logoPath = null;
+                if (! empty($course->logo_path)) {
+                    $lp = ltrim(str_replace('\\', '/', $course->logo_path), '/');
+                    if (file_exists(public_path($lp))) {
+                        $logoPath = '/'.$lp;
+                    }
+                }
+
+                return [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'description' => $course->description,
+                    'category' => $course->category,
+                    'main_points' => $points,
+                    'logo_path' => $logoPath,
+                    'created_at' => $course->created_at,
+                    'level' => $course->level,
+                    'lesson_count' => $course->lessons_count,
+                    'icon_class' => $this->iconClass($course->title),
+                    'color_class' => $this->colorClass($course->title),
+                ];
+            });
         });
 
         return response()->json(['success' => true, 'courses' => $courses]);

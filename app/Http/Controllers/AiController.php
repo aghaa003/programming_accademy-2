@@ -8,15 +8,29 @@ use Illuminate\Support\Facades\DB;
 
 class AiController extends Controller
 {
-    private const OLLAMA_HOST = 'http://localhost:11434';
-
-    private const OLLAMA_MODEL = 'qwen3-coder:480b-cloud';
+    private const CODE_INDICATORS = [
+        'function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log',
+        'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ',
+        '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-',
+        'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body',
+        '.class', '#id', '{', '}', '()', '=>', '==', '!=', '<=', '>=',
+        // HTML tags
+        '<html', '<head', '<body', '<div', '<form', '<input', '<button', '<label',
+        '<table', '<tr', '<td', '<th', '<ul', '<ol', '<li', '<p>', '<h1', '<h2', '<h3',
+        '<a ', '<img', '<link', '<style', '<script', '<meta', '<span', '<br', '<!DOCTYPE',
+        '<header', '<footer', '<nav', '<section', '<article', '<select', '<option', '<textarea',
+        // SQL keywords
+        'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE',
+        'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN',
+        'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
+    ];
 
     /** POST /api/ai/helper */
     public function general(Request $request)
     {
         $message = trim($request->input('message', ''));
-        $type = trim($request->input('type', 'general'));
+        $type    = trim($request->input('type', 'general'));
+        $type    = in_array($type, ['general', 'code_review', 'challenge_help'], true) ? $type : 'general';
         $code = trim($request->input('code', ''));
         $question = trim($request->input('question', ''));
 
@@ -35,24 +49,26 @@ class AiController extends Controller
         $systemPrompt = 'أنت مساعد ذكي متخصص في مساعدة الطلاب على تعلم البرمجة. يرجى تقديم إجابات واضحة وموجزة باللغة العربية.';
 
         if ($type === 'code_review' && $code !== '') {
-            $fullPrompt = $systemPrompt."\n\nراجع الكود التالي وقدم اقتراحات للتحسين:\n```\n$code\n```\n\nسؤال: $message";
+            $userPrompt = "راجع الكود التالي وقدم اقتراحات للتحسين:\n```\n$code\n```\n\nسؤال: $message";
         } elseif ($type === 'challenge_help' && $question !== '') {
-            $fullPrompt = $systemPrompt."\n\nالتحدي: $question\n\nسؤال الطالب: $message";
+            $userPrompt = "التحدي: $question\n\nسؤال الطالب: $message";
         } else {
-            $fullPrompt = $systemPrompt."\n\nسؤال الطالب:\n".$message;
+            $userPrompt = "سؤال الطالب:\n".$message;
         }
 
-        $result = $this->callOllama($fullPrompt);
+        $result = $this->callOllamaChat([
+            ['role' => 'system', 'content' => $systemPrompt],
+            ['role' => 'user',   'content' => $userPrompt],
+        ], 30, 0.5);
 
         if (! $result['success']) {
             return response()->json([
                 'success' => false,
-                'message' => $result['error'],
-                'response' => 'عذراً، حدث خطأ في الاتصال بخادم الذكاء الاصطناعي. تأكد من أن Ollama يعمل على '.self::OLLAMA_HOST,
+                'message' => 'خدمة الذكاء الاصطناعي غير متاحة حالياً، يرجى المحاولة لاحقاً.',
             ], 502);
         }
 
-        $aiResponse = trim($result['response']['response'] ?? '');
+        $aiResponse = trim($result['content'] ?? '');
         if ($aiResponse === '') {
             return response()->json(['success' => false, 'message' => 'تعذر الحصول على رد من الذكاء الاصطناعي.'], 500);
         }
@@ -101,7 +117,7 @@ class AiController extends Controller
             $result = $this->callOllamaChat([
                 ['role' => 'system', 'content' => 'أنت معلم برمجة. قدم الكود فقط بدون أي شرح.'],
                 ['role' => 'user',   'content' => $prompt],
-            ], 60);
+            ], 60, 0.15);
             if (! $result['success']) {
                 return response()->json(['success' => false, 'message' => $result['error']], 502);
             }
@@ -124,12 +140,7 @@ class AiController extends Controller
             }
 
             // Must contain actual code constructs — reject plain text
-            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body {', '.class', '#id', '{', '}', '()', '=>', '==', '!=', '<=', '>=',
-                // HTML tags
-                '<html', '<head', '<body', '<div', '<form', '<input', '<button', '<label', '<table', '<tr', '<td', '<th', '<ul', '<ol', '<li', '<p>', '<h1', '<h2', '<h3', '<a ', '<img', '<link', '<style', '<script', '<meta', '<span', '<br', '<!DOCTYPE', '<header', '<footer', '<nav', '<section', '<article', '<select', '<option', '<textarea',
-                // SQL keywords
-                'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
-            ];
+            $codeIndicators = self::CODE_INDICATORS;
             $hasCodeIndicators = false;
             foreach ($codeIndicators as $indicator) {
                 if (stripos($code, $indicator) !== false) {
@@ -161,7 +172,7 @@ class AiController extends Controller
 
             $prompt = "التحدي: {$challengeDescription}\n\nالكود:\n```\n{$code}\n```\n\n"
                     ."هل هذا الكود يحل التحدي بشكل صحيح؟\n"
-                    ."أجب بـ JSON فقط: {\"verdict\":\"yes\",\"hint\":\"\"} أو {\"verdict\":\"no\",\"hint\":\"سبب\"}";
+                    .'أجب بـ JSON فقط: {"verdict":"yes","hint":""} أو {"verdict":"no","hint":"سبب"}';
 
             $result = $this->callOllamaChat([
                 ['role' => 'system', 'content' => 'You are a code judge. Reply ONLY with JSON: {"verdict":"yes","hint":""} or {"verdict":"no","hint":"reason"}. No other text.'],
@@ -193,39 +204,39 @@ class AiController extends Controller
 
             $updatedCompletion = false;
             if ($challengeId && $userId) {
-                // Insert a stub row on first visit (safe to ignore if row already exists)
-                DB::table('user_challenges')->insertOrIgnore([
-                    'user_id' => $userId,
-                    'challenge_id' => $challengeId,
-                    'attempts' => 0,
-                    'completed' => 0,
-                ]);
+                DB::transaction(function () use ($challengeId, $userId, $verdict, $isRedo, $challengePoints, $code, &$updatedCompletion) {
+                    // Insert a stub row on first visit (safe to ignore if row already exists)
+                    DB::table('user_challenges')->insertOrIgnore([
+                        'user_id' => $userId,
+                        'challenge_id' => $challengeId,
+                        'attempts' => 0,
+                        'completed' => 0,
+                    ]);
 
-                $updateData = [
-                    'attempts' => DB::raw('attempts + 1'),
-                    'last_attempted' => now(),
-                ];
+                    $updateData = [
+                        'attempts' => DB::raw('attempts + 1'),
+                        'last_attempted' => now(),
+                    ];
 
-                // Only update completion/score on a fresh attempt (not redo)
-                if ($verdict === 'yes' && ! $isRedo) {
-                    $updateData['completed'] = 1;
-                    // Use DB-level GREATEST to avoid race condition on concurrent submissions
-                    $updateData['best_score'] = DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challengePoints.')');
-                    $updatedCompletion = true;
-                }
+                    // Only update completion/score on a fresh attempt (not redo)
+                    if ($verdict === 'yes' && ! $isRedo) {
+                        $updateData['completed'] = 1;
+                        // Use DB-level GREATEST to avoid race condition on concurrent submissions
+                        $updateData['best_score'] = DB::raw('GREATEST(COALESCE(best_score, 0), '.(int) $challengePoints.')');
+                        $updatedCompletion = true;
+                    }
 
-                DB::table('user_challenges')
-                    ->where('user_id', $userId)
-                    ->where('challenge_id', $challengeId)
-                    ->update($updateData);
-            }
+                    DB::table('user_challenges')
+                        ->where('user_id', $userId)
+                        ->where('challenge_id', $challengeId)
+                        ->update($updateData);
 
-            // Record attempt in challenge_attempts
-            if ($challengeId && $userId) {
-                ChallengeAttempt::updateOrCreate(
-                    ['user_id' => $userId, 'challenge_id' => $challengeId],
-                    ['code' => $code, 'completed' => $verdict === 'yes', 'completed_at' => $verdict === 'yes' ? now() : null]
-                );
+                    // Record attempt in challenge_attempts
+                    ChallengeAttempt::updateOrCreate(
+                        ['user_id' => $userId, 'challenge_id' => $challengeId],
+                        ['code' => $code, 'completed' => $verdict === 'yes', 'completed_at' => $verdict === 'yes' ? now() : null]
+                    );
+                });
             }
 
             $aiText = $verdict === 'yes'
@@ -261,7 +272,7 @@ class AiController extends Controller
             $result = $this->callOllamaChat([
                 ['role' => 'system', 'content' => 'أنت مساعد تعليمي للبرمجة. ساعد الطالب على التفكير بدون إعطاء الحل مباشرة. أجب بالعربية بإيجاز.'],
                 ['role' => 'user',   'content' => $context],
-            ], 30);
+            ], 30, 0.5);
             if (! $result['success']) {
                 return response()->json(['success' => false, 'message' => $result['error']], 502);
             }
@@ -314,7 +325,7 @@ class AiController extends Controller
             $result = $this->callOllamaChat([
                 ['role' => 'system', 'content' => 'أنت خبير برمجة. مهمتك كتابة أو إصلاح الكود فقط بدون أي شرح. أعد الكود مباشرة داخل كتلة ``` فقط.'],
                 ['role' => 'user',   'content' => $prompt],
-            ], 30);
+            ], 30, 0.15);
 
             if (! $result['success']) {
                 return response()->json(['success' => false, 'message' => $result['error']], 502);
@@ -355,12 +366,7 @@ class AiController extends Controller
 
             // Check for programming constructs
             $hasCodeIndicators = false;
-            $codeIndicators = ['function', 'def ', 'class ', 'if ', 'for ', 'while ', 'print', 'console.log', 'return ', 'var ', 'let ', 'const ', 'int ', 'string ', 'public ', 'private ', '#include', 'import ', 'color:', 'margin:', 'padding:', 'background:', 'font-', 'width:', 'height:', 'display:', 'position:', 'flex', 'grid', '@media', 'body', '.class', '#id',
-                // HTML tags
-                '<html', '<head', '<body', '<div', '<form', '<input', '<button', '<label', '<table', '<tr', '<td', '<th', '<ul', '<ol', '<li', '<p>', '<h1', '<h2', '<h3', '<a ', '<img', '<link', '<style', '<script', '<meta', '<span', '<br', '<!DOCTYPE', '<header', '<footer', '<nav', '<section', '<article', '<select', '<option', '<textarea',
-                // SQL keywords
-                'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UNION', 'TABLE', 'DATABASE', 'INDEX', 'PRIMARY KEY', 'FOREIGN KEY',
-            ];
+            $codeIndicators = self::CODE_INDICATORS;
             foreach ($codeIndicators as $indicator) {
                 if (stripos($code, $indicator) !== false) {
                     $hasCodeIndicators = true;
@@ -382,7 +388,7 @@ class AiController extends Controller
 
             $prompt = "السؤال: {$question}\n\nالكود:\n```\n{$code}\n```\n\n"
                 ."هل هذا الكود يحل السؤال بشكل صحيح؟\n"
-                ."أجب بـ JSON فقط: {\"verdict\":\"yes\",\"hint\":\"\"} أو {\"verdict\":\"no\",\"hint\":\"سبب\"}";
+                .'أجب بـ JSON فقط: {"verdict":"yes","hint":""} أو {"verdict":"no","hint":"سبب"}';
 
             $result = $this->callOllamaChat([
                 ['role' => 'system', 'content' => 'You are a code judge. Reply ONLY with JSON: {"verdict":"yes","hint":""} or {"verdict":"no","hint":"reason"}. No other text.'],
@@ -476,35 +482,11 @@ class AiController extends Controller
         ]);
     }
 
-    private function callOllama(string $prompt): array
-    {
-        $payload = ['model' => self::OLLAMA_MODEL, 'prompt' => $prompt, 'stream' => false, 'options' => ['temperature' => 0.7]];
-
-        $ch = curl_init(self::OLLAMA_HOST.'/api/generate');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_TIMEOUT => 30,
-        ]);
-
-        $response = curl_exec($ch);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($response === false) {
-            return ['success' => false, 'error' => 'تعذر الاتصال بخادم Ollama: '.$curlError];
-        }
-
-        return ['success' => true, 'response' => json_decode($response, true)];
-    }
-
     private function callOllamaChat(array $messages, int $timeout = 30, float $temperature = 0.3): array
     {
-        $payload = ['model' => self::OLLAMA_MODEL, 'messages' => $messages, 'stream' => false, 'options' => ['temperature' => $temperature]];
+        $payload = ['model' => config('ai.ollama_model'), 'messages' => $messages, 'stream' => false, 'options' => ['temperature' => $temperature]];
 
-        $ch = curl_init(self::OLLAMA_HOST.'/api/chat');
+        $ch = curl_init(config('ai.ollama_host').'/api/chat');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AdminPlatformRequest;
 use App\Models\Example;
 use App\Models\Platform;
 use App\Services\AuditLogger;
@@ -25,35 +26,22 @@ class AdminPlatformController extends Controller
     }
 
     /** POST /api/admin/platforms */
-    public function store(Request $request)
+    public function store(AdminPlatformRequest $request)
     {
-        if (empty(trim($request->input('name', '')))) {
-            return response()->json(['success' => false, 'message' => 'اسم المنصة مطلوب.'], 400);
-        }
-
-        $url = $request->input('url');
-        if (! empty($url) && ! preg_match('/^https?:\/\//i', $url)) {
-            return response()->json(['success' => false, 'message' => 'رابط المنصة يجب أن يبدأ بـ http:// أو https://'], 400);
-        }
-
-        // Validate logo_url scheme to prevent stored XSS via javascript: protocol
-        $logoUrl = $request->input('logo_url');
-        if (! empty($logoUrl) && ! preg_match('/^https?:\/\//i', $logoUrl) && ! str_starts_with($logoUrl, '/uploads/')) {
-            return response()->json(['success' => false, 'message' => 'رابط الشعار يجب أن يبدأ بـ http:// أو https://'], 400);
-        }
+        $data = $request->validated();
 
         $platform = Platform::create([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'url' => $url,
-            'category' => $request->input('category', 'global'),
-            'level' => $request->input('level', 'beginner'),
-            'language' => $request->input('language', 'english'),
-            'user_count' => (int) $request->input('user_count', 0),
-            'problem_count' => (int) $request->input('problem_count', 0),
-            'features' => $request->input('features', []),
-            'logo_url' => $request->input('logo_url'),
-            'is_active' => (bool) $request->input('is_active', true),
+            'name'          => $data['name'],
+            'description'   => $data['description'] ?? null,
+            'url'           => $data['url'] ?? null,
+            'category'      => $data['category'] ?? 'global',
+            'level'         => $data['level'] ?? 'beginner',
+            'language'      => $data['language'] ?? 'english',
+            'user_count'    => (int) ($data['user_count'] ?? 0),
+            'problem_count' => (int) ($data['problem_count'] ?? 0),
+            'features'      => $data['features'] ?? [],
+            'logo_url'      => $data['logo_url'] ?? null,
+            'is_active'     => (bool) ($data['is_active'] ?? true),
         ]);
 
         AuditLogger::log($request, 'create_platform', 'Platform', $platform->id, ['name' => $platform->name]);
@@ -73,30 +61,14 @@ class AdminPlatformController extends Controller
     }
 
     /** PUT /api/admin/platforms/{id} */
-    public function update(Request $request, $id)
+    public function update(AdminPlatformRequest $request, $id)
     {
         $platform = Platform::find($id);
         if (! $platform) {
             return response()->json(['success' => false, 'message' => 'المنصة غير موجودة'], 404);
         }
 
-        // Validate name if being changed — same rule as store()
-        if ($request->has('name') && empty(trim($request->input('name', '')))) {
-            return response()->json(['success' => false, 'message' => 'اسم المنصة مطلوب.'], 400);
-        }
-
-        $url = $request->input('url');
-        if ($request->has('url') && ! empty($url) && ! preg_match('/^https?:\/\//i', $url)) {
-            return response()->json(['success' => false, 'message' => 'رابط المنصة يجب أن يبدأ بـ http:// أو https://'], 400);
-        }
-
-        // Validate logo_url scheme to prevent stored XSS via javascript: protocol
-        $logoUrl = $request->input('logo_url');
-        if ($request->has('logo_url') && ! empty($logoUrl) && ! preg_match('/^https?:\/\//i', $logoUrl) && ! str_starts_with($logoUrl, '/uploads/')) {
-            return response()->json(['success' => false, 'message' => 'رابط الشعار يجب أن يبدأ بـ http:// أو https://'], 400);
-        }
-
-        $platform->fill($request->only(['name', 'description', 'url', 'category', 'level', 'language', 'user_count', 'problem_count', 'features', 'logo_url', 'is_active']));
+        $platform->fill($request->validated());
         $platform->save();
 
         AuditLogger::log($request, 'update_platform', 'Platform', $platform->id, ['name' => $platform->name]);

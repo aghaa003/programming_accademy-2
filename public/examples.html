@@ -1039,8 +1039,8 @@
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="api.js"></script>
-</head>
+        <script src="api.js"></script>
+    </head>
     <body>
         <!-- Code Modal -->
         <div id="codeModal" class="code-modal">
@@ -1763,7 +1763,7 @@
                             .join("")}
                     </div>
                     <button class="code-toggle"
-                            data-title="${example.title}"
+                            data-title="${escapeHtml(example.title).replace(/"/g, "&quot;")}"
                             data-language="${example.code_language}"
                             data-code="${escapeHtml(example.code_snippet)
                                 .replace(/"/g, "&quot;")

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\Mail\PasswordResetMail;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -73,7 +74,7 @@ class AuthController extends Controller
                 60 * 24 * 30, // minutes
                 '/',
                 null,
-                (bool) env('SESSION_SECURE_COOKIE', false), // HTTPS-only in production
+                (bool) config('session.secure'), // HTTPS-only in production
                 true   // HttpOnly
             ));
         }
@@ -85,7 +86,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        // RegisterRequest already enforces min:6, max:72, required fields — no duplicate checks needed
+        // RegisterRequest already enforces min:8, max:72, required fields — no duplicate checks needed
 
         $phone = isset($data['phone']) && $data['phone'] !== '' ? trim($data['phone']) : null;
 
@@ -194,18 +195,9 @@ class AuthController extends Controller
             ['token' => hash('sha256', $token), 'expires_at' => $expiresAt]
         );
 
-        // Send password reset email via configured mailer (Gmail SMTP)
         $resetLink = config('app.url').'/reset-password.html?token='.$token;
-        $subject = 'إعادة تعيين كلمة المرور - أكاديمية البرمجة';
-        $body = "مرحباً،\n\nلقد طلبت إعادة تعيين كلمة المرور لحسابك في أكاديمية البرمجة.\n\n"
-                   ."انقر على الرابط التالي لإعادة تعيين كلمة المرور:\n{$resetLink}\n\n"
-                   ."هذا الرابط صالح لمدة ساعتين.\n\nإذا لم تطلب هذا، يرجى تجاهل هذا البريد.\n\n"
-                   ."مع خالص التحية،\nفريق أكاديمية البرمجة";
 
-        Mail::raw($body, function ($message) use ($email, $subject) {
-            $message->to($email)
-                ->subject($subject);
-        });
+        Mail::to($email)->queue(new PasswordResetMail($resetLink));
 
         return response()->json(['success' => true, 'message' => 'تم إرسال رابط إعادة تعيين كلمة المرور.']);
     }
