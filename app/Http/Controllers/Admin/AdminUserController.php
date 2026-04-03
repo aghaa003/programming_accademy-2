@@ -16,11 +16,26 @@ class AdminUserController extends Controller
         // M4: Paginate admin user list; L5: phone excluded (available via show/{id})
         $limit  = min((int) $request->query('limit', 20), 100);
         $offset = max((int) $request->query('offset', 0), 0);
-        $total  = User::count();
 
-        $users = User::with('roles')
-            ->select('id', 'firstName', 'lastName', 'username', 'email', 'country', 'experience', 'joinDate')
-            ->orderBy('joinDate', 'desc')
+        $query = User::with('roles')
+            ->select('id', 'firstName', 'lastName', 'username', 'email', 'country', 'experience', 'joinDate');
+
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            // Escape SQL LIKE wildcards to prevent wildcard injection (N9 pattern)
+            $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $search);
+            $like = "%{$escaped}%";
+            $query->where(function ($q) use ($like) {
+                $q->where('firstName', 'LIKE', $like)
+                  ->orWhere('lastName', 'LIKE', $like)
+                  ->orWhere('username', 'LIKE', $like)
+                  ->orWhere('email', 'LIKE', $like);
+            });
+        }
+
+        $total = $query->count();
+
+        $users = $query->orderBy('joinDate', 'desc')
             ->skip($offset)
             ->take($limit)
             ->get()
@@ -41,7 +56,49 @@ class AdminUserController extends Controller
             return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
         }
 
-        return response()->json(['success' => true, 'user' => $user]);
+        // Pluck role names (same as index()), so frontend gets ["student"] / ["admin"]
+        $user->roles = $user->roles->pluck('name');
+
+        // Enrolled courses with progress
+        $courses = DB::table('user_course_progress as ucp')
+            ->join('courses as c', 'c.id', '=', 'ucp.course_id')
+            ->where('ucp.user_id', $id)
+            ->select('c.id', 'c.title', 'ucp.percentage_completed', 'ucp.last_accessed')
+            ->orderByDesc('ucp.last_accessed')
+            ->get();
+
+        // Challenges attempted + latest submitted code (one row per challenge, no duplicates)
+        $latestAttempt = DB::table('challenge_attempts')
+            ->selectRaw('user_id, challenge_id, MAX(id) as max_id')
+            ->groupBy('user_id', 'challenge_id');
+
+        $challenges = DB::table('user_challenges as uc')
+            ->join('challenges as ch', 'ch.id', '=', 'uc.challenge_id')
+            ->leftJoinSub($latestAttempt, 'lat', function ($join) {
+                $join->on('lat.user_id', '=', 'uc.user_id')
+                     ->on('lat.challenge_id', '=', 'uc.challenge_id');
+            })
+            ->leftJoin('challenge_attempts as ca', 'ca.id', '=', 'lat.max_id')
+            ->where('uc.user_id', $id)
+            ->select('ch.id', 'ch.title', 'uc.completed', 'uc.best_score', 'uc.attempts', 'uc.last_attempted', 'ca.code as submitted_code')
+            ->orderByDesc('uc.last_attempted')
+            ->get();
+
+        // Assignments submitted
+        $assignments = DB::table('user_assignments as ua')
+            ->join('assignments as a', 'a.id', '=', 'ua.assignment_id')
+            ->where('ua.user_id', $id)
+            ->select('ua.id as submission_id', 'a.id', DB::raw('SUBSTR(a.question, 1, 60) as question'), 'ua.solution', 'ua.score', 'ua.status', 'ua.is_completed', 'ua.submitted_at')
+            ->orderByDesc('ua.submitted_at')
+            ->get();
+
+        return response()->json([
+            'success'     => true,
+            'user'        => $user,
+            'courses'     => $courses,
+            'challenges'  => $challenges,
+            'assignments' => $assignments,
+        ]);
     }
 
     /** POST /api/admin/users/{id}/toggle-admin */

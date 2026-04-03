@@ -617,9 +617,8 @@
         </style>
         <script src="site-notification.js"></script>
         <script src="escapeHtml.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="api.js"></script>
-</head>
+        <script src="api.js"></script>
+    </head>
     <body>
         <div class="container">
             <div class="header">
@@ -649,6 +648,12 @@
                 </div>
                 <div class="nav-tab" data-tab="challenges">
                     <i class="fas fa-puzzle-piece"></i> إدارة التحديات
+                </div>
+                <div class="nav-tab" data-tab="users">
+                    <i class="fas fa-users"></i> إدارة المستخدمين
+                </div>
+                <div class="nav-tab" data-tab="stats">
+                    <i class="fas fa-chart-bar"></i> الإحصائيات
                 </div>
             </div>
 
@@ -895,6 +900,175 @@
 
                 <div class="platforms-grid" id="challengesGrid">
                     <!-- Challenges will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="usersTab">
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 1.5rem;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <input
+                        type="text"
+                        id="userSearchInput"
+                        placeholder="بحث باسم المستخدم أو البريد..."
+                        style="
+                            flex: 1;
+                            min-width: 200px;
+                            padding: 0.75rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 1rem;
+                        "
+                        oninput="debounceUserSearch()"
+                    />
+                    <span
+                        id="usersTotalBadge"
+                        style="
+                            background: var(--primary);
+                            color: white;
+                            padding: 0.4rem 1rem;
+                            border-radius: 20px;
+                            font-size: 0.9rem;
+                        "
+                    ></span>
+                </div>
+                <div style="overflow-x: auto">
+                    <table
+                        id="usersTable"
+                        style="
+                            width: 100%;
+                            border-collapse: collapse;
+                            background: white;
+                            border-radius: 10px;
+                            overflow: hidden;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                        "
+                    >
+                        <thead style="background: var(--primary); color: white">
+                            <tr>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    #
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    الاسم
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    اسم المستخدم
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    البريد الإلكتروني
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    الدولة
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    تاريخ الانضمام
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    الدور
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.9rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    الإجراءات
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td
+                                    colspan="8"
+                                    style="
+                                        text-align: center;
+                                        padding: 2rem;
+                                        color: var(--gray);
+                                    "
+                                >
+                                    جاري التحميل...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div
+                    id="usersPagination"
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        gap: 0.5rem;
+                        margin-top: 1.5rem;
+                    "
+                ></div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div class="tab-content" id="statsTab">
+                <div
+                    id="statsGrid"
+                    style="
+                        display: grid;
+                        grid-template-columns: repeat(
+                            auto-fill,
+                            minmax(200px, 1fr)
+                        );
+                        gap: 1.5rem;
+                        margin-bottom: 2rem;
+                    "
+                >
+                    <div
+                        style="
+                            text-align: center;
+                            padding: 2rem;
+                            color: var(--gray);
+                        "
+                    >
+                        جاري التحميل...
+                    </div>
                 </div>
             </div>
         </div>
@@ -1557,8 +1731,251 @@
             </div>
         </div>
 
+        <!-- User Detail Modal -->
+        <div class="modal" id="userModal">
+            <div class="modal-content" style="max-width: 960px">
+                <button class="close-modal" onclick="closeUserModal()">
+                    &times;
+                </button>
+                <h2 id="userModalTitle">تفاصيل المستخدم</h2>
+                <div
+                    id="userModalBody"
+                    style="
+                        margin-top: 1.5rem;
+                        max-height: 65vh;
+                        overflow-y: auto;
+                        padding-right: 0.25rem;
+                    "
+                ></div>
+                <div class="btn-group" style="margin-top: 1.5rem">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeUserModal()"
+                    >
+                        إغلاق
+                    </button>
+                    <button
+                        type="button"
+                        id="userToggleAdminBtn"
+                        class="btn btn-primary"
+                        onclick="toggleAdminFromModal()"
+                    ></button>
+                    <button
+                        type="button"
+                        id="userDeleteBtn"
+                        class="btn"
+                        style="background: var(--danger); color: white"
+                        onclick="deleteUserFromModal()"
+                    >
+                        حذف المستخدم
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submissions Modal -->
+        <div class="modal" id="submissionsModal">
+            <div class="modal-content" style="max-width: 800px">
+                <button class="close-modal" onclick="closeSubmissionsModal()">
+                    &times;
+                </button>
+                <h2 id="submissionsModalTitle">تسليمات التكليف</h2>
+                <div style="overflow-x: auto; margin-top: 1rem">
+                    <table style="width: 100%; border-collapse: collapse">
+                        <thead style="background: var(--primary); color: white">
+                            <tr>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    الطالب
+                                </th>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    البريد
+                                </th>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    الدرجة
+                                </th>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    الحالة
+                                </th>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    تاريخ التسليم
+                                </th>
+                                <th style="padding: 0.8rem; text-align: right">
+                                    تصحيح
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="submissionsTableBody">
+                            <tr>
+                                <td
+                                    colspan="6"
+                                    style="
+                                        text-align: center;
+                                        padding: 2rem;
+                                        color: var(--gray);
+                                    "
+                                >
+                                    جاري التحميل...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade Submission Modal -->
+        <div class="modal" id="gradeModal">
+            <div class="modal-content" style="max-width: 680px">
+                <button class="close-modal" onclick="closeGradeModal()">
+                    &times;
+                </button>
+                <h2>تصحيح التسليم</h2>
+                <p
+                    id="gradeStudentName"
+                    style="margin: 1rem 0; color: var(--gray)"
+                ></p>
+                <div
+                    id="gradeSolutionWrap"
+                    style="display: none; margin-bottom: 1rem"
+                >
+                    <label
+                        style="
+                            font-weight: 600;
+                            display: block;
+                            margin-bottom: 0.4rem;
+                        "
+                        >حل الطالب:</label
+                    >
+                    <pre
+                        id="gradeSolutionCode"
+                        style="
+                            background: #1e293b;
+                            color: #e2e8f0;
+                            padding: 1rem;
+                            border-radius: 8px;
+                            overflow: auto;
+                            max-height: 280px;
+                            font-size: 0.85rem;
+                            white-space: pre-wrap;
+                            word-break: break-all;
+                        "
+                    ></pre>
+                </div>
+                <div class="form-group">
+                    <label for="gradeScore">الدرجة (0 - 100) *</label>
+                    <input
+                        type="number"
+                        id="gradeScore"
+                        min="0"
+                        max="100"
+                        style="
+                            width: 100%;
+                            padding: 0.8rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 1.2rem;
+                        "
+                    />
+                    <small style="color: var(--gray)">70 أو أكثر = ناجح</small>
+                </div>
+                <div class="btn-group">
+                    <button
+                        class="btn btn-secondary"
+                        onclick="closeGradeModal()"
+                    >
+                        إلغاء
+                    </button>
+                    <button class="btn btn-primary" onclick="submitGrade()">
+                        حفظ الدرجة
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Notification -->
         <div class="notification" id="notification"></div>
+
+        <!-- Challenge Grade Modal -->
+        <div class="modal" id="challengeGradeModal">
+            <div class="modal-content" style="max-width: 680px">
+                <button
+                    class="close-modal"
+                    onclick="closeChallengeGradeModal()"
+                >
+                    &times;
+                </button>
+                <h2>تصحيح التحدي</h2>
+                <p
+                    id="challengeGradeTitle"
+                    style="margin: 0.5rem 0; font-weight: 600"
+                ></p>
+                <p
+                    id="challengeGradeStudent"
+                    style="margin-bottom: 0.75rem; color: var(--gray)"
+                ></p>
+                <div
+                    id="challengeGradeCodeWrap"
+                    style="display: none; margin-bottom: 1rem"
+                >
+                    <label
+                        style="
+                            font-weight: 600;
+                            display: block;
+                            margin-bottom: 0.4rem;
+                        "
+                        >حل الطالب:</label
+                    >
+                    <pre
+                        id="challengeGradeCode"
+                        style="
+                            background: #1e293b;
+                            color: #e2e8f0;
+                            padding: 1rem;
+                            border-radius: 8px;
+                            overflow: auto;
+                            max-height: 280px;
+                            font-size: 0.85rem;
+                            white-space: pre-wrap;
+                            word-break: break-all;
+                        "
+                    ></pre>
+                </div>
+                <div class="form-group">
+                    <label for="challengeGradeScore">الدرجة (0 - 100) *</label>
+                    <input
+                        type="number"
+                        id="challengeGradeScore"
+                        min="0"
+                        max="100"
+                        style="
+                            width: 100%;
+                            padding: 0.8rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 1.2rem;
+                        "
+                    />
+                    <small style="color: var(--gray)"
+                        >70 أو أكثر = اجتاز التحدي</small
+                    >
+                </div>
+                <div class="btn-group">
+                    <button
+                        class="btn btn-secondary"
+                        onclick="closeChallengeGradeModal()"
+                    >
+                        إلغاء
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        onclick="submitChallengeGrade()"
+                    >
+                        حفظ الدرجة
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <script>
             let currentFeatures = [];
@@ -1646,6 +2063,10 @@
                         loadAssignments();
                     } else if (tabName === "challenges") {
                         loadChallenges();
+                    } else if (tabName === "users") {
+                        loadUsers();
+                    } else if (tabName === "stats") {
+                        loadStats();
                     } else if (tabName === "upload") {
                         // Handle upload tab if needed
                     }
@@ -1751,7 +2172,7 @@
                         document.getElementById("logo_file").value = "";
                         document.getElementById("logo_preview").innerHTML =
                             platform.logo_url
-                                ? `<img src="${platform.logo_url}" style="height:48px;border-radius:6px;" />`
+                                ? `<img src="${escapeHtml(platform.logo_url)}" style="height:48px;border-radius:6px;" />`
                                 : "";
 
                         currentFeatures = platform.features || [];
@@ -2592,6 +3013,9 @@
                         </button>
                         <button class="action-btn" style="background:${isActive ? "#f59e0b" : "#10b981"};color:#fff;" onclick="toggleAssignment(${assignment.id}, this)">
                             <i class="fas fa-${isActive ? "ban" : "check"}"></i> ${isActive ? "تعطيل" : "تفعيل"}
+                        </button>
+                        <button class="action-btn" style="background:var(--primary);color:white;" onclick="openSubmissionsModal(${assignment.id}, '${escapeHtml(assignment.question.substring(0, 40)).replace(/'/g, "\\'")}')">
+                            <i class="fas fa-paper-plane"></i> التسليمات
                         </button>
                         <button class="action-btn delete-btn" onclick="deleteAssignment(${assignment.id})">
                             <i class="fas fa-trash"></i> حذف
@@ -3666,7 +4090,7 @@
                         const videoURL = URL.createObjectURL(file);
                         previewHTML = `<video muted src="${videoURL}"></video>`;
                     } else {
-                        previewHTML = `<i class="fas fa-file-video fa-icon"></i><p>${file.name.substring(0, 15)}...</p>`;
+                        previewHTML = `<i class="fas fa-file-video fa-icon"></i><p>${escapeHtml(file.name.substring(0, 15))}...</p>`;
                     }
 
                     fileEntry.innerHTML = `
@@ -3676,7 +4100,7 @@
                     <div class="file-info">
                         <div class="form-group">
                             <label>عنوان الدرس (${i + 1})</label>
-                            <input type="text" name="titles[]" value="${title}" required>
+                            <input type="text" name="titles[]" value="${escapeHtml(title)}" required>
                         </div>
                         <div class="form-group">
                             <label for="desc-${i}">وصف الدرس</label>
@@ -3802,6 +4226,755 @@
 
                     xhr.send(formData);
                 });
+            }
+
+            // =============================================
+            // STATS TAB
+            // =============================================
+            async function loadStats() {
+                const grid = document.getElementById("statsGrid");
+                grid.innerHTML =
+                    '<div style="text-align:center;padding:2rem;color:var(--gray);">جاري التحميل...</div>';
+                try {
+                    const res = await fetch("/api/admin/stats", {
+                        credentials: "include",
+                    });
+                    const data = await res.json();
+                    if (!data.success) {
+                        grid.innerHTML =
+                            '<div class="no-data">فشل في تحميل الإحصائيات</div>';
+                        return;
+                    }
+                    const s = data.stats;
+                    const items = [
+                        {
+                            icon: "fa-users",
+                            label: "المستخدمون",
+                            value: s.total_users,
+                            color: "#4361ee",
+                        },
+                        {
+                            icon: "fa-graduation-cap",
+                            label: "الكورسات",
+                            value: s.total_courses,
+                            color: "#3a0ca3",
+                        },
+                        {
+                            icon: "fa-film",
+                            label: "الدروس",
+                            value: s.total_lessons,
+                            color: "#7209b7",
+                        },
+                        {
+                            icon: "fa-puzzle-piece",
+                            label: "التحديات",
+                            value: s.total_challenges,
+                            color: "#f72585",
+                        },
+                        {
+                            icon: "fa-tasks",
+                            label: "التكليفات",
+                            value: s.total_assignments,
+                            color: "#f59e0b",
+                        },
+                        {
+                            icon: "fa-code",
+                            label: "المنصات",
+                            value: s.total_platforms,
+                            color: "#10b981",
+                        },
+                        {
+                            icon: "fa-user-graduate",
+                            label: "التسجيلات",
+                            value: s.enrollments,
+                            color: "#0ea5e9",
+                        },
+                        {
+                            icon: "fa-paper-plane",
+                            label: "التسليمات",
+                            value: s.submissions,
+                            color: "#6366f1",
+                        },
+                    ];
+                    grid.innerHTML = items
+                        .map(
+                            (item) => `
+                        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.08);text-align:center;border-top:4px solid ${item.color};">
+                            <i class="fas ${escapeHtml(item.icon)}" style="font-size:2rem;color:${item.color};margin-bottom:0.75rem;display:block;"></i>
+                            <div style="font-size:2rem;font-weight:700;color:#1e293b;">${Number(item.value).toLocaleString("ar")}</div>
+                            <div style="color:#64748b;margin-top:0.25rem;">${escapeHtml(item.label)}</div>
+                        </div>
+                    `,
+                        )
+                        .join("");
+                } catch (e) {
+                    grid.innerHTML =
+                        '<div class="no-data">حدث خطأ في تحميل الإحصائيات</div>';
+                }
+            }
+
+            // =============================================
+            // USERS TAB
+            // =============================================
+            let usersPage = 0;
+            const usersLimit = 20;
+            let usersTotal = 0;
+            let usersSearchQuery = "";
+            let usersSearchTimer = null;
+            let currentUserId = null;
+            let currentUserIsAdmin = false;
+
+            function debounceUserSearch() {
+                clearTimeout(usersSearchTimer);
+                usersSearchTimer = setTimeout(() => {
+                    usersSearchQuery = document
+                        .getElementById("userSearchInput")
+                        .value.trim();
+                    usersPage = 0;
+                    loadUsers();
+                }, 350);
+            }
+
+            async function loadUsers() {
+                const tbody = document.getElementById("usersTableBody");
+                tbody.innerHTML =
+                    '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">جاري التحميل...</td></tr>';
+                try {
+                    const offset = usersPage * usersLimit;
+                    let url = `/api/admin/users?limit=${usersLimit}&offset=${offset}`;
+                    if (usersSearchQuery)
+                        url += `&search=${encodeURIComponent(usersSearchQuery)}`;
+                    const res = await fetch(url, { credentials: "include" });
+                    const data = await res.json();
+                    if (!data.success) {
+                        tbody.innerHTML =
+                            '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--danger);">فشل في تحميل المستخدمين</td></tr>';
+                        return;
+                    }
+                    usersTotal = data.total || 0;
+                    document.getElementById("usersTotalBadge").textContent =
+                        `الإجمالي: ${usersTotal}`;
+                    renderUsersTable(data.users);
+                    renderUsersPagination();
+                } catch (e) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--danger);">حدث خطأ في الاتصال</td></tr>';
+                }
+            }
+
+            function renderUsersTable(users) {
+                const tbody = document.getElementById("usersTableBody");
+                if (!users || users.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">لا يوجد مستخدمون</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = users
+                    .map((u, idx) => {
+                        const isAdmin = extractRoleNames(u.roles).includes(
+                            "admin",
+                        );
+                        const rowNum = usersPage * usersLimit + idx + 1;
+                        const joinDate = u.joinDate
+                            ? new Date(u.joinDate).toLocaleDateString("ar-EG")
+                            : "-";
+                        return `<tr style="border-bottom:1px solid #f1f5f9;${idx % 2 === 0 ? "" : "background:#f8fafc;"}">
+                        <td style="padding:0.75rem 1rem;">${rowNum}</td>
+                        <td style="padding:0.75rem 1rem;">${escapeHtml(u.firstName + " " + u.lastName)}</td>
+                        <td style="padding:0.75rem 1rem;font-family:monospace;">${escapeHtml(u.username)}</td>
+                        <td style="padding:0.75rem 1rem;">${escapeHtml(u.email)}</td>
+                        <td style="padding:0.75rem 1rem;">${escapeHtml(u.country || "-")}</td>
+                        <td style="padding:0.75rem 1rem;">${escapeHtml(joinDate)}</td>
+                        <td style="padding:0.75rem 1rem;">
+                            <span style="padding:0.25rem 0.6rem;border-radius:12px;font-size:0.8rem;background:${isAdmin ? "#4361ee" : "#e2e8f0"};color:${isAdmin ? "white" : "#64748b"};">
+                                ${isAdmin ? "مدير" : "طالب"}
+                            </span>
+                        </td>
+                        <td style="padding:0.75rem 1rem;">
+                            <button class="action-btn edit-btn" style="font-size:0.8rem;padding:0.4rem 0.7rem;" onclick="openUserModal(${u.id})">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                        </td>
+                    </tr>`;
+                    })
+                    .join("");
+            }
+
+            function renderUsersPagination() {
+                const container = document.getElementById("usersPagination");
+                const totalPages = Math.ceil(usersTotal / usersLimit);
+                if (totalPages <= 1) {
+                    container.innerHTML = "";
+                    return;
+                }
+                let html = "";
+                const btnStyle = (active) =>
+                    `style="padding:0.5rem 1rem;border:none;border-radius:6px;cursor:pointer;background:${active ? "var(--primary)" : "#e2e8f0"};color:${active ? "white" : "#1e293b"};"`;
+                if (usersPage > 0)
+                    html += `<button ${btnStyle(false)} onclick="usersPage--;loadUsers();">السابق</button>`;
+                for (
+                    let i = Math.max(0, usersPage - 2);
+                    i <= Math.min(totalPages - 1, usersPage + 2);
+                    i++
+                ) {
+                    html += `<button ${btnStyle(i === usersPage)} onclick="usersPage=${i};loadUsers();">${i + 1}</button>`;
+                }
+                if (usersPage < totalPages - 1)
+                    html += `<button ${btnStyle(false)} onclick="usersPage++;loadUsers();">التالي</button>`;
+                container.innerHTML = html;
+            }
+
+            // Helper: extract role names regardless of whether roles are objects or strings
+            function extractRoleNames(roles) {
+                if (!roles || !Array.isArray(roles)) return [];
+                return roles.map((r) =>
+                    typeof r === "object" && r !== null
+                        ? r.name || ""
+                        : String(r),
+                );
+            }
+
+            async function openUserModal(id) {
+                currentUserId = id;
+                document.getElementById("userModalBody").innerHTML =
+                    '<p style="text-align:center;color:var(--gray);">جاري التحميل...</p>';
+                document.getElementById("userModal").style.display = "block";
+                try {
+                    const res = await fetch(`/api/admin/users/${id}`, {
+                        credentials: "include",
+                    });
+                    const data = await res.json();
+                    if (!data.success) {
+                        document.getElementById("userModalBody").innerHTML =
+                            '<p style="color:var(--danger);">فشل في تحميل البيانات</p>';
+                        return;
+                    }
+                    const u = data.user;
+                    const roleNames = extractRoleNames(u.roles);
+                    currentUserIsAdmin = roleNames.includes("admin");
+
+                    document.getElementById("userModalTitle").textContent =
+                        `تفاصيل: ${u.firstName} ${u.lastName}`;
+                    document.getElementById("userToggleAdminBtn").textContent =
+                        currentUserIsAdmin
+                            ? "إزالة صلاحية المدير"
+                            : "منح صلاحية المدير";
+                    document.getElementById(
+                        "userToggleAdminBtn",
+                    ).style.background = currentUserIsAdmin
+                        ? "var(--warning)"
+                        : "var(--success)";
+
+                    // ── Avatar
+                    const avatarHtml = u.avatar_path
+                        ? `<img src="${escapeHtml(u.avatar_path.replace(/["']/g, ""))}" alt="avatar"
+                               style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--primary);">`
+                        : `<div style="width:80px;height:80px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;">
+                               ${escapeHtml((u.firstName || "?")[0].toUpperCase())}
+                           </div>`;
+
+                    // ── Info fields
+                    const roleLabel = roleNames.length
+                        ? roleNames
+                              .map((r) => (r === "admin" ? "مدير" : "طالب"))
+                              .join(", ")
+                        : "-";
+                    const fields = [
+                        ["الاسم الكامل", `${u.firstName} ${u.lastName}`],
+                        ["اسم المستخدم", u.username],
+                        ["البريد الإلكتروني", u.email],
+                        ["الدولة", u.country || "-"],
+                        ["الهاتف", u.phone || "-"],
+                        ["الخبرة", u.experience || "-"],
+                        ["الهدف", u.goal || "-"],
+                        ["الاهتمام", u.interest || "-"],
+                        [
+                            "تاريخ الانضمام",
+                            u.joinDate
+                                ? new Date(u.joinDate).toLocaleDateString(
+                                      "ar-EG",
+                                  )
+                                : "-",
+                        ],
+                        ["الدور", roleLabel],
+                    ];
+
+                    // ── Courses section
+                    const courses = data.courses || [];
+                    const coursesHtml =
+                        courses.length === 0
+                            ? '<p style="color:var(--gray);font-size:0.9rem;">لم يسجّل في أي كورس بعد.</p>'
+                            : courses
+                                  .map((c) => {
+                                      const pct =
+                                          Number(c.percentage_completed) || 0;
+                                      const barColor =
+                                          pct >= 100
+                                              ? "var(--success)"
+                                              : pct > 0
+                                                ? "var(--primary)"
+                                                : "#e2e8f0";
+                                      const lastDate = c.last_accessed
+                                          ? new Date(
+                                                c.last_accessed,
+                                            ).toLocaleDateString("ar-EG")
+                                          : "";
+                                      return `<div style="margin-bottom:0.75rem;">
+                                <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-bottom:0.3rem;">
+                                    <span>${escapeHtml(c.title)}</span>
+                                    <span style="color:var(--gray);font-size:0.8rem;">${pct}% ${lastDate ? "· " + escapeHtml(lastDate) : ""}</span>
+                                </div>
+                                <div style="background:#e2e8f0;border-radius:4px;height:8px;">
+                                    <div style="width:${pct}%;background:${barColor};border-radius:4px;height:8px;"></div>
+                                </div>
+                            </div>`;
+                                  })
+                                  .join("");
+
+                    // ── Challenges section
+                    const challenges = data.challenges || [];
+                    const challengesHtml =
+                        challenges.length === 0
+                            ? '<p style="color:var(--gray);font-size:0.9rem;">لم يحاول أي تحدي بعد.</p>'
+                            : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                            ${challenges
+                                .map((ch) => {
+                                    const done =
+                                        ch.completed == 1 ||
+                                        ch.completed === true;
+                                    const icon = done ? "✅" : "❌";
+                                    _gradeCodes[ch.id] =
+                                        ch.submitted_code || "";
+                                    _challengeTitles[ch.id] = ch.title;
+                                    return `<div style="background:#f8fafc;border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;">
+                                    <div>${icon} ${escapeHtml(ch.title)}</div>
+                                    <div style="color:var(--gray);font-size:0.78rem;margin-top:0.2rem;">أفضل درجة: ${ch.best_score} · محاولات: ${ch.attempts}</div>
+                                    <button onclick="openChallengeGradeModal(${ch.id}, ${currentUserId}, ${ch.best_score || 0})" style="margin-top:0.4rem;padding:0.25rem 0.6rem;font-size:0.75rem;border:none;border-radius:6px;background:var(--primary);color:white;cursor:pointer;"><i class='fas fa-pen'></i> تصحيح</button>
+                                </div>`;
+                                })
+                                .join("")}
+                        </div>`;
+
+                    // ── Assignments section
+                    const assignments = data.assignments || [];
+                    const assignmentsHtml =
+                        assignments.length === 0
+                            ? '<p style="color:var(--gray);font-size:0.9rem;">لم يسلّم أي تكليف بعد.</p>'
+                            : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                            ${assignments
+                                .map((a) => {
+                                    const done = a.is_completed == 1;
+                                    const statusColors = {
+                                        submitted: "#f59e0b",
+                                        graded: "#10b981",
+                                    };
+                                    const sc =
+                                        statusColors[a.status] || "#64748b";
+                                    const scoreText =
+                                        a.score !== null &&
+                                        a.score !== undefined
+                                            ? `${a.score}/100`
+                                            : "لم يصحَّح";
+                                    const submissionId =
+                                        a.submission_id || null;
+                                    if (submissionId) {
+                                        _gradeSolutions[submissionId] =
+                                            a.solution || "";
+                                        _gradeLabels[submissionId] =
+                                            a.question || "";
+                                    }
+                                    const gradeBtn = submissionId
+                                        ? `<button onclick="openGradeModal(${submissionId}, '', ${a.score || 0}, () => openUserModal(${currentUserId}))" style="margin-top:0.4rem;padding:0.25rem 0.6rem;font-size:0.75rem;border:none;border-radius:6px;background:var(--primary);color:white;cursor:pointer;"><i class='fas fa-pen'></i> تصحيح</button>`
+                                        : "";
+                                    return `<div style="background:#f8fafc;border-radius:6px;padding:0.6rem 0.8rem;font-size:0.85rem;">
+                                    <div>${done ? "✅" : "⏳"} ${escapeHtml(a.question + "...")}</div>
+                                    <div style="color:${sc};font-size:0.78rem;margin-top:0.2rem;">${scoreText} · <span style="background:${sc};color:white;padding:0.1rem 0.4rem;border-radius:8px;font-size:0.75rem;">${escapeHtml(a.status || "-")}</span></div>
+                                    ${gradeBtn}
+                                </div>`;
+                                })
+                                .join("")}
+                        </div>`;
+
+                    // ── Assemble modal body
+                    document.getElementById("userModalBody").innerHTML = `
+                        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:2px solid #f1f5f9;">
+                            ${avatarHtml}
+                            <div>
+                                <div style="font-size:1.3rem;font-weight:700;">${escapeHtml(u.firstName + " " + u.lastName)}</div>
+                                <div style="color:var(--gray);font-size:0.9rem;">@${escapeHtml(u.username)}</div>
+                                <span style="display:inline-block;margin-top:0.4rem;padding:0.2rem 0.7rem;border-radius:12px;font-size:0.8rem;background:${currentUserIsAdmin ? "var(--primary)" : "#e2e8f0"};color:${currentUserIsAdmin ? "white" : "#64748b"};">  ${escapeHtml(roleLabel)}</span>
+                            </div>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
+                            ${fields
+                                .slice(2)
+                                .map(
+                                    ([
+                                        k,
+                                        v,
+                                    ]) => `<div style="background:#f8fafc;border-radius:8px;padding:0.65rem 1rem;">
+                                <div style="font-size:0.75rem;color:var(--gray);">${escapeHtml(k)}</div>
+                                <div style="font-weight:600;margin-top:0.2rem;font-size:0.9rem;">${escapeHtml(String(v))}</div>
+                            </div>`,
+                                )
+                                .join("")}
+                        </div>
+
+                        <details open style="margin-bottom:1rem;">
+                            <summary style="font-weight:700;cursor:pointer;padding:0.5rem 0;border-bottom:2px solid #f1f5f9;margin-bottom:0.75rem;">📚 الكورسات المسجَّلة (${courses.length})</summary>
+                            ${coursesHtml}
+                        </details>
+
+                        <details style="margin-bottom:1rem;">
+                            <summary style="font-weight:700;cursor:pointer;padding:0.5rem 0;border-bottom:2px solid #f1f5f9;margin-bottom:0.75rem;">⚡ التحديات (${challenges.length})</summary>
+                            ${challengesHtml}
+                        </details>
+
+                        <details style="margin-bottom:0.5rem;">
+                            <summary style="font-weight:700;cursor:pointer;padding:0.5rem 0;border-bottom:2px solid #f1f5f9;margin-bottom:0.75rem;">📝 التكليفات (${assignments.length})</summary>
+                            ${assignmentsHtml}
+                        </details>`;
+                } catch (e) {
+                    document.getElementById("userModalBody").innerHTML =
+                        '<p style="color:var(--danger);">حدث خطأ في الاتصال</p>';
+                }
+            }
+
+            function closeUserModal() {
+                document.getElementById("userModal").style.display = "none";
+                currentUserId = null;
+            }
+
+            async function toggleAdminFromModal() {
+                if (!currentUserId) return;
+                if (
+                    !confirm(
+                        currentUserIsAdmin
+                            ? "هل تريد إزالة صلاحيات المدير من هذا المستخدم؟"
+                            : "هل تريد منح هذا المستخدم صلاحيات المدير؟",
+                    )
+                )
+                    return;
+                try {
+                    const res = await fetch(
+                        `/api/admin/users/${currentUserId}/toggle-admin`,
+                        { method: "POST", credentials: "include" },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification(
+                            data.message || "تم تغيير الصلاحية",
+                            "success",
+                        );
+                        closeUserModal();
+                        loadUsers();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تغيير الصلاحية",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            async function deleteUserFromModal() {
+                if (!currentUserId) return;
+                if (
+                    !confirm(
+                        "تحذير: سيتم حذف هذا المستخدم وجميع بياناته نهائياً. هل أنت متأكد؟",
+                    )
+                )
+                    return;
+                try {
+                    const res = await fetch(
+                        `/api/admin/users/${currentUserId}`,
+                        { method: "DELETE", credentials: "include" },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification("تم حذف المستخدم بنجاح", "success");
+                        closeUserModal();
+                        loadUsers();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف المستخدم",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // =============================================
+            // ASSIGNMENT SUBMISSIONS & GRADING
+            // =============================================
+            let currentSubmissionId = null;
+            let currentSubmissionsAssignmentId = null;
+            let gradeCallback = null;
+            // Lookup maps: keyed by submission_id / challengeId — avoids embedding raw code in onclick attrs
+            const _gradeSolutions = {}; // assignment submission_id -> solution string
+            const _gradeCodes = {}; // challenge_id -> code string
+            const _challengeTitles = {}; // challenge_id -> title string (safe textContent lookup)
+            const _gradeLabels = {}; // submission_id -> display label for openGradeModal
+
+            async function openSubmissionsModal(assignmentId, assignmentTitle) {
+                currentSubmissionsAssignmentId = assignmentId;
+                document.getElementById("submissionsModalTitle").textContent =
+                    `تسليمات: ${assignmentTitle}`;
+                document.getElementById("submissionsTableBody").innerHTML =
+                    '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--gray);">جاري التحميل...</td></tr>';
+                document.getElementById("submissionsModal").style.display =
+                    "block";
+                try {
+                    const res = await fetch(
+                        `/api/admin/assignments/${assignmentId}/submissions`,
+                        { credentials: "include" },
+                    );
+                    const data = await res.json();
+                    if (!data.success) {
+                        document.getElementById(
+                            "submissionsTableBody",
+                        ).innerHTML =
+                            '<tr><td colspan="6" style="text-align:center;color:var(--danger);">فشل في تحميل التسليمات</td></tr>';
+                        return;
+                    }
+                    renderSubmissionsTable(data.submissions);
+                } catch (e) {
+                    document.getElementById("submissionsTableBody").innerHTML =
+                        '<tr><td colspan="6" style="text-align:center;color:var(--danger);">حدث خطأ في الاتصال</td></tr>';
+                }
+            }
+
+            function renderSubmissionsTable(submissions) {
+                const tbody = document.getElementById("submissionsTableBody");
+                if (!submissions || submissions.length === 0) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--gray);">لا توجد تسليمات بعد</td></tr>';
+                    return;
+                }
+                const statusMap = {
+                    pending: "بانتظار التصحيح",
+                    graded: "تم التصحيح",
+                    completed: "مكتمل",
+                };
+                tbody.innerHTML = submissions
+                    .map((s, i) => {
+                        const statusLabel = escapeHtml(
+                            statusMap[s.status] || s.status || "-",
+                        );
+                        const statusColor =
+                            s.status === "graded" || s.status === "completed"
+                                ? "var(--success)"
+                                : "var(--warning)";
+                        const submittedDate = s.submitted_at
+                            ? new Date(s.submitted_at).toLocaleDateString(
+                                  "ar-EG",
+                              )
+                            : "-";
+                        const scoreDisplay =
+                            s.score !== null && s.score !== undefined
+                                ? s.score
+                                : "-";
+                        const fullName = escapeHtml(
+                            `${s.firstName || ""} ${s.lastName || ""}`.trim() ||
+                                s.username,
+                        );
+                        _gradeSolutions[s.id] = s.solution || "";
+                        _gradeLabels[s.id] =
+                            `${s.firstName || ""} ${s.lastName || ""}`.trim() ||
+                            s.username ||
+                            "";
+                        return `<tr style="border-bottom:1px solid #f1f5f9;${i % 2 === 0 ? "" : "background:#f8fafc;"}">                        <td style="padding:0.75rem 1rem;">${fullName}</td>
+                        <td style="padding:0.75rem 1rem;font-size:0.85rem;">${escapeHtml(s.email || "-")}</td>
+                        <td style="padding:0.75rem 1rem;font-weight:600;">${escapeHtml(String(scoreDisplay))}</td>
+                        <td style="padding:0.75rem 1rem;"><span style="padding:0.2rem 0.6rem;border-radius:12px;font-size:0.8rem;background:${statusColor};color:white;">${statusLabel}</span></td>
+                        <td style="padding:0.75rem 1rem;font-size:0.85rem;">${escapeHtml(submittedDate)}</td>
+                        <td style="padding:0.75rem 1rem;">
+                            <button class="action-btn edit-btn" style="font-size:0.8rem;padding:0.4rem 0.7rem;" onclick="openGradeModal(${s.id}, '', ${s.score !== null && s.score !== undefined ? s.score : 0})">
+                                <i class="fas fa-pen"></i> تصحيح
+                            </button>
+                        </td>
+                    </tr>`;
+                    })
+                    .join("");
+            }
+
+            function closeSubmissionsModal() {
+                document.getElementById("submissionsModal").style.display =
+                    "none";
+                currentSubmissionsAssignmentId = null;
+            }
+
+            function openGradeModal(
+                submissionId,
+                studentName,
+                currentScore,
+                callback,
+            ) {
+                currentSubmissionId = submissionId;
+                gradeCallback = callback || null;
+                document.getElementById("gradeStudentName").textContent =
+                    `الطالب: ${studentName || _gradeLabels[submissionId] || ""}`;
+                document.getElementById("gradeScore").value = currentScore;
+                // Show solution code if available
+                const solution = _gradeSolutions[submissionId] || "";
+                const wrap = document.getElementById("gradeSolutionWrap");
+                if (solution) {
+                    document.getElementById("gradeSolutionCode").textContent =
+                        solution;
+                    wrap.style.display = "block";
+                } else {
+                    wrap.style.display = "none";
+                }
+                document.getElementById("gradeModal").style.display = "block";
+            }
+
+            function closeGradeModal() {
+                document.getElementById("gradeModal").style.display = "none";
+                currentSubmissionId = null;
+                gradeCallback = null;
+            }
+
+            async function submitGrade() {
+                if (!currentSubmissionId) return;
+                const score = parseInt(
+                    document.getElementById("gradeScore").value,
+                    10,
+                );
+                if (isNaN(score) || score < 0 || score > 100) {
+                    showNotification("الدرجة يجب أن تكون بين 0 و 100", "error");
+                    return;
+                }
+                try {
+                    const res = await fetch(
+                        `/api/admin/assignments/${currentSubmissionId}/grade`,
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-XSRF-TOKEN": getCsrfToken(),
+                            },
+                            body: JSON.stringify({ score }),
+                        },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification("تم حفظ الدرجة بنجاح", "success");
+                        closeGradeModal();
+                        if (gradeCallback) {
+                            gradeCallback();
+                        } else if (currentSubmissionsAssignmentId) {
+                            const titleEl = document.getElementById(
+                                "submissionsModalTitle",
+                            );
+                            const title = titleEl.textContent.replace(
+                                "تسليمات: ",
+                                "",
+                            );
+                            openSubmissionsModal(
+                                currentSubmissionsAssignmentId,
+                                title,
+                            );
+                        }
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حفظ الدرجة",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            // =============================================
+            // CHALLENGE MANUAL GRADING (from user modal)
+            // =============================================
+            let currentChallengeId = null;
+            let currentChallengeUserId = null;
+
+            function openChallengeGradeModal(
+                challengeId,
+                userId,
+                currentScore,
+            ) {
+                currentChallengeId = challengeId;
+                currentChallengeUserId = userId;
+                document.getElementById("challengeGradeTitle").textContent =
+                    _challengeTitles[challengeId] || "";
+                document.getElementById("challengeGradeStudent").textContent =
+                    "";
+                document.getElementById("challengeGradeScore").value =
+                    currentScore;
+                // Show submitted code if available
+                const code = _gradeCodes[challengeId] || "";
+                const wrap = document.getElementById("challengeGradeCodeWrap");
+                if (code) {
+                    document.getElementById("challengeGradeCode").textContent =
+                        code;
+                    wrap.style.display = "block";
+                } else {
+                    wrap.style.display = "none";
+                }
+                document.getElementById("challengeGradeModal").style.display =
+                    "block";
+            }
+
+            function closeChallengeGradeModal() {
+                document.getElementById("challengeGradeModal").style.display =
+                    "none";
+                currentChallengeId = null;
+                currentChallengeUserId = null;
+            }
+
+            async function submitChallengeGrade() {
+                if (!currentChallengeId || !currentChallengeUserId) return;
+                const score = parseInt(
+                    document.getElementById("challengeGradeScore").value,
+                    10,
+                );
+                if (isNaN(score) || score < 0 || score > 100) {
+                    showNotification("الدرجة يجب أن تكون بين 0 و 100", "error");
+                    return;
+                }
+                try {
+                    const res = await fetch(
+                        `/api/admin/challenges/${currentChallengeId}/grade-user/${currentChallengeUserId}`,
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-XSRF-TOKEN": getCsrfToken(),
+                            },
+                            body: JSON.stringify({ score }),
+                        },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification("تم تصحيح التحدي بنجاح", "success");
+                        const uid = currentChallengeUserId;
+                        closeChallengeGradeModal();
+                        openUserModal(uid);
+                    } else {
+                        showNotification(
+                            data.message || "فشل في التصحيح",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            function getCsrfToken() {
+                const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+                return match ? decodeURIComponent(match[1]) : "";
             }
         </script>
     </body>

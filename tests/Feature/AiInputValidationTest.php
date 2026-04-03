@@ -40,7 +40,7 @@ class AiInputValidationTest extends TestCase
     {
         $response = $this->actingAsUser()->postJson('/api/ai/helper', [
             'message' => 'review this',
-            'code'    => str_repeat('x', 8001),
+            'code'    => str_repeat('x', 100001),
         ]);
         $response->assertStatus(413)
                  ->assertJson(['success' => false]);

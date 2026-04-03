@@ -77,4 +77,41 @@ class AdminChallengeController extends Controller
 
         return response()->json(['success' => true, 'message' => 'تم حذف التحدي بنجاح']);
     }
+
+    /** POST /api/admin/challenges/{challengeId}/grade-user/{userId} */
+    public function gradeUser(Request $request, $challengeId, $userId)
+    {
+        $score = (int) $request->input('score', 0);
+        if ($score < 0 || $score > 100) {
+            return response()->json(['success' => false, 'message' => 'الدرجة يجب أن تكون بين 0 و 100.'], 422);
+        }
+
+        if (! DB::table('challenges')->where('id', $challengeId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'التحدي غير موجود.'], 404);
+        }
+        if (! DB::table('users')->where('id', $userId)->whereNull('deleted_at')->exists()) {
+            return response()->json(['success' => false, 'message' => 'المستخدم غير موجود.'], 404);
+        }
+
+        $completed = $score >= 70 ? 1 : 0;
+
+        // updateOrInsert is atomic — avoids TOCTOU race if two admins grade
+        // the same user concurrently (same pattern as F6 in AiController).
+        DB::table('user_challenges')->updateOrInsert(
+            ['user_id' => $userId, 'challenge_id' => $challengeId],
+            [
+                'best_score'     => $score,
+                'completed'      => $completed,
+                'last_attempted' => now(),
+                'attempts'       => DB::raw('COALESCE(attempts, 0) + 1'),
+            ]
+        );
+
+        AuditLogger::log($request, 'grade_challenge', 'Challenge', (int) $challengeId, [
+            'user_id' => (int) $userId,
+            'score'   => $score,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'تم تصحيح التحدي بنجاح']);
+    }
 }

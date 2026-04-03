@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('assignments') || Schema::hasColumn('assignments', 'is_active')) {
+            return;
+        }
         Schema::table('assignments', function (Blueprint $table) {
             $table->boolean('is_active')->default(true)->after('assignment_order');
         });

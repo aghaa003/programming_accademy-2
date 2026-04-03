@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminCourseController;
 use App\Http\Controllers\Admin\AdminPlatformController;
 use App\Http\Controllers\Admin\AdminUploadController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AuthController;
@@ -123,6 +124,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('throttle:10,1')->post('/ai/helper', [AiController::class, 'general']);           // general chat: lightweight, 10/min
     Route::middleware('throttle:5,1')->post('/ai/helper-challenges', [AiController::class, 'challenges']); // verify/solution: up to 60s, 5/min
     Route::middleware('throttle:5,1')->post('/ai/helper-projects', [AiController::class, 'projects']);     // fix/code-check: similarly heavy, 5/min
+
+    // AI persistent conversations
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::get('/ai/conversations', [AiChatController::class, 'index']);
+        Route::post('/ai/conversations', [AiChatController::class, 'store']);
+        Route::get('/ai/conversations/{id}', [AiChatController::class, 'show']);
+        Route::delete('/ai/conversations/{id}', [AiChatController::class, 'destroy']);
+        Route::patch('/ai/conversations/{id}/title', [AiChatController::class, 'rename']);
+    });
+    Route::middleware('throttle:10,1')->post('/ai/conversations/{id}/messages', [AiChatController::class, 'sendMessage']);
 });
 
 // ============================================================
@@ -167,6 +178,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/challenges/{id}', [AdminChallengeController::class, 'show']);
     Route::put('/challenges/{id}', [AdminChallengeController::class, 'update']);
     Route::delete('/challenges/{id}', [AdminChallengeController::class, 'destroy']);
+    Route::post('/challenges/{challengeId}/grade-user/{userId}', [AdminChallengeController::class, 'gradeUser']);
 
     // Assignments
     Route::get('/assignments', [AdminAssignmentController::class, 'index']);

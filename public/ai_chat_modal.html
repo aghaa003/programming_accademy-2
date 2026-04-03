@@ -1,94 +1,289 @@
-﻿<!-- AI Chat Modal Component -->
+﻿<!-- AI Chat Modal Component — persistent conversations, split-panel layout -->
 <div id="aiChatModal" class="ai-chat-modal">
-    <div class="ai-chat-container">
-        <div class="ai-chat-header">
-            <div class="ai-chat-title">
-                <i class="fas fa-robot"></i>
-                <span>مساعد الذكاء الاصطناعي</span>
+    <div class="ai-modal-inner">
+        <!-- Sidebar: conversation list -->
+        <div class="ai-modal-sidebar" id="aiModalSidebar">
+            <div class="ai-sidebar-header">
+                <button
+                    id="aiNewChatBtn"
+                    class="ai-new-chat-btn"
+                    title="محادثة جديدة"
+                >
+                    <i class="fas fa-plus"></i> جديد
+                </button>
             </div>
-            <button id="closeAiChat" class="close-ai-chat">
-                <i class="fas fa-times"></i>
-            </button>
+            <div class="ai-conv-list" id="aiConvList">
+                <div
+                    class="ai-conv-empty"
+                    id="aiConvEmpty"
+                    style="display: none"
+                >
+                    <i class="fas fa-comment-slash"></i><br />لا توجد محادثات
+                </div>
+            </div>
         </div>
 
-        <div class="ai-chat-messages" id="aiChatMessages">
-            <div class="ai-message">
-                <div class="message-avatar">
+        <!-- Main chat panel -->
+        <div class="ai-modal-main">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <button
+                        id="aiSidebarToggle"
+                        class="ai-sidebar-toggle"
+                        title="المحادثات"
+                    >
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <i class="fas fa-robot"></i>
+                    <span id="aiConvTitle">مساعد الذكاء الاصطناعي</span>
                 </div>
-                <div class="message-content">
-                    <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
-                    <p>
-                        كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة
-                        والدروس والتحديات وأي شيء آخر!
-                    </p>
+                <button id="closeAiChat" class="close-ai-chat" title="إغلاق">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-welcome-msg">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+                        <p>
+                            كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة
+                            والدروس والتحديات وأي شيء آخر!
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="ai-chat-input-area">
-            <textarea
-                id="aiChatInput"
-                class="ai-chat-input"
-                placeholder="اكتب رسالتك هنا..."
-                rows="1"
-            ></textarea>
-            <button id="sendAiMessage" class="send-ai-btn">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            <div class="ai-chat-input-area">
+                <input
+                    type="file"
+                    id="aiFileInput"
+                    accept=".txt,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.cs,.php,.html,.css,.json,.md,.xml,.sql,.sh,.rb,.go,.rs,.swift,.kt,.vue,.yaml,.yml,.jpg,.jpeg,.png,.gif,.webp"
+                    multiple
+                    style="display: none"
+                />
+                <div id="aiFilesContainer" class="ai-files-container"></div>
+                <div style="display: flex; gap: 0.5rem; align-items: flex-end">
+                    <button
+                        id="aiAttachBtn"
+                        class="ai-attach-btn"
+                        title="إرفاق ملفات"
+                    >
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <textarea
+                        id="aiChatInput"
+                        class="ai-chat-input"
+                        placeholder="اكتب رسالتك..."
+                        rows="1"
+                    ></textarea>
+                    <button
+                        id="sendAiMessage"
+                        class="send-ai-btn"
+                        title="إرسال"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    /* AI Chat Modal Styles */
+    /* Modal shell */
     .ai-chat-modal {
         position: fixed;
         bottom: 20px;
-        left: 20px;
-        width: 400px;
-        max-height: 600px;
+        right: 20px;
+        left: auto;
+        width: min(780px, calc(100vw - 40px));
+        height: min(620px, calc(100vh - 60px));
         background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(67, 97, 238, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 12px 50px rgba(67, 97, 238, 0.35);
         display: none;
         flex-direction: column;
         z-index: 10000;
         opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.3s ease;
+        transform: scale(0.85) translateY(20px);
+        transition:
+            opacity 0.25s ease,
+            transform 0.25s ease;
+        overflow: hidden;
     }
-
     .ai-chat-modal.active {
         display: flex;
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
     }
-
-    .ai-chat-container {
+    .ai-modal-inner {
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+        min-height: 0;
+    }
+    /* Sidebar */
+    .ai-modal-sidebar {
+        width: 200px;
+        min-width: 200px;
+        background: #111827;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        overflow: hidden;
+        transition:
+            width 0.2s ease,
+            min-width 0.2s ease;
+        border-radius: 16px 0 0 16px;
     }
-
+    .ai-modal-sidebar.collapsed {
+        width: 0;
+        min-width: 0;
+    }
+    .ai-sidebar-header {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        flex-shrink: 0;
+    }
+    .ai-new-chat-btn {
+        width: 100%;
+        background: #4361ee;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.82rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        justify-content: center;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+    .ai-new-chat-btn:hover {
+        background: #3451d1;
+    }
+    .ai-conv-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.4rem;
+    }
+    .ai-conv-list::-webkit-scrollbar {
+        width: 3px;
+    }
+    .ai-conv-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+    }
+    .ai-conv-empty {
+        text-align: center;
+        color: #4b5563;
+        font-size: 0.78rem;
+        padding: 1.5rem 0.5rem;
+        line-height: 1.8;
+    }
+    .ai-conv-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.6rem;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: background 0.15s;
+        gap: 0.3rem;
+    }
+    .ai-conv-item:hover {
+        background: #1f2937;
+    }
+    .ai-conv-item.active {
+        background: rgba(67, 97, 238, 0.3);
+    }
+    .ai-conv-item-text {
+        flex: 1;
+        font-size: 0.8rem;
+        color: #d1d5db;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+    }
+    .ai-conv-item.active .ai-conv-item-text {
+        color: #e0e7ff;
+    }
+    .ai-conv-item-del {
+        background: none;
+        border: none;
+        color: #4b5563;
+        cursor: pointer;
+        padding: 0.1rem 0.25rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        flex-shrink: 0;
+        display: none;
+        transition: color 0.15s;
+    }
+    .ai-conv-item:hover .ai-conv-item-del,
+    .ai-conv-item.active .ai-conv-item-del {
+        display: block;
+    }
+    .ai-conv-item-del:hover {
+        color: #ef4444;
+    }
+    /* Main panel */
+    .ai-modal-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+    }
+    /* Header */
     .ai-chat-header {
         background: linear-gradient(135deg, #4361ee, #3a0ca3);
         color: white;
-        padding: 1rem;
-        border-radius: 15px 15px 0 0;
+        padding: 0.85rem 1rem;
+        border-radius: 0 16px 0 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-shrink: 0;
     }
-
     .ai-chat-title {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.95rem;
+        min-width: 0;
+        flex: 1;
     }
-
+    .ai-chat-title span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .ai-sidebar-toggle {
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 6px;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+    .ai-sidebar-toggle:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
     .close-ai-chat {
         background: rgba(255, 255, 255, 0.2);
         border: none;
@@ -100,46 +295,54 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
-        font-size: 1.2rem;
+        transition: background 0.2s;
+        font-size: 1rem;
+        flex-shrink: 0;
     }
-
     .close-ai-chat:hover {
         background: rgba(255, 255, 255, 0.3);
     }
-
+    /* Messages */
     .ai-chat-messages {
         flex: 1;
         overflow-y: auto;
-        padding: 1rem;
+        padding: 0.9rem 1rem;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.85rem;
         background: #f8fafc;
+        min-height: 0;
     }
-
+    .ai-chat-messages::-webkit-scrollbar {
+        width: 4px;
+    }
+    .ai-chat-messages::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+    }
     .ai-message,
-    .user-message {
+    .user-message,
+    .ai-welcome-msg {
         display: flex;
         gap: 0.5rem;
-        animation: messageSlideIn 0.3s ease;
+        animation: aiMsgIn 0.25s ease;
     }
-
-    @keyframes messageSlideIn {
+    @keyframes aiMsgIn {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-
     .user-message {
         justify-content: flex-end;
     }
-
+    .ai-welcome-msg {
+        opacity: 0.85;
+    }
     .message-avatar {
         width: 30px;
         height: 30px;
@@ -149,292 +352,1003 @@
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         flex-shrink: 0;
     }
-
     .user-message .message-avatar {
         background: linear-gradient(135deg, #4cc9f0, #4361ee);
         order: 2;
     }
-
     .message-content {
-        max-width: 280px;
+        max-width: 75%;
         background: white;
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 0.9rem;
         border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+        font-size: 0.88rem;
+        line-height: 1.5;
+        word-break: break-word;
     }
-
     .user-message .message-content {
         background: linear-gradient(135deg, #4361ee, #3a0ca3);
         color: white;
     }
-
     .message-content p {
-        margin: 0.25rem 0;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        margin: 0.2rem 0;
     }
-
     .message-content p:first-child {
         margin-top: 0;
     }
-
     .message-content p:last-child {
         margin-bottom: 0;
     }
-
+    .message-content pre {
+        background: #0d1117;
+        color: #e2e8f0;
+        border-radius: 7px;
+        padding: 0.7rem 0.9rem;
+        overflow-x: auto;
+        font-size: 0.8rem;
+        font-family: "Consolas", "Monaco", monospace;
+        margin: 0.4rem 0;
+        position: relative;
+        white-space: pre-wrap;
+    }
+    .message-content code {
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 0.85em;
+    }
+    .message-content :not(pre) > code {
+        background: rgba(0, 0, 0, 0.08);
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+    }
+    .user-message .message-content :not(pre) > code {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .message-content strong {
+        color: #4361ee;
+    }
+    .user-message .message-content strong {
+        color: #a5f3fc;
+    }
+    .message-content ul,
+    .message-content ol {
+        padding-right: 1.1rem;
+        margin: 0.3rem 0;
+    }
+    .message-content li {
+        margin: 0.15rem 0;
+    }
+    .ai-copy-code-btn {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        padding: 0.2rem 0.45rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .ai-copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    /* Typing dots */
+    .ai-typing-dots {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        padding: 0.3rem 0;
+    }
+    .ai-typing-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #94a3b8;
+        animation: aiDotBounce 1.2s infinite;
+    }
+    .ai-typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .ai-typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes aiDotBounce {
+        0%,
+        60%,
+        100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-5px);
+        }
+    }
+    /* Input area */
     .ai-chat-input-area {
-        padding: 1rem;
+        padding: 0.7rem 0.9rem;
         border-top: 1px solid #e2e8f0;
         display: flex;
-        gap: 0.5rem;
+        flex-direction: column;
+        gap: 0.35rem;
         background: white;
-        border-radius: 0 0 15px 15px;
+        border-radius: 0 0 16px 0;
+        flex-shrink: 0;
     }
-
     .ai-chat-input {
         flex: 1;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
-        padding: 0.75rem;
+        padding: 0.65rem 0.85rem;
         font-family: inherit;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         resize: none;
         max-height: 100px;
-        transition: border-color 0.3s ease;
+        transition: border-color 0.2s;
     }
-
     .ai-chat-input:focus {
         outline: none;
         border-color: #4361ee;
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.12);
     }
-
+    .ai-chat-input:disabled {
+        background: #f8fafc;
+        cursor: not-allowed;
+    }
     .send-ai-btn {
         background: linear-gradient(135deg, #4361ee, #3a0ca3);
         color: white;
         border: none;
         border-radius: 8px;
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
-        font-size: 1rem;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+        flex-shrink: 0;
     }
-
     .send-ai-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
     }
-
-    .send-ai-btn:active {
-        transform: translateY(0);
+    .send-ai-btn.ai-stop {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
     }
-
-    /* AI Chat Floating Button */
+    /* FAB — navbar button (not floating) */
     .ai-chat-fab {
-        position: fixed;
-        bottom: 30px;
-        left: 30px;
-        width: 60px;
-        height: 60px;
+        width: 40px;
+        height: 40px;
         background: linear-gradient(135deg, #4361ee, #3a0ca3);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        z-index: 999;
-        box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
-        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px rgba(67, 97, 238, 0.4);
+        transition: all 0.2s;
         border: none;
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.1rem;
+        flex-shrink: 0;
     }
-
     .ai-chat-fab:hover {
         transform: scale(1.1);
-        box-shadow: 0 15px 35px rgba(67, 97, 238, 0.5);
+        box-shadow: 0 6px 18px rgba(67, 97, 238, 0.5);
     }
-
-    .ai-chat-fab.active {
+    /* Attach */
+    .ai-attach-btn {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        width: 38px;
+        height: 38px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .ai-attach-btn:hover {
+        background: #e2e8f0;
+        color: #4361ee;
+    }
+    .ai-attach-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    .ai-files-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+    .ai-files-container:empty {
         display: none;
     }
-
+    .ai-file-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: #e0e7ff;
+        color: #3730a3;
+        border-radius: 7px;
+        padding: 0.2rem 0.45rem;
+        font-size: 0.76rem;
+        max-width: 150px;
+    }
+    .ai-file-badge span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+    }
+    .ai-file-thumb {
+        width: 28px;
+        height: 28px;
+        object-fit: cover;
+        border-radius: 3px;
+        border: 1px solid #c7d2fe;
+    }
+    .ai-remove-file-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #4361ee;
+        padding: 0;
+        font-size: 0.76rem;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .ai-remove-file-btn:hover {
+        color: #ef4444;
+    }
+    .ai-msg-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 0.35rem;
+    }
+    .ai-msg-thumb {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    /* Code-file badges shown inside user messages */
+    .ai-msg-code-files {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-bottom: 0.35rem;
+    }
+    .ai-msg-code-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.74rem;
+        color: rgba(255, 255, 255, 0.92);
+        font-family: "Consolas", "Monaco", monospace;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 700px) {
         .ai-chat-modal {
-            width: calc(100% - 40px);
-            max-height: 70vh;
-            bottom: 80px;
-            left: 20px;
+            width: 100vw;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 100dvh;
+            border-radius: 0;
         }
-
-        .message-content {
-            max-width: 200px;
+        .ai-chat-header {
+            border-radius: 0;
+        }
+        .ai-chat-input-area {
+            border-radius: 0;
+        }
+        .ai-modal-sidebar {
+            border-radius: 0;
         }
     }
-
-    /* RTL Support */
+    @media (max-width: 480px) {
+        .message-content {
+            max-width: 85%;
+        }
+    }
+    /* RTL */
     [dir="rtl"] .ai-chat-modal {
         left: auto;
-        right: 20px;
     }
-
     [dir="rtl"] .ai-message {
         flex-direction: row-reverse;
     }
-
-    [dir="rtl"] .ai-chat-input-area {
-        direction: rtl;
-    }
-
-    [dir="rtl"] .send-ai-btn {
-        margin-right: 0;
-        margin-left: 0.5rem;
-    }
-
-    [dir="rtl"] .ai-chat-fab {
-        left: auto;
-        right: 30px;
+    [dir="rtl"] .ai-welcome-msg {
+        flex-direction: row-reverse;
     }
 </style>
 
 <script>
-    // AI Chat Modal Functionality
     (function () {
-        const aiChatModal = document.getElementById("aiChatModal");
-        const aiChatFab = document.getElementById("aiChatFab");
-        const closeAiChat = document.getElementById("closeAiChat");
-        const aiChatInput = document.getElementById("aiChatInput");
-        const sendAiMessage = document.getElementById("sendAiMessage");
-        const aiChatMessages = document.getElementById("aiChatMessages");
+        const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"];
+        const TEXT_EXTS = [
+            "txt",
+            "md",
+            "js",
+            "ts",
+            "py",
+            "php",
+            "html",
+            "css",
+            "json",
+            "csv",
+            "xml",
+            "java",
+            "c",
+            "cpp",
+            "cs",
+            "go",
+            "rb",
+            "sh",
+            "sql",
+            "yaml",
+            "yml",
+        ];
 
-        // Toggle chat modal
-        if (aiChatFab) {
-            aiChatFab.addEventListener("click", () => {
-                aiChatModal.classList.add("active");
-                aiChatFab.classList.add("active");
-                aiChatInput.focus();
-            });
+        let conversations = [];
+        let activeConvId = null;
+        let isAiLoading = false;
+        let aiController = null;
+        let attachedFiles = [];
+        let sidebarOpen = window.innerWidth > 700;
+
+        const modal = document.getElementById("aiChatModal");
+        const fab = document.getElementById("aiChatFab");
+        const closeBtn = document.getElementById("closeAiChat");
+        const messagesEl = document.getElementById("aiChatMessages");
+        const inputEl = document.getElementById("aiChatInput");
+        const sendBtn = document.getElementById("sendAiMessage");
+        const convList = document.getElementById("aiConvList");
+        const convEmpty = document.getElementById("aiConvEmpty");
+        const convTitle = document.getElementById("aiConvTitle");
+        const newChatBtn = document.getElementById("aiNewChatBtn");
+        const toggleBtn = document.getElementById("aiSidebarToggle");
+        const sidebar = document.getElementById("aiModalSidebar");
+        const attachBtn = document.getElementById("aiAttachBtn");
+        const fileInput = document.getElementById("aiFileInput");
+        const filesCont = document.getElementById("aiFilesContainer");
+
+        /* ── Sidebar toggle ── */
+        sidebar.classList.toggle("collapsed", !sidebarOpen);
+        toggleBtn.addEventListener("click", () => {
+            sidebarOpen = !sidebarOpen;
+            sidebar.classList.toggle("collapsed", !sidebarOpen);
+        });
+
+        /* ── Open / close modal ── */
+        fab.addEventListener("click", () => {
+            modal.style.display = "flex";
+            requestAnimationFrame(() => modal.classList.add("active"));
+            if (conversations.length === 0) loadConversations();
+        });
+
+        function closeModal() {
+            modal.classList.remove("active");
+            setTimeout(() => {
+                if (!modal.classList.contains("active"))
+                    modal.style.display = "none";
+            }, 300);
         }
 
-        // Close chat modal
-        if (closeAiChat) {
-            closeAiChat.addEventListener("click", () => {
-                aiChatModal.classList.remove("active");
-                if (aiChatFab) aiChatFab.classList.remove("active");
-            });
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.classList.contains("active"))
+                closeModal();
+        });
+
+        /* ── CSRF helper (Laravel Sanctum web auth) ── */
+        function getCsrf() {
+            const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : "";
         }
 
-        // Send message
-        const sendMessage = async () => {
-            const message = aiChatInput.value.trim();
-            if (!message) return;
+        /* ── Load conversation list ── */
+        function loadConversations() {
+            fetch("/api/ai/conversations", {
+                credentials: "include",
+                headers: { Accept: "application/json" },
+            })
+                .then((r) => (r.ok ? r.json() : []))
+                .then((data) => {
+                    conversations = Array.isArray(data)
+                        ? data
+                        : data.conversations || data.data || [];
+                    renderConvList();
+                })
+                .catch(() => {
+                    conversations = [];
+                    renderConvList();
+                });
+        }
 
-            // Add user message to chat
-            addMessage(message, "user");
-            aiChatInput.value = "";
-            aiChatInput.style.height = "auto";
+        function showConvEmpty(show) {
+            if (!convEmpty) return;
+            convEmpty.style.display = show ? "" : "none";
+        }
 
-            // Show typing indicator
-            const typingDiv = document.createElement("div");
-            typingDiv.className = "ai-message";
-            typingDiv.innerHTML =
-                '<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content"><p>...</p></div>';
-            aiChatMessages.appendChild(typingDiv);
-            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+        /* ── Render sidebar ── */
+        function renderConvList() {
+            convList.innerHTML = "";
+            if (conversations.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "ai-conv-empty";
+                empty.textContent = "لا توجد محادثات بعد";
+                convList.appendChild(empty);
+                return;
+            }
+            conversations.forEach((conv) => {
+                const item = document.createElement("div");
+                item.className =
+                    "ai-conv-item" +
+                    (conv.id === activeConvId ? " active" : "");
+                item.dataset.id = conv.id;
 
-            try {
-                // Call AI helper API
-                const response = await fetch("/api/ai/helper", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        type: "general",
-                    }),
+                const text = document.createElement("div");
+                text.className = "ai-conv-item-text";
+                text.textContent = conv.title || "محادثة جديدة";
+                text.title = conv.title || "";
+
+                const del = document.createElement("button");
+                del.className = "ai-conv-item-del";
+                del.innerHTML = '<i class="fas fa-trash"></i>';
+                del.title = "حذف";
+                del.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    deleteConversation(conv.id);
                 });
 
-                const data = await response.json();
-                typingDiv.remove();
+                item.addEventListener("click", () =>
+                    openConversation(conv.id, conv.title),
+                );
+                item.appendChild(text);
+                item.appendChild(del);
+                convList.appendChild(item);
+            });
+        }
 
-                if (data.success) {
-                    addMessage(data.response, "ai");
-                } else {
-                    addMessage(
-                        "عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.",
-                        "ai",
+        /* ── Reset in-flight AI state (shared helper) ── */
+        function cancelInFlight() {
+            if (aiController) aiController.abort();
+            aiController = null;
+            isAiLoading = false;
+            sendBtn.classList.remove("ai-stop");
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            inputEl.disabled = false;
+        }
+
+        /* ── Open a conversation ── */
+        function openConversation(id, title) {
+            // Synchronously cancel + restore UI — don’t wait for async finally
+            cancelInFlight();
+            activeConvId = id;
+            convTitle.textContent = title || "مساعد الذكاء الاصطناعي";
+            messagesEl.innerHTML = "";
+            renderConvList();
+
+            fetch("/api/ai/conversations/" + id, {
+                credentials: "include",
+                headers: { Accept: "application/json" },
+            })
+                .then((r) => (r.ok ? r.json() : null))
+                .then((data) => {
+                    if (!data) return;
+                    const msgs = data.messages || [];
+                    if (msgs.length === 0) showWelcome();
+                    msgs.forEach((m) =>
+                        appendMessage(
+                            m.role === "user" ? "user" : "ai",
+                            m.content,
+                        ),
                     );
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                typingDiv.remove();
-                addMessage("عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.", "ai");
+                    scrollDown();
+                })
+                .catch(() => showWelcome());
+        }
+
+        /* ── New chat ── */
+        function startNewChat() {
+            cancelInFlight(); // cancel any in-flight request immediately
+            activeConvId = null;
+            convTitle.textContent = "مساعد الذكاء الاصطناعي";
+            messagesEl.innerHTML = "";
+            showWelcome();
+            renderConvList();
+            inputEl.focus();
+        }
+        newChatBtn.addEventListener("click", startNewChat);
+
+        /* ── Delete conversation ── */
+        function deleteConversation(id) {
+            fetch("/api/ai/conversations/" + id, {
+                method: "DELETE",
+                credentials: "include",
+                headers: {
+                    Accept: "application/json",
+                    "X-XSRF-TOKEN": getCsrf(),
+                },
+            })
+                .then((r) => {
+                    if (r.ok) {
+                        conversations = conversations.filter(
+                            (c) => c.id !== id,
+                        );
+                        if (activeConvId === id) startNewChat();
+                        else renderConvList();
+                    }
+                })
+                .catch(() => {});
+        }
+
+        /* ── Welcome message ── */
+        function showWelcome() {
+            messagesEl.innerHTML = "";
+            const wrap = document.createElement("div");
+            wrap.className = "ai-welcome-msg";
+            wrap.innerHTML =
+                '<div class="message-avatar"><i class="fas fa-robot"></i></div>' +
+                '<div class="message-content"><strong>مرحباً!</strong><p>أنا مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟</p></div>';
+            messagesEl.appendChild(wrap);
+        }
+
+        /* ── Markdown renderer ── */
+        function renderMarkdown(text) {
+            let html = "";
+            const lines = text.split("\n");
+            let inCode = false,
+                codeLang = "",
+                codeLines = [];
+            let inList = false;
+
+            function flushCode() {
+                if (!codeLines.length) return "";
+                const escaped = codeLines
+                    .join("\n")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+                codeLines = [];
+                return (
+                    '<pre><button class="ai-copy-code-btn"><i class="fas fa-copy"></i> نسخ</button><code>' +
+                    escaped +
+                    "</code></pre>"
+                );
             }
-        };
 
-        if (sendAiMessage) {
-            sendAiMessage.addEventListener("click", sendMessage);
-        }
-
-        if (aiChatInput) {
-            aiChatInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (line.startsWith("```")) {
+                    if (inCode) {
+                        html += flushCode();
+                        inCode = false;
+                        codeLang = "";
+                    } else {
+                        inCode = true;
+                        codeLang = line.slice(3).trim();
+                    }
+                    continue;
                 }
-            });
+                if (inCode) {
+                    codeLines.push(line);
+                    continue;
+                }
 
-            // Auto-resize textarea
-            aiChatInput.addEventListener("input", () => {
-                aiChatInput.style.height = "auto";
-                aiChatInput.style.height =
-                    Math.min(aiChatInput.scrollHeight, 100) + "px";
-            });
+                if (inList && !line.match(/^[-*]\s/)) {
+                    html += "</ul>";
+                    inList = false;
+                }
+
+                let l = line
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                    .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+                if (/^#{1,3}\s/.test(line)) {
+                    const lvl = line.match(/^(#+)/)[1].length;
+                    const txt = l.replace(/^#+\s/, "");
+                    html += "<p><strong>" + txt + "</strong></p>";
+                } else if (line.match(/^[-*]\s/)) {
+                    if (!inList) {
+                        html += "<ul>";
+                        inList = true;
+                    }
+                    html += "<li>" + l.replace(/^[-*]\s/, "") + "</li>";
+                } else if (l.trim() === "") {
+                    html += "<br>";
+                } else {
+                    html += "<p>" + l + "</p>";
+                }
+            }
+            if (inCode) html += flushCode();
+            if (inList) html += "</ul>";
+            return html;
         }
 
-        // Add message to chat
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement("div");
-            messageDiv.className =
-                sender === "user" ? "user-message" : "ai-message";
+        /* ── Append a message ── */
+        function appendMessage(role, content, images, codeFiles) {
+            const wrap = document.createElement("div");
+            wrap.className = role === "user" ? "user-message" : "ai-message";
 
-            const avatarDiv = document.createElement("div");
-            avatarDiv.className = "message-avatar";
-            avatarDiv.innerHTML =
-                sender === "user"
+            const avatar = document.createElement("div");
+            avatar.className = "message-avatar";
+            avatar.innerHTML =
+                role === "user"
                     ? '<i class="fas fa-user"></i>'
                     : '<i class="fas fa-robot"></i>';
 
-            const contentDiv = document.createElement("div");
-            contentDiv.className = "message-content";
-            contentDiv.innerHTML = `<p>${escapeHtml(text)}</p>`;
+            const bubble = document.createElement("div");
+            bubble.className = "message-content";
 
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
-            aiChatMessages.appendChild(messageDiv);
-            aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+            if (images && images.length) {
+                const imgWrap = document.createElement("div");
+                imgWrap.className = "ai-msg-images";
+                images.forEach((src) => {
+                    const img = document.createElement("img");
+                    img.src = src;
+                    img.className = "ai-msg-thumb";
+                    imgWrap.appendChild(img);
+                });
+                bubble.appendChild(imgWrap);
+            }
+
+            if (codeFiles && codeFiles.length) {
+                const codeWrap = document.createElement("div");
+                codeWrap.className = "ai-msg-code-files";
+                codeFiles.forEach((name) => {
+                    const badge = document.createElement("span");
+                    badge.className = "ai-msg-code-badge";
+                    badge.innerHTML =
+                        '<i class="fas fa-file-code"></i> ' +
+                        name
+                            .replace(/&/g, "&amp;")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;");
+                    codeWrap.appendChild(badge);
+                });
+                bubble.appendChild(codeWrap);
+            }
+
+            const textNode = document.createElement("div");
+            textNode.innerHTML =
+                role === "user"
+                    ? content
+                          .replace(/&/g, "&amp;")
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;")
+                          .replace(/\n/g, "<br>")
+                    : renderMarkdown(content);
+            bubble.appendChild(textNode);
+
+            wrap.appendChild(avatar);
+            wrap.appendChild(bubble);
+            messagesEl.appendChild(wrap);
+
+            /* copy buttons */
+            bubble.querySelectorAll(".ai-copy-code-btn").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const code = btn.nextElementSibling.textContent;
+                    navigator.clipboard
+                        .writeText(code)
+                        .then(() => {
+                            btn.innerHTML = '<i class="fas fa-check"></i> تم';
+                            setTimeout(() => {
+                                btn.innerHTML =
+                                    '<i class="fas fa-copy"></i> نسخ';
+                            }, 1500);
+                        })
+                        .catch(() => {});
+                });
+            });
+
+            return wrap;
         }
 
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const map = {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#039;",
-            };
-            return text.replace(/[&<>"']/g, (m) => map[m]);
+        /* ── Typing indicator ── */
+        function showTyping() {
+            const wrap = document.createElement("div");
+            wrap.className = "ai-message";
+            wrap.id = "aiTypingIndicator";
+            const avatar = document.createElement("div");
+            avatar.className = "message-avatar";
+            avatar.innerHTML = '<i class="fas fa-robot"></i>';
+            const bubble = document.createElement("div");
+            bubble.className = "message-content";
+            bubble.innerHTML =
+                '<div class="ai-typing-dots"><div class="ai-typing-dot"></div><div class="ai-typing-dot"></div><div class="ai-typing-dot"></div></div>';
+            wrap.appendChild(avatar);
+            wrap.appendChild(bubble);
+            messagesEl.appendChild(wrap);
+            scrollDown();
+            return wrap;
         }
+
+        function scrollDown() {
+            requestAnimationFrame(() => {
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            });
+        }
+
+        /* ── Send message ── */
+        async function sendMessage() {
+            const text = inputEl.value.trim();
+            const files = [...attachedFiles];
+            if (!text && !files.length) return;
+            if (isAiLoading) {
+                if (aiController) aiController.abort();
+                return;
+            }
+
+            const imgSrcs = files
+                .filter(
+                    (f) =>
+                        f.dataUrl &&
+                        IMAGE_EXTS.includes(
+                            f.name.split(".").pop().toLowerCase(),
+                        ),
+                )
+                .map((f) => f.dataUrl);
+            const codeFileNames = files
+                .filter((f) => f.textContent != null)
+                .map((f) => f.name);
+            appendMessage("user", text || "[ملف مرفق]", imgSrcs, codeFileNames);
+
+            inputEl.value = "";
+            inputEl.style.height = "";
+            attachedFiles = [];
+            filesCont.innerHTML = "";
+            inputEl.disabled = true;
+
+            isAiLoading = true;
+            sendBtn.classList.add("ai-stop");
+            sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
+
+            const typing = showTyping();
+            aiController = new AbortController();
+
+            try {
+                /* Require login */
+                if (!window.currentUser) {
+                    typing.remove();
+                    appendMessage(
+                        "ai",
+                        "يجب تسجيل الدخول أولاً لاستخدام المساعد الذكي.",
+                    );
+                    isAiLoading = false;
+                    sendBtn.classList.remove("ai-stop");
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                    inputEl.disabled = false;
+                    return;
+                }
+
+                /* Create conversation if none active */
+                if (!activeConvId) {
+                    const res = await fetch("/api/ai/conversations", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                            "X-XSRF-TOKEN": getCsrf(),
+                        },
+                        body: JSON.stringify({ title: text.slice(0, 60) }),
+                        signal: aiController.signal,
+                    });
+                    if (!res.ok) throw new Error("conv_create");
+                    const convData = await res.json();
+                    const conv = convData.conversation || convData;
+                    activeConvId = conv.id;
+                    conversations.unshift({
+                        id: conv.id,
+                        title: conv.title || "محادثة جديدة",
+                    });
+                }
+
+                // Capture which conversation this message belongs to.
+                // If the user switches conversation while waiting, activeConvId changes
+                // but we must not pollute the new conversation's view.
+                const sendingConvId = activeConvId;
+
+                /* Build form data */
+                const imageFiles = files.filter(
+                    (f) =>
+                        IMAGE_EXTS.includes(
+                            f.name.split(".").pop().toLowerCase(),
+                        ) && f.dataUrl,
+                );
+                const textFiles = files.filter((f) => f.textContent != null);
+
+                // Build the message text the backend will receive
+                let messageText = text;
+                if (
+                    !messageText.trim() &&
+                    imageFiles.length > 0 &&
+                    textFiles.length === 0
+                ) {
+                    // Image-only send — give the model something to work with
+                    messageText = "ما الذي تراه في هذه الصورة؟";
+                } else if (!messageText.trim() && textFiles.length > 0) {
+                    messageText =
+                        textFiles.length === 1
+                            ? `ما الذي يفعله الكود في ملف "${textFiles[0].name}"؟`
+                            : "افحص هذه الملفات:";
+                }
+
+                const fd = new FormData();
+                fd.append("message", messageText.trim());
+
+                // Text file contents → 'code' field (backend accepts up to 100 000 chars)
+                if (textFiles.length > 0) {
+                    const codeContent = textFiles
+                        .map((f) =>
+                            textFiles.length > 1
+                                ? `// === ${f.name} ===\n${f.textContent.slice(0, 20000)}`
+                                : f.textContent.slice(0, 50000),
+                        )
+                        .join("\n\n");
+                    fd.append("code", codeContent);
+                }
+
+                // Images → actual File objects so PHP receives them via $request->file('images')
+                imageFiles.forEach((f) => {
+                    fd.append("images[]", f.blob, f.name);
+                });
+
+                const msgRes = await fetch(
+                    "/api/ai/conversations/" + sendingConvId + "/messages",
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            Accept: "application/json",
+                            "X-XSRF-TOKEN": getCsrf(),
+                        },
+                        body: fd,
+                        signal: aiController.signal,
+                    },
+                );
+
+                typing.remove();
+
+                if (msgRes.ok) {
+                    const data = await msgRes.json();
+                    // Always update the conversations array so the sidebar title stays correct
+                    // even if the user has switched to a different conversation.
+                    if (data.title) {
+                        const existing = conversations.find(
+                            (c) => c.id === sendingConvId,
+                        );
+                        if (existing) existing.title = data.title;
+                    }
+                    // Only update visible chat if we're still in this conversation
+                    if (activeConvId === sendingConvId) {
+                        appendMessage("ai", data.response || "");
+                        if (data.title) {
+                            convTitle.textContent = data.title;
+                            renderConvList();
+                        }
+                    }
+                } else if (activeConvId === sendingConvId) {
+                    const err = await msgRes.json().catch(() => ({}));
+                    appendMessage(
+                        "ai",
+                        err.message || err.error || "حدث خطأ. حاول مجدداً.",
+                    );
+                }
+            } catch (err) {
+                typing.remove();
+                if (err.name !== "AbortError")
+                    appendMessage("ai", "حدث خطأ في الاتصال. تحقق من الشبكة.");
+            } finally {
+                isAiLoading = false;
+                aiController = null;
+                sendBtn.classList.remove("ai-stop");
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                inputEl.disabled = false;
+                inputEl.focus();
+                scrollDown();
+            }
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+        inputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        inputEl.addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 100) + "px";
+        });
+
+        /* ── File attach ── */
+        attachBtn.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", () => {
+            Array.from(fileInput.files).forEach((file) => {
+                const ext = file.name.split(".").pop().toLowerCase();
+                const isImg = IMAGE_EXTS.includes(ext);
+                const isText = TEXT_EXTS.includes(ext);
+                if (!isImg && !isText) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const entry = {
+                        name: file.name,
+                        blob: file,
+                        dataUrl: isImg ? e.target.result : null,
+                        textContent: isImg ? null : e.target.result,
+                    };
+                    attachedFiles.push(entry);
+
+                    const badge = document.createElement("div");
+                    badge.className = "ai-file-badge";
+                    if (isImg) {
+                        const thumb = document.createElement("img");
+                        thumb.src = e.target.result;
+                        thumb.className = "ai-file-thumb";
+                        badge.appendChild(thumb);
+                    } else {
+                        const ico = document.createElement("i");
+                        ico.className = "fas fa-file-code";
+                        badge.appendChild(ico);
+                    }
+                    const nm = document.createElement("span");
+                    nm.textContent = file.name;
+                    const rm = document.createElement("button");
+                    rm.className = "ai-remove-file-btn";
+                    rm.innerHTML = '<i class="fas fa-times"></i>';
+                    rm.addEventListener("click", () => {
+                        attachedFiles = attachedFiles.filter(
+                            (f) => f !== entry,
+                        );
+                        badge.remove();
+                    });
+                    badge.appendChild(nm);
+                    badge.appendChild(rm);
+                    filesCont.appendChild(badge);
+                };
+                if (isImg) reader.readAsDataURL(file);
+                else reader.readAsText(file);
+            });
+            fileInput.value = "";
+        });
+
+        /* Init welcome */
+        showWelcome();
     })();
 </script>

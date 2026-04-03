@@ -206,7 +206,7 @@ class ProfileController extends Controller
         }
 
         $avatarsBase = realpath(public_path('uploads/avatars'));
-        $resolved    = realpath(public_path(ltrim(str_replace('\\', '/', $user->avatar_path), '/')));
+        $resolved = realpath(public_path(ltrim(str_replace('\\', '/', $user->avatar_path), '/')));
 
         // Path confinement: ensure resolved path stays within uploads/avatars/
         if (! $avatarsBase || ! $resolved || ! str_starts_with($resolved, $avatarsBase) || ! is_file($resolved)) {
@@ -243,9 +243,10 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
-        // N35: Validate preference values before storing
+        // N35: Validate preference values before storing.
+        // Frontend now sends English canonical values for level and language.
         $allowedLevels = ['beginner', 'intermediate', 'advanced', ''];
-        $allowedLanguages = ['ar', 'en', 'arabic', 'english', ''];
+        $allowedLanguages = ['ar', 'en', ''];
 
         $level = $request->input('level', $request->input('preferred_level', ''));
         $language = $request->input('language', $request->input('preferred_language', ''));

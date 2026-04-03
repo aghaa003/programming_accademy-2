@@ -29,10 +29,23 @@ class AiController extends Controller
     public function general(Request $request)
     {
         $message = trim($request->input('message', ''));
-        $type    = trim($request->input('type', 'general'));
-        $type    = in_array($type, ['general', 'code_review', 'challenge_help'], true) ? $type : 'general';
+        $type = trim($request->input('type', 'general'));
+        $type = in_array($type, ['general', 'code_review', 'challenge_help'], true) ? $type : 'general';
         $code = trim($request->input('code', ''));
         $question = trim($request->input('question', ''));
+
+        // Validate uploaded images (base64 strings, max 5, each max 3 MB)
+        $rawImages = $request->input('images', []);
+        $validImages = [];
+        if (is_array($rawImages)) {
+            foreach (array_slice($rawImages, 0, 5) as $img) {
+                if (is_string($img) && strlen($img) <= 3 * 1024 * 1024
+                    && preg_match('/^[A-Za-z0-9+\/]+=*$/', $img)) {
+                    $validImages[] = $img;
+                }
+            }
+        }
+        $hasImages = count($validImages) > 0;
 
         if ($message === '') {
             return response()->json(['success' => false, 'message' => 'يرجى إرسال الرسالة.'], 400);
@@ -42,10 +55,11 @@ class AiController extends Controller
             return response()->json(['success' => false, 'message' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
         }
 
-        if (strlen($code) > 8000) {
+        if (strlen($code) > 100000) {
             return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
+        $visionModel = config('ai.ollama_vision_model', 'qwen3-vl:235b-cloud');
         $systemPrompt = 'أنت مساعد ذكي متخصص في مساعدة الطلاب على تعلم البرمجة. يرجى تقديم إجابات واضحة وموجزة باللغة العربية.';
 
         if ($type === 'code_review' && $code !== '') {
@@ -59,7 +73,7 @@ class AiController extends Controller
         $result = $this->callOllamaChat([
             ['role' => 'system', 'content' => $systemPrompt],
             ['role' => 'user',   'content' => $userPrompt],
-        ], 30, 0.5);
+        ], $hasImages ? 90 : 30, 0.5, $hasImages ? $visionModel : null, $validImages);
 
         if (! $result['success']) {
             return response()->json([
@@ -87,7 +101,7 @@ class AiController extends Controller
         $userMessage = trim($request->input('user_message', $request->input('message', '')));
         $isRedo = (bool) $request->input('is_redo', false);
 
-        if (strlen($code) > 8000) {
+        if (strlen($code) > 100000) {
             return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
@@ -312,7 +326,7 @@ class AiController extends Controller
             return response()->json(['success' => false, 'message' => 'السؤال طويل جداً، يرجى تقليله.'], 413);
         }
 
-        if (strlen($code) > 8000) {
+        if (strlen($code) > 100000) {
             return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
@@ -482,9 +496,21 @@ class AiController extends Controller
         ]);
     }
 
-    private function callOllamaChat(array $messages, int $timeout = 30, float $temperature = 0.3): array
+    private function callOllamaChat(array $messages, int $timeout = 30, float $temperature = 0.3, ?string $model = null, array $images = []): array
     {
-        $payload = ['model' => config('ai.ollama_model'), 'messages' => $messages, 'stream' => false, 'options' => ['temperature' => $temperature]];
+        $modelToUse = $model ?? config('ai.ollama_model');
+
+        // Attach images to the last user message (Ollama multimodal API)
+        if (! empty($images)) {
+            for ($i = count($messages) - 1; $i >= 0; $i--) {
+                if ($messages[$i]['role'] === 'user') {
+                    $messages[$i]['images'] = $images;
+                    break;
+                }
+            }
+        }
+
+        $payload = ['model' => $modelToUse, 'messages' => $messages, 'stream' => false, 'keep_alive' => -1, 'options' => ['temperature' => $temperature]];
 
         $ch = curl_init(config('ai.ollama_host').'/api/chat');
         curl_setopt_array($ch, [

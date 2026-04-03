@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip if table doesn't exist (fresh install) or old column is already renamed
+        if (! Schema::hasTable('lessons') || ! Schema::hasColumn('lessons', 'video_data')) {
+            return;
+        }
         // Rename longblob video_data → varchar video_path
         DB::statement('ALTER TABLE lessons CHANGE video_data video_path VARCHAR(500) NULL');
         // Rename video_mime → video_mime_type

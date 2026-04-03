@@ -202,8 +202,8 @@
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="api.js"></script>
-</head>
+        <script src="api.js"></script>
+    </head>
     <body>
         <div class="demo-header">
             <h1 id="demoTitle" class="demo-title">تحميل المثال...</h1>
@@ -392,16 +392,16 @@
                 switch (example.category) {
                     case "backend":
                         instructions = `
-                        <h3>تشغيل كود الخادم (${example.code_language})</h3>
+                        <h3>تشغيل كود الخادم (${escapeHtml(example.code_language)})</h3>
                         <ol>
-                            <li>تأكد من تثبيت ${getLanguageRequirements(
-                                example.code_language,
+                            <li>تأكد من تثبيت ${escapeHtml(
+                                getLanguageRequirements(example.code_language),
                             )}</li>
-                            <li>انسخ الكود إلى ملف مناسب (${getFileExtension(
-                                example.code_language,
+                            <li>انسخ الكود إلى ملف مناسب (${escapeHtml(
+                                getFileExtension(example.code_language),
                             )})</li>
-                            <li>شغل الأمر: <code>${getRunCommand(
-                                example.code_language,
+                            <li>شغل الأمر: <code>${escapeHtml(
+                                getRunCommand(example.code_language),
                             )}</code></li>
                         </ol>
                     `;

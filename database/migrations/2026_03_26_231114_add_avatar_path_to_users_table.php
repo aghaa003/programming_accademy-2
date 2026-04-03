@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('users') || Schema::hasColumn('users', 'avatar_path')) {
+            return;
+        }
         Schema::table('users', function (Blueprint $table) {
             $table->string('avatar_path', 255)->nullable()->after('avatar_mime_type');
         });
