@@ -1215,7 +1215,63 @@
                 <p>جميع الحقوق محفوظة &copy; 2023 أكاديمية البرمجة المتكاملة</p>
             </div>
         </footer>
-
+        <!-- Confirmation modal for destructive actions -->
+        <div
+            id="confirmModal"
+            style="
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                align-items: center;
+                justify-content: center;
+                z-index: 3000;
+            "
+        >
+            <div
+                style="
+                    background: #fff;
+                    padding: 20px;
+                    border-radius: 12px;
+                    max-width: 480px;
+                    width: 90%;
+                    text-align: right;
+                "
+            >
+                <h3 style="margin-bottom: 8px; color: #111; font-size: 1.1rem">
+                    هل أنت متأكد؟
+                </h3>
+                <p style="color: #444; margin-bottom: 16px">
+                    سيتم حذف حسابك وكل بياناته نهائياً. هذا الإجراء لا يمكن
+                    التراجع عنه.
+                </p>
+                <div style="display: flex; gap: 8px; justify-content: flex-end">
+                    <button
+                        id="confirmCancel"
+                        style="
+                            background: #e5e7eb;
+                            border: none;
+                            padding: 8px 14px;
+                            border-radius: 8px;
+                        "
+                    >
+                        إلغاء
+                    </button>
+                    <button
+                        id="confirmDelete"
+                        style="
+                            background: #ef4444;
+                            color: #fff;
+                            border: none;
+                            padding: 8px 14px;
+                            border-radius: 8px;
+                        "
+                    >
+                        حذف الحساب
+                    </button>
+                </div>
+            </div>
+        </div>
         <script>
             // التحقق من تسجيل الدخول
             window.addEventListener("load", function () {
@@ -1934,63 +1990,6 @@
                 });
             }
         </script>
-        <!-- Confirmation modal for destructive actions -->
-        <div
-            id="confirmModal"
-            style="
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                align-items: center;
-                justify-content: center;
-                z-index: 3000;
-            "
-        >
-            <div
-                style="
-                    background: #fff;
-                    padding: 20px;
-                    border-radius: 12px;
-                    max-width: 480px;
-                    width: 90%;
-                    text-align: right;
-                "
-            >
-                <h3 style="margin-bottom: 8px; color: #111; font-size: 1.1rem">
-                    هل أنت متأكد؟
-                </h3>
-                <p style="color: #444; margin-bottom: 16px">
-                    سيتم حذف حسابك وكل بياناته نهائياً. هذا الإجراء لا يمكن
-                    التراجع عنه.
-                </p>
-                <div style="display: flex; gap: 8px; justify-content: flex-end">
-                    <button
-                        id="confirmCancel"
-                        style="
-                            background: #e5e7eb;
-                            border: none;
-                            padding: 8px 14px;
-                            border-radius: 8px;
-                        "
-                    >
-                        إلغاء
-                    </button>
-                    <button
-                        id="confirmDelete"
-                        style="
-                            background: #ef4444;
-                            color: #fff;
-                            border: none;
-                            padding: 8px 14px;
-                            border-radius: 8px;
-                        "
-                    >
-                        حذف الحساب
-                    </button>
-                </div>
-            </div>
-        </div>
 
         <script>
             // confirmation modal handlers

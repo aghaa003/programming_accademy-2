@@ -1380,7 +1380,19 @@
                 </div>
             </div>
         </footer>
-
+        <!-- Code Modal -->
+        <div id="codeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>الكود المستخدم في الدرس</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <pre id="codeContent"></pre>
+                    <button id="copyCodeBtn" class="copy-btn">نسخ الكود</button>
+                </div>
+            </div>
+        </div>
         <script>
             let currentUser = null;
 
@@ -2284,19 +2296,5 @@
             // Note: initPage() is called after authentication check in the DOMContentLoaded above
             // No need for duplicate initialization here
         </script>
-
-        <!-- Code Modal -->
-        <div id="codeModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>الكود المستخدم في الدرس</h3>
-                    <span class="close-modal">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <pre id="codeContent"></pre>
-                    <button id="copyCodeBtn" class="copy-btn">نسخ الكود</button>
-                </div>
-            </div>
-        </div>
     </body>
 </html>

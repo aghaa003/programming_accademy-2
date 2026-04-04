@@ -1,98 +1,3 @@
-<!-- AI Chat Modal Component — persistent conversations, split-panel layout -->
-<div id="aiChatModal" class="ai-chat-modal">
-    <div class="ai-modal-inner">
-        <!-- Sidebar: conversation list -->
-        <div class="ai-modal-sidebar" id="aiModalSidebar">
-            <div class="ai-sidebar-header">
-                <button
-                    id="aiNewChatBtn"
-                    class="ai-new-chat-btn"
-                    title="محادثة جديدة"
-                >
-                    <i class="fas fa-plus"></i> جديد
-                </button>
-            </div>
-            <div class="ai-conv-list" id="aiConvList">
-                <div
-                    class="ai-conv-empty"
-                    id="aiConvEmpty"
-                    style="display: none"
-                >
-                    <i class="fas fa-comment-slash"></i><br />لا توجد محادثات
-                </div>
-            </div>
-        </div>
-
-        <!-- Main chat panel -->
-        <div class="ai-modal-main">
-            <div class="ai-chat-header">
-                <div class="ai-chat-title">
-                    <button
-                        id="aiSidebarToggle"
-                        class="ai-sidebar-toggle"
-                        title="المحادثات"
-                    >
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <i class="fas fa-robot"></i>
-                    <span id="aiConvTitle">مساعد الذكاء الاصطناعي</span>
-                </div>
-                <button id="closeAiChat" class="close-ai-chat" title="إغلاق">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="ai-chat-messages" id="aiChatMessages">
-                <div class="ai-welcome-msg">
-                    <div class="message-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
-                        <p>
-                            كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة
-                            والدروس والتحديات وأي شيء آخر!
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ai-chat-input-area">
-                <input
-                    type="file"
-                    id="aiFileInput"
-                    accept=".txt,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.cs,.php,.html,.css,.json,.md,.xml,.sql,.sh,.rb,.go,.rs,.swift,.kt,.vue,.yaml,.yml,.jpg,.jpeg,.png,.gif,.webp"
-                    multiple
-                    style="display: none"
-                />
-                <div id="aiFilesContainer" class="ai-files-container"></div>
-                <div style="display: flex; gap: 0.5rem; align-items: flex-end">
-                    <button
-                        id="aiAttachBtn"
-                        class="ai-attach-btn"
-                        title="إرفاق ملفات"
-                    >
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <textarea
-                        id="aiChatInput"
-                        class="ai-chat-input"
-                        placeholder="اكتب رسالتك..."
-                        rows="1"
-                    ></textarea>
-                    <button
-                        id="sendAiMessage"
-                        class="send-ai-btn"
-                        title="إرسال"
-                    >
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     /* Modal shell */
     .ai-chat-modal {
@@ -687,6 +592,100 @@
         flex-direction: row-reverse;
     }
 </style>
+<!-- AI Chat Modal Component — persistent conversations, split-panel layout -->
+<div id="aiChatModal" class="ai-chat-modal">
+    <div class="ai-modal-inner">
+        <!-- Sidebar: conversation list -->
+        <div class="ai-modal-sidebar" id="aiModalSidebar">
+            <div class="ai-sidebar-header">
+                <button
+                    id="aiNewChatBtn"
+                    class="ai-new-chat-btn"
+                    title="محادثة جديدة"
+                >
+                    <i class="fas fa-plus"></i> جديد
+                </button>
+            </div>
+            <div class="ai-conv-list" id="aiConvList">
+                <div
+                    class="ai-conv-empty"
+                    id="aiConvEmpty"
+                    style="display: none"
+                >
+                    <i class="fas fa-comment-slash"></i><br />لا توجد محادثات
+                </div>
+            </div>
+        </div>
+
+        <!-- Main chat panel -->
+        <div class="ai-modal-main">
+            <div class="ai-chat-header">
+                <div class="ai-chat-title">
+                    <button
+                        id="aiSidebarToggle"
+                        class="ai-sidebar-toggle"
+                        title="المحادثات"
+                    >
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <i class="fas fa-robot"></i>
+                    <span id="aiConvTitle">مساعد الذكاء الاصطناعي</span>
+                </div>
+                <button id="closeAiChat" class="close-ai-chat" title="إغلاق">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-welcome-msg">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <p>مرحباً! أنا مساعد الذكاء الاصطناعي 👋</p>
+                        <p>
+                            كيف يمكنني مساعدتك اليوم؟ يمكنك السؤال عن البرمجة
+                            والدروس والتحديات وأي شيء آخر!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-chat-input-area">
+                <input
+                    type="file"
+                    id="aiFileInput"
+                    accept=".txt,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.cs,.php,.html,.css,.json,.md,.xml,.sql,.sh,.rb,.go,.rs,.swift,.kt,.vue,.yaml,.yml,.jpg,.jpeg,.png,.gif,.webp"
+                    multiple
+                    style="display: none"
+                />
+                <div id="aiFilesContainer" class="ai-files-container"></div>
+                <div style="display: flex; gap: 0.5rem; align-items: flex-end">
+                    <button
+                        id="aiAttachBtn"
+                        class="ai-attach-btn"
+                        title="إرفاق ملفات"
+                    >
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <textarea
+                        id="aiChatInput"
+                        class="ai-chat-input"
+                        placeholder="اكتب رسالتك..."
+                        rows="1"
+                    ></textarea>
+                    <button
+                        id="sendAiMessage"
+                        class="send-ai-btn"
+                        title="إرسال"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     (function () {
