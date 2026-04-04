@@ -14,7 +14,7 @@ class AdminUserController extends Controller
     public function index(Request $request)
     {
         // M4: Paginate admin user list; L5: phone excluded (available via show/{id})
-        $limit  = min((int) $request->query('limit', 20), 100);
+        $limit = min((int) $request->query('limit', 20), 100);
         $offset = max((int) $request->query('offset', 0), 0);
 
         $query = User::with('roles')
@@ -27,9 +27,9 @@ class AdminUserController extends Controller
             $like = "%{$escaped}%";
             $query->where(function ($q) use ($like) {
                 $q->where('firstName', 'LIKE', $like)
-                  ->orWhere('lastName', 'LIKE', $like)
-                  ->orWhere('username', 'LIKE', $like)
-                  ->orWhere('email', 'LIKE', $like);
+                    ->orWhere('lastName', 'LIKE', $like)
+                    ->orWhere('username', 'LIKE', $like)
+                    ->orWhere('email', 'LIKE', $like);
             });
         }
 
@@ -76,7 +76,7 @@ class AdminUserController extends Controller
             ->join('challenges as ch', 'ch.id', '=', 'uc.challenge_id')
             ->leftJoinSub($latestAttempt, 'lat', function ($join) {
                 $join->on('lat.user_id', '=', 'uc.user_id')
-                     ->on('lat.challenge_id', '=', 'uc.challenge_id');
+                    ->on('lat.challenge_id', '=', 'uc.challenge_id');
             })
             ->leftJoin('challenge_attempts as ca', 'ca.id', '=', 'lat.max_id')
             ->where('uc.user_id', $id)
@@ -93,10 +93,10 @@ class AdminUserController extends Controller
             ->get();
 
         return response()->json([
-            'success'     => true,
-            'user'        => $user,
-            'courses'     => $courses,
-            'challenges'  => $challenges,
+            'success' => true,
+            'user' => $user,
+            'courses' => $courses,
+            'challenges' => $challenges,
             'assignments' => $assignments,
         ]);
     }
@@ -122,11 +122,16 @@ class AdminUserController extends Controller
         }
 
         DB::transaction(function () use ($id, $newAdminState) {
-            if ($newAdminState) {
-                DB::table('user_roles')->insertOrIgnore(['user_id' => $id, 'role_id' => 2]);
-            } else {
-                DB::table('user_roles')->where('user_id', $id)->where('role_id', 2)->delete();
-            }
+            // Look up role IDs by name — avoids hardcoding assumptions about auto-increment values
+            $targetRoleId = DB::table('roles')
+                ->where('name', $newAdminState ? 'admin' : 'student')
+                ->value('id');
+
+            // Replace all existing roles for this user with the single new role.
+            // Previously, insertOrIgnore/delete only touched the admin row, leaving the
+            // student row in place — resulting in two rows (admin + student) after granting.
+            DB::table('user_roles')->where('user_id', $id)->delete();
+            DB::table('user_roles')->insert(['user_id' => $id, 'role_id' => $targetRoleId]);
         });
 
         AuditLogger::log(request(), 'toggle_admin', 'User', (int) $id, ['new_state' => $newAdminState]);
@@ -135,7 +140,7 @@ class AdminUserController extends Controller
     }
 
     /** DELETE /api/admin/users/{id} */
-    public function destroy($id, \Illuminate\Http\Request $request)
+    public function destroy($id, Request $request)
     {
         $user = User::find($id);
         if (! $user) {
@@ -148,35 +153,44 @@ class AdminUserController extends Controller
             return response()->json(['success' => false, 'message' => 'لا يمكنك حذف حسابك الخاص من لوحة الإدارة. استخدم صفحة الملف الشخصي.'], 400);
         }
 
-        // Collect avatar path before transaction; delete file only AFTER transaction succeeds
-        $avatarFile = null;
-        if (! empty($user->avatar_path)) {
-            $avatarFile = public_path(ltrim($user->avatar_path, '/'));
-        }
-
-        // Delete all user data atomically so a partial failure leaves a consistent state
-        DB::transaction(function () use ($id, $user) {
-            DB::table('user_assignments')->where('user_id', $id)->delete();
-            DB::table('user_challenges')->where('user_id', $id)->delete();
-            DB::table('challenge_attempts')->where('user_id', $id)->delete();
-            DB::table('user_course_progress')->where('user_id', $id)->delete();
-            DB::table('user_lesson_progress')->where('user_id', $id)->delete();
-            DB::table('platform_bookmarks')->where('user_id', $id)->delete();
-            DB::table('platform_ratings')->where('user_id', $id)->delete();
-            DB::table('academy_reviews')->where('user_id', $id)->delete();
+        // Soft-delete: only sets deleted_at on the users row.
+        // All related data (progress, assignments, challenges, roles, preferences, avatar)
+        // is preserved so the account can be fully restored via withTrashed()->restore().
+        // Re-authentication is automatically blocked: SoftDeletes causes User::find() to
+        // return null for soft-deleted records, so active sessions are immediately invalidated.
+        DB::transaction(function () use ($user) {
+            // Password-reset tokens are one-time security credentials — always revoke on deletion
             DB::table('password_resets')->where('email', $user->email)->delete();
-            DB::table('user_roles')->where('user_id', $id)->delete();
-            DB::table('user_preferences')->where('user_id', $id)->delete();
             $user->delete();
         });
-
-        // Delete avatar file only after DB transaction succeeded
-        if ($avatarFile && is_file($avatarFile)) {
-            @unlink($avatarFile);
-        }
 
         AuditLogger::log($request, 'delete_user', 'User', (int) $id, ['username' => $user->username, 'email' => $user->email]);
 
         return response()->json(['success' => true, 'message' => 'تم حذف المستخدم بنجاح']);
+    }
+
+    /** POST /api/admin/users/{id}/toggle-suspend */
+    public function toggleSuspend($id, Request $request)
+    {
+        $user = User::find($id);
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'المستخدم غير موجود'], 404);
+        }
+
+        // Prevent suspending your own account
+        if ((int) $id === (int) auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'لا يمكنك تعليق حسابك الخاص.'], 400);
+        }
+
+        $newState = ! $user->is_suspended;
+        DB::table('users')->where('id', $id)->update(['is_suspended' => $newState]);
+
+        AuditLogger::log($request, 'toggle_suspend', 'User', (int) $id, ['suspended' => $newState]);
+
+        return response()->json([
+            'success' => true,
+            'is_suspended' => $newState,
+            'message' => $newState ? 'تم تعليق الحساب بنجاح.' : 'تم رفع التعليق عن الحساب بنجاح.',
+        ]);
     }
 }

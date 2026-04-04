@@ -23,8 +23,8 @@ class SecurityHeadersMiddleware
             "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; " .
             "font-src 'self' cdnjs.cloudflare.com; " .
             "img-src 'self' data: https:; " .
-            "media-src 'self'; " .
-            "connect-src 'self'; " .
+            "media-src 'self' blob:; " .
+            "connect-src 'self' https://cdn.jsdelivr.net; " .
             "object-src 'none'; " .
             "base-uri 'self'; " .
             "form-action 'self'; " .

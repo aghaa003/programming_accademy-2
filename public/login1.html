@@ -436,8 +436,8 @@
             /* Notification styles moved to shared site-notification.js (injected) */
         </style>
         <!-- <script src="user-manager.js"></script> -->
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="api.js"></script>
+        <script src="site-notification.js"></script>
     </head>
     <body>
         <div class="floating-shapes">
@@ -507,13 +507,22 @@
                 <div class="social-login">
                     <span>أو سجل الدخول باستخدام</span>
                     <div class="social-icons">
-                        <a href="#" class="social-icon google">
+                        <a
+                            href="/auth/google/redirect"
+                            class="social-icon google"
+                        >
                             <i class="fab fa-google"></i>
                         </a>
-                        <a href="#" class="social-icon github">
+                        <a
+                            href="/auth/github/redirect"
+                            class="social-icon github"
+                        >
                             <i class="fab fa-github"></i>
                         </a>
-                        <a href="#" class="social-icon linkedin">
+                        <a
+                            href="/auth/linkedin-openid/redirect"
+                            class="social-icon linkedin"
+                        >
                             <i class="fab fa-linkedin"></i>
                         </a>
                     </div>
@@ -528,8 +537,6 @@
             </div>
         </div>
 
-        <!-- site notification will be provided by shared script -->
-        <script src="site-notification.js"></script>
         <script>
             // 1. تأكد من أن هذا الرابط هو المسار الصحيح لمشروعك!
             const LOGIN_API_URL = "/api/login";
@@ -707,6 +714,29 @@
                     this.parentElement.style.transform = "scale(1)";
                 });
             });
+
+            // Show error messages returned from social login callback
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                const socialError = params.get("social_error");
+                if (!socialError) return;
+
+                const messages = {
+                    auth_failed:
+                        "فشل تسجيل الدخول الاجتماعي. يرجى المحاولة مرة أخرى.",
+                    no_email:
+                        "لم يتم توفير بريد إلكتروني من مزود الخدمة. يرجى منح صلاحية الوصول للبريد أو استخدام تسجيل الدخول العادي.",
+                    suspended: "تم تعليق هذا الحساب. يرجى التواصل مع الإدارة.",
+                };
+                const msg =
+                    messages[socialError] ||
+                    "حدث خطأ أثناء تسجيل الدخول الاجتماعي.";
+                showNotification(msg, "error");
+
+                // Clean up the URL so the error doesn't persist on refresh
+                const cleanUrl = window.location.pathname;
+                history.replaceState(null, "", cleanUrl);
+            })();
         </script>
     </body>
 </html>

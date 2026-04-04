@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lesson;
-use App\Models\UserLessonProgress;
 use App\Models\UserCourseProgress;
+use App\Models\UserLessonProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,40 +13,54 @@ class ProgressController extends Controller
     /** POST /api/progress */
     public function update(Request $request)
     {
-        $userId   = auth()->id();
-        if (!$userId) {
+        $userId = auth()->id();
+        if (! $userId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 
         $lessonId = $request->input('lesson_id');
-        $action   = $request->input('action');
+        $action = $request->input('action');
         $position = (int) $request->input('position', 0);
 
-        if (!$lessonId || !$action) {
+        if (! $lessonId || ! $action) {
             return response()->json(['success' => false, 'message' => 'Missing required parameters'], 400);
         }
 
         $lesson = Lesson::find($lessonId);
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['success' => false, 'message' => 'Lesson not found'], 404);
         }
 
         $courseId = $lesson->course_id;
-        $message  = '';
+        $message = '';
 
         DB::beginTransaction();
         try {
             if ($action === 'update_position') {
-                DB::table('user_lesson_progress')->upsert(
-                    [['user_id' => $userId, 'lesson_id' => $lessonId, 'last_position' => $position, 'updated_at' => now()]],
-                    ['user_id', 'lesson_id'],
-                    ['last_position', 'updated_at']
-                );
+                // insertOrIgnore is atomic — returns 1 when a new row is created (first view),
+                // 0 when the row already exists (returning visit).
+                $inserted = DB::table('user_lesson_progress')->insertOrIgnore([
+                    'user_id' => $userId,
+                    'lesson_id' => $lessonId,
+                    'last_position' => $position,
+                    'updated_at' => now(),
+                ]);
+
+                if ($inserted) {
+                    // First time this user opens the lesson — count it as a view
+                    DB::table('lessons')->where('id', $lessonId)->increment('views');
+                } else {
+                    // Record already exists — just update the playback position
+                    DB::table('user_lesson_progress')
+                        ->where('user_id', $userId)
+                        ->where('lesson_id', $lessonId)
+                        ->update(['last_position' => $position, 'updated_at' => now()]);
+                }
 
                 // Only update course row if user has at least one completed lesson
                 $completedCount = UserLessonProgress::where('user_id', $userId)
                     ->whereNotNull('completed_at')
-                    ->whereHas('lesson', fn($q) => $q->where('course_id', $courseId))
+                    ->whereHas('lesson', fn ($q) => $q->where('course_id', $courseId))
                     ->count();
 
                 if ($completedCount > 0) {
@@ -58,11 +72,24 @@ class ProgressController extends Controller
                 $message = 'Position saved';
 
             } elseif ($action === 'mark_complete') {
-                DB::table('user_lesson_progress')->upsert(
-                    [['user_id' => $userId, 'lesson_id' => $lessonId, 'completed_at' => now(), 'last_position' => $position, 'updated_at' => now()]],
-                    ['user_id', 'lesson_id'],
-                    ['completed_at', 'last_position', 'updated_at']
-                );
+                // insertOrIgnore is atomic — detects whether this is the user's first interaction
+                // with this lesson. Handles the case where mark_complete fires before update_position
+                // (short lessons, text-only lessons, quick clicks) so views are always counted.
+                $inserted = DB::table('user_lesson_progress')->insertOrIgnore([
+                    'user_id'      => $userId,
+                    'lesson_id'    => $lessonId,
+                    'completed_at' => now(),
+                    'last_position'=> $position,
+                    'updated_at'   => now(),
+                ]);
+                if ($inserted) {
+                    DB::table('lessons')->where('id', $lessonId)->increment('views');
+                } else {
+                    DB::table('user_lesson_progress')
+                        ->where('user_id', $userId)
+                        ->where('lesson_id', $lessonId)
+                        ->update(['completed_at' => now(), 'last_position' => $position, 'updated_at' => now()]);
+                }
                 $message = 'Lesson marked as complete';
 
             } elseif ($action === 'mark_incomplete') {
@@ -75,6 +102,7 @@ class ProgressController extends Controller
 
             } else {
                 DB::rollBack();
+
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
             }
 
@@ -82,7 +110,7 @@ class ProgressController extends Controller
             $totalLessons = Lesson::where('course_id', $courseId)->count();
             $completedLessons = UserLessonProgress::where('user_id', $userId)
                 ->whereNotNull('completed_at')
-                ->whereHas('lesson', fn($q) => $q->where('course_id', $courseId))
+                ->whereHas('lesson', fn ($q) => $q->where('course_id', $courseId))
                 ->count();
 
             $percentage = $totalLessons > 0 ? round(($completedLessons / $totalLessons) * 100) : 0;
@@ -93,7 +121,7 @@ class ProgressController extends Controller
                 if ($action === 'mark_incomplete') {
                     $lastCompleted = UserLessonProgress::where('user_id', $userId)
                         ->whereNotNull('completed_at')
-                        ->whereHas('lesson', fn($q) => $q->where('course_id', $courseId))
+                        ->whereHas('lesson', fn ($q) => $q->where('course_id', $courseId))
                         ->orderBy('completed_at', 'desc')
                         ->first();
                     $lastLessonId = $lastCompleted ? $lastCompleted->lesson_id : $lessonId;
@@ -119,13 +147,14 @@ class ProgressController extends Controller
                 'message' => $message,
                 'progress' => [
                     'completed_lessons' => $completedLessons,
-                    'total_lessons'     => $totalLessons,
-                    'percentage'        => $percentage,
+                    'total_lessons' => $totalLessons,
+                    'percentage' => $percentage,
                 ],
             ]);
 
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json(['success' => false, 'message' => 'Database error'], 500);
         }
     }
@@ -134,7 +163,7 @@ class ProgressController extends Controller
     public function userProgress(Request $request)
     {
         $sessionUserId = auth()->id();
-        if (!$sessionUserId) {
+        if (! $sessionUserId) {
             return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
         }
 

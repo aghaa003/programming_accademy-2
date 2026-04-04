@@ -24,4 +24,26 @@ class AdminController extends Controller
 
         return response()->json(['success' => true, 'stats' => $stats]);
     }
+
+    /** GET /api/admin/audit-logs - Paginated admin audit log */
+    public function auditLogs(Request $request)
+    {
+        $limit  = min((int) $request->query('limit', 50), 200);
+        $offset = max((int) $request->query('offset', 0), 0);
+        $total  = DB::table('admin_audit_logs')->count();
+
+        $logs = DB::table('admin_audit_logs as al')
+            ->leftJoin('users as u', 'u.id', '=', 'al.admin_id')
+            ->select(
+                'al.id', 'al.action', 'al.target_type', 'al.target_id',
+                'al.payload', 'al.ip', 'al.created_at',
+                DB::raw("CONCAT(COALESCE(u.firstName,''), ' ', COALESCE(u.lastName,'')) as admin_name"),
+                'u.username as admin_username'
+            )
+            ->orderByDesc('al.created_at')
+            ->skip($offset)->take($limit)
+            ->get();
+
+        return response()->json(['success' => true, 'logs' => $logs, 'total' => $total]);
+    }
 }

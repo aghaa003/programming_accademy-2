@@ -1679,8 +1679,10 @@
                 color: #94a3b8;
             }
         </style>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="api.js"></script>
+        <script src="site-notification.js"></script>
+        <script src="escapeHtml.js"></script>
+        <script src="./ai-modal-loader.js"></script>
     </head>
     <body>
         <!-- Header & Navbar -->
@@ -1709,7 +1711,7 @@
                         <div class="dropdown-menu">
                             <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
                             <a href="challenges.html">التحديات البرمجية</a>
-                            <a href="proplemsolving.html"
+                            <a href="problemsolving.html"
                                 >مواقع حل المشاكل البرمجية</a
                             >
                         </div>
@@ -1821,7 +1823,7 @@
                     <div class="mobile-dropdown-menu">
                         <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
                         <a href="challenges.html">التحديات البرمجية</a>
-                        <a href="proplemsolving.html"
+                        <a href="problemsolving.html"
                             >مواقع حل المشاكل البرمجية</a
                         >
                     </div>
@@ -2397,8 +2399,6 @@
             </div>
         </footer>
 
-        <script src="site-notification.js"></script>
-        <script src="escapeHtml.js"></script>
         <script>
             // Global variables
             let currentFilters = {
@@ -3442,6 +3442,5 @@
                 userDropdown.addEventListener("mouseleave", hideDropdown);
             }
         </script>
-        <script src="./ai-modal-loader.js"></script>
     </body>
 </html>

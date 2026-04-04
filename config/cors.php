@@ -12,7 +12,12 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['http://localhost', 'http://localhost:8000'],
+    'allowed_origins' => [
+        'http://localhost',
+        'http://localhost:8000',
+        'http://localhost:3000',   // Create React App
+        'http://localhost:5173',   // Vite (recommended)
+    ],
 
     'allowed_origins_patterns' => [],
 

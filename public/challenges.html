@@ -1436,8 +1436,11 @@
         to { transform: translateY(0); opacity: 1; }
       }
     </style>
-      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="api.js"></script>
+    <script src="login-modal.js"></script>
+    <script src="site-notification.js"></script>
+    <script src="escapeHtml.js"></script>
+    <script src="./ai-modal-loader.js"></script>
 </head>
   <body>
     <!-- Header & Navbar -->
@@ -1462,7 +1465,7 @@
             <div class="dropdown-menu">
               <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
               <a href="challenges.html">التحديات البرمجية</a>
-              <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+              <a href="problemsolving.html">مواقع حل المشاكل البرمجية</a>
             </div>
           </li>
           <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
@@ -1539,7 +1542,7 @@
           <div class="mobile-dropdown-menu">
             <a href="examples.html">أمثلة وتطبيقات وشروحات</a>
             <a href="challenges.html">التحديات البرمجية</a>
-            <a href="proplemsolving.html">مواقع حل المشاكل البرمجية</a>
+            <a href="problemsolving.html">مواقع حل المشاكل البرمجية</a>
           </div>
         </li>
         <li><a href="./roadmap.html" class="nav-link">خارطة الطريق</a></li>
@@ -1869,9 +1872,6 @@
         </div>
       </div>
     </footer>
-    <script src="login-modal.js"></script>
-    <script src="site-notification.js"></script>
-    <script src="escapeHtml.js"></script>
     <script>
       // Global variables
       let currentChallengeId = null;
@@ -1965,7 +1965,8 @@
             if (
               currentUser.avatar
             ) {
-              avatar.style.background = `url('${currentUser.avatar}') no-repeat center center / cover`;
+              const safeAvatar = currentUser.avatar.replace(/["']/g, "");
+              avatar.style.background = `url('${safeAvatar}') no-repeat center center / cover`;
               avatar.textContent = "";
             } else {
               avatar.textContent = initial;
@@ -2347,8 +2348,8 @@
           'hard': { text: 'صعب', class: 'difficulty-hard' }
         };
 
-        const categoryText = categoryMap[challenge.category] || challenge.category;
-        const difficulty = difficultyMap[challenge.difficulty] || { text: challenge.difficulty, class: '' };
+        const categoryText = categoryMap[challenge.category] || escapeHtml(challenge.category);
+        const difficulty = difficultyMap[challenge.difficulty] || { text: escapeHtml(challenge.difficulty), class: '' };
         const isCompleted = challenge.user_completed == 1;
 
         card.innerHTML = `
@@ -2530,8 +2531,10 @@
 
       // Calculate success rate percentage
       function calculateSuccessRate(totalAttempts, totalCompletions) {
-        if (totalAttempts === 0) return '0%';
-        const rate = Math.round((totalCompletions / totalAttempts) * 100);
+        const attempts = Number(totalAttempts) || 0;
+        const completions = Number(totalCompletions) || 0;
+        if (attempts === 0) return '0%';
+        const rate = Math.round((completions / attempts) * 100);
         return rate + '%';
       }
 
@@ -2629,6 +2632,5 @@
         });
       });
     </script>
-        <script src="./ai-modal-loader.js"></script>
   </body>
 </html>

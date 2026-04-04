@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8" />
@@ -8,6 +8,7 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <style>
             :root {
                 --primary: #4361ee;
@@ -655,6 +656,9 @@
                 <div class="nav-tab" data-tab="stats">
                     <i class="fas fa-chart-bar"></i> الإحصائيات
                 </div>
+                <div class="nav-tab" data-tab="auditlogs">
+                    <i class="fas fa-history"></i> سجل العمليات
+                </div>
             </div>
 
             <!-- Platforms Tab -->
@@ -877,12 +881,148 @@
 
             <!-- Assignments Tab -->
             <div class="tab-content" id="assignmentsTab">
-                <button
-                    class="add-platform-btn"
-                    onclick="openAddAssignmentModal()"
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 1rem;
+                        flex-wrap: wrap;
+                    "
                 >
-                    <i class="fas fa-plus"></i> إضافة تكليف جديد
-                </button>
+                    <button
+                        class="add-platform-btn"
+                        style="margin: 0"
+                        onclick="openAddAssignmentModal()"
+                    >
+                        <i class="fas fa-plus"></i> إضافة تكليف جديد
+                    </button>
+                    <input
+                        type="text"
+                        id="assignmentSearchInput"
+                        placeholder="بحث في التكليفات..."
+                        oninput="filterAssignments()"
+                        style="
+                            flex: 1;
+                            min-width: 180px;
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    />
+                    <select
+                        id="assignmentDifficultyFilter"
+                        onchange="filterAssignments()"
+                        style="
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    >
+                        <option value="">كل الصعوبات</option>
+                        <option value="1">١ - سهل</option>
+                        <option value="2">٢</option>
+                        <option value="3">٣ - متوسط</option>
+                        <option value="4">٤</option>
+                        <option value="5">٥ - صعب</option>
+                    </select>
+                    <select
+                        id="assignmentStatusFilter"
+                        onchange="filterAssignments()"
+                        style="
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    >
+                        <option value="">كل الحالات</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">معطّل</option>
+                    </select>
+                </div>
+                <!-- Bulk actions toolbar -->
+                <div
+                    id="assignmentBulkBar"
+                    style="
+                        display: none;
+                        align-items: center;
+                        gap: 0.75rem;
+                        margin-bottom: 1rem;
+                        padding: 0.75rem 1rem;
+                        background: #f1f5f9;
+                        border-radius: 8px;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <label
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.4rem;
+                            cursor: pointer;
+                        "
+                    >
+                        <input
+                            type="checkbox"
+                            id="assignmentSelectAll"
+                            onchange="selectAllAssignments(this.checked)"
+                        />
+                        تحديد الكل
+                    </label>
+                    <span
+                        id="assignmentSelectedCount"
+                        style="color: var(--gray); font-size: 0.9rem"
+                        >0 محدد</span
+                    >
+                    <button
+                        onclick="bulkToggleAssignments(true)"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: #10b981;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                    >
+                        <i class="fas fa-check"></i> تفعيل المحددة
+                    </button>
+                    <button
+                        onclick="bulkToggleAssignments(false)"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: #f59e0b;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                    >
+                        <i class="fas fa-ban"></i> تعطيل المحددة
+                    </button>
+                </div>
+                <div style="margin-bottom: 0.75rem">
+                    <button
+                        onclick="toggleAssignmentBulkMode()"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: var(--primary);
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                        id="assignmentBulkModeBtn"
+                    >
+                        <i class="fas fa-check-square"></i> وضع التحديد
+                    </button>
+                </div>
 
                 <div class="platforms-grid" id="assignmentsGrid">
                     <!-- Assignments will be loaded here -->
@@ -891,12 +1031,146 @@
 
             <!-- Challenges Tab -->
             <div class="tab-content" id="challengesTab">
-                <button
-                    class="add-platform-btn"
-                    onclick="openAddChallengeModal()"
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 1rem;
+                        flex-wrap: wrap;
+                    "
                 >
-                    <i class="fas fa-plus"></i> إضافة تحدي جديد
-                </button>
+                    <button
+                        class="add-platform-btn"
+                        style="margin: 0"
+                        onclick="openAddChallengeModal()"
+                    >
+                        <i class="fas fa-plus"></i> إضافة تحدي جديد
+                    </button>
+                    <input
+                        type="text"
+                        id="challengeSearchInput"
+                        placeholder="بحث في التحديات..."
+                        oninput="filterChallenges()"
+                        style="
+                            flex: 1;
+                            min-width: 180px;
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    />
+                    <select
+                        id="challengeDifficultyFilter"
+                        onchange="filterChallenges()"
+                        style="
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    >
+                        <option value="">كل الصعوبات</option>
+                        <option value="easy">سهل</option>
+                        <option value="medium">متوسط</option>
+                        <option value="hard">صعب</option>
+                    </select>
+                    <select
+                        id="challengeStatusFilter"
+                        onchange="filterChallenges()"
+                        style="
+                            padding: 0.6rem 1rem;
+                            border: 2px solid #e2e8f0;
+                            border-radius: 8px;
+                            font-size: 0.95rem;
+                        "
+                    >
+                        <option value="">كل الحالات</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
+                </div>
+                <!-- Bulk actions toolbar -->
+                <div
+                    id="challengeBulkBar"
+                    style="
+                        display: none;
+                        align-items: center;
+                        gap: 0.75rem;
+                        margin-bottom: 1rem;
+                        padding: 0.75rem 1rem;
+                        background: #f1f5f9;
+                        border-radius: 8px;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <label
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 0.4rem;
+                            cursor: pointer;
+                        "
+                    >
+                        <input
+                            type="checkbox"
+                            id="challengeSelectAll"
+                            onchange="selectAllChallenges(this.checked)"
+                        />
+                        تحديد الكل
+                    </label>
+                    <span
+                        id="challengeSelectedCount"
+                        style="color: var(--gray); font-size: 0.9rem"
+                        >0 محدد</span
+                    >
+                    <button
+                        onclick="bulkToggleChallenges(true)"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: #10b981;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                    >
+                        <i class="fas fa-check"></i> تفعيل المحددة
+                    </button>
+                    <button
+                        onclick="bulkToggleChallenges(false)"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: #f59e0b;
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                    >
+                        <i class="fas fa-ban"></i> تعطيل المحددة
+                    </button>
+                </div>
+                <div style="margin-bottom: 0.75rem">
+                    <button
+                        onclick="toggleChallengeBulkMode()"
+                        style="
+                            padding: 0.4rem 0.9rem;
+                            background: var(--primary);
+                            color: white;
+                            border: none;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 0.85rem;
+                        "
+                        id="challengeBulkModeBtn"
+                    >
+                        <i class="fas fa-check-square"></i> وضع التحديد
+                    </button>
+                </div>
 
                 <div class="platforms-grid" id="challengesGrid">
                     <!-- Challenges will be loaded here -->
@@ -1070,6 +1344,197 @@
                         جاري التحميل...
                     </div>
                 </div>
+                <!-- Dashboard charts -->
+                <div
+                    style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 1.5rem;
+                        margin-top: 1.5rem;
+                    "
+                >
+                    <div
+                        style="
+                            background: white;
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        "
+                    >
+                        <h3
+                            style="
+                                margin-bottom: 1rem;
+                                font-size: 1rem;
+                                color: var(--dark);
+                            "
+                        >
+                            نظرة عامة على المحتوى
+                        </h3>
+                        <canvas id="statsBarChart" height="220"></canvas>
+                    </div>
+                    <div
+                        style="
+                            background: white;
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        "
+                    >
+                        <h3
+                            style="
+                                margin-bottom: 1rem;
+                                font-size: 1rem;
+                                color: var(--dark);
+                            "
+                        >
+                            توزيع المحتوى
+                        </h3>
+                        <canvas id="statsPieChart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Logs Tab -->
+            <div class="tab-content" id="auditlogsTab">
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 1.5rem;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <h2 style="margin: 0">
+                        <i class="fas fa-history"></i> سجل عمليات الإدارة
+                    </h2>
+                    <span
+                        id="auditLogsTotalBadge"
+                        style="
+                            background: var(--primary);
+                            color: white;
+                            padding: 0.4rem 1rem;
+                            border-radius: 20px;
+                            font-size: 0.9rem;
+                        "
+                    ></span>
+                    <button
+                        class="add-platform-btn"
+                        style="
+                            margin: 0;
+                            padding: 0.6rem 1.2rem;
+                            font-size: 0.9rem;
+                        "
+                        onclick="loadAuditLogs(0)"
+                    >
+                        <i class="fas fa-sync-alt"></i> تحديث
+                    </button>
+                </div>
+                <div style="overflow-x: auto">
+                    <table
+                        id="auditLogsTable"
+                        style="
+                            width: 100%;
+                            border-collapse: collapse;
+                            background: white;
+                            border-radius: 10px;
+                            overflow: hidden;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                        "
+                    >
+                        <thead style="background: var(--primary); color: white">
+                            <tr>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    #
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    المدير
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    العملية
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    النوع
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    المعرّف
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    التفاصيل
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    IP
+                                </th>
+                                <th
+                                    style="
+                                        padding: 0.8rem 1rem;
+                                        text-align: right;
+                                    "
+                                >
+                                    التاريخ
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogsBody">
+                            <tr>
+                                <td
+                                    colspan="8"
+                                    style="
+                                        text-align: center;
+                                        padding: 2rem;
+                                        color: var(--gray);
+                                    "
+                                >
+                                    جاري التحميل...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div
+                    id="auditLogsPagination"
+                    style="
+                        display: flex;
+                        justify-content: center;
+                        gap: 0.5rem;
+                        margin-top: 1.5rem;
+                    "
+                ></div>
             </div>
         </div>
 
@@ -1420,10 +1885,10 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="courseLogo">شعار الكورس</label>
+                        <label for="courseLogoEdit">شعار الكورس</label>
                         <input
                             type="file"
-                            id="courseLogo"
+                            id="courseLogoEdit"
                             name="course_logo"
                             accept="image/*"
                         />
@@ -1757,6 +2222,24 @@
                     </button>
                     <button
                         type="button"
+                        id="userResetPasswordBtn"
+                        class="btn"
+                        style="background: var(--primary); color: white"
+                        onclick="adminResetPassword()"
+                    >
+                        <i class="fas fa-key"></i> إعادة تعيين كلمة المرور
+                    </button>
+                    <button
+                        type="button"
+                        id="userSuspendBtn"
+                        class="btn"
+                        style="background: var(--warning); color: white"
+                        onclick="toggleSuspendFromModal()"
+                    >
+                        <i class="fas fa-ban"></i> تعليق الحساب
+                    </button>
+                    <button
+                        type="button"
                         id="userToggleAdminBtn"
                         class="btn btn-primary"
                         onclick="toggleAdminFromModal()"
@@ -2067,6 +2550,8 @@
                         loadUsers();
                     } else if (tabName === "stats") {
                         loadStats();
+                    } else if (tabName === "auditlogs") {
+                        loadAuditLogs(0);
                     } else if (tabName === "upload") {
                         // Handle upload tab if needed
                     }
@@ -2101,7 +2586,10 @@
                         )}</div>
                         <div><i class="fas fa-star"></i> ${parseFloat(
                             platform.rating,
-                        ).toFixed(1)}</div>
+                        ).toFixed(
+                            1,
+                        )} <small style="color:var(--gray);">(${platform.ratings_count ?? 0} تقييم)</small></div>
+                        <div><i class="fas fa-bookmark"></i> ${formatNumber(platform.bookmark_count ?? 0)} حفظ</div>
                         <div><i class="fas fa-globe"></i> ${
                             platform.category === "global" ? "عالمي" : "عربي"
                         }</div>
@@ -2937,6 +3425,7 @@
             // ===== ASSIGNMENTS MANAGEMENT FUNCTIONS =====
 
             // Load all assignments
+            let _cachedAssignments = [];
             async function loadAssignments() {
                 try {
                     const response = await fetch("/api/admin/assignments", {
@@ -2945,7 +3434,8 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        displayAssignments(data.assignments);
+                        _cachedAssignments = data.assignments || [];
+                        displayAssignments(_cachedAssignments);
                     } else {
                         showNotification(
                             data.message || "فشل في تحميل التكليفات",
@@ -2992,10 +3482,18 @@
                 assignments.forEach((assignment) => {
                     const card = document.createElement("div");
                     card.className = "platform-card";
+                    card.dataset.assignmentId = assignment.id;
                     const isActive =
                         assignment.is_active == 1 ||
                         assignment.is_active === true;
+                    // Save question text to lookup map to avoid JS string injection in onclick
+                    _assignmentLabels[assignment.id] =
+                        assignment.question || "";
+                    const bulkCheckbox = _assignmentBulkMode
+                        ? `<label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;cursor:pointer;"><input type="checkbox" class="assignment-bulk-cb" data-id="${assignment.id}" onchange="updateAssignmentBulkCount()"> تحديد</label>`
+                        : "";
                     card.innerHTML = `
+                    ${bulkCheckbox}
                     <div class="platform-header">
                         <h3 class="platform-title">${escapeHtml(assignment.question.substring(0, 50))}...</h3>
                         <span class="platform-status ${isActive ? "status-active" : "status-inactive"}">
@@ -3014,7 +3512,7 @@
                         <button class="action-btn" style="background:${isActive ? "#f59e0b" : "#10b981"};color:#fff;" onclick="toggleAssignment(${assignment.id}, this)">
                             <i class="fas fa-${isActive ? "ban" : "check"}"></i> ${isActive ? "تعطيل" : "تفعيل"}
                         </button>
-                        <button class="action-btn" style="background:var(--primary);color:white;" onclick="openSubmissionsModal(${assignment.id}, '${escapeHtml(assignment.question.substring(0, 40)).replace(/'/g, "\\'")}')">
+                        <button class="action-btn" style="background:var(--primary);color:white;" onclick="openSubmissionsModal(${assignment.id})">
                             <i class="fas fa-paper-plane"></i> التسليمات
                         </button>
                         <button class="action-btn delete-btn" onclick="deleteAssignment(${assignment.id})">
@@ -3141,6 +3639,7 @@
             // ===== CHALLENGES MANAGEMENT FUNCTIONS =====
 
             // Load all challenges
+            let _cachedChallenges = [];
             async function loadChallenges() {
                 try {
                     const response = await fetch("/api/admin/challenges", {
@@ -3149,7 +3648,8 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        displayChallenges(data.challenges);
+                        _cachedChallenges = data.challenges || [];
+                        displayChallenges(_cachedChallenges);
                     } else {
                         showNotification(
                             data.message || "فشل في تحميل التحديات",
@@ -3170,7 +3670,12 @@
                 challenges.forEach((challenge) => {
                     const card = document.createElement("div");
                     card.className = "platform-card";
+                    card.dataset.challengeId = challenge.id;
+                    const bulkCheckbox = _challengeBulkMode
+                        ? `<label style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;cursor:pointer;"><input type="checkbox" class="challenge-bulk-cb" data-id="${challenge.id}" onchange="updateChallengeBulkCount()"> تحديد</label>`
+                        : "";
                     card.innerHTML = `
+                    ${bulkCheckbox}
                     <div class="platform-header">
                         <h3 class="platform-title">${escapeHtml(challenge.title)}</h3>
                         <span class="platform-status ${challenge.is_active ? "status-active" : "status-inactive"}">
@@ -3767,12 +4272,45 @@
                         document.getElementById("courseMainPoints").value =
                             course.main_points || "";
 
-                        // Hide lessons section for info edit
-                        document.getElementById("courseLogo").style.display =
-                            "none";
-                        document.querySelector(
-                            'label[for="courseLogo"]',
-                        ).style.display = "none";
+                        // Show logo upload (optional replacement) and hide "Add Lesson" button
+                        document.getElementById(
+                            "courseLogoEdit",
+                        ).style.display = "";
+                        const logoLabel = document.querySelector(
+                            'label[for="courseLogoEdit"]',
+                        );
+                        if (logoLabel) {
+                            logoLabel.style.display = "";
+                            logoLabel.textContent = "استبدال الشعار (اختياري)";
+                        }
+                        // Show current logo thumbnail if exists
+                        const existingThumb =
+                            document.getElementById("currentLogoThumb");
+                        if (existingThumb) existingThumb.remove();
+                        if (course.logo_path) {
+                            const thumb = document.createElement("img");
+                            thumb.id = "currentLogoThumb";
+                            thumb.src = "/" + course.logo_path;
+                            thumb.alt = "شعار الكورس الحالي";
+                            thumb.style.cssText =
+                                "width:60px;height:60px;object-fit:cover;border-radius:8px;margin-top:0.5rem;border:2px solid #e2e8f0;display:block;";
+                            document
+                                .getElementById("courseLogoEdit")
+                                .insertAdjacentElement("afterend", thumb);
+                            const existingDelBtn =
+                                document.getElementById("deleteLogoBtn");
+                            if (existingDelBtn) existingDelBtn.remove();
+                            const delBtn = document.createElement("button");
+                            delBtn.type = "button";
+                            delBtn.id = "deleteLogoBtn";
+                            delBtn.innerHTML =
+                                '<i class="fas fa-trash"></i> حذف الشعار';
+                            delBtn.style.cssText =
+                                "margin-top:0.4rem;padding:0.25rem 0.6rem;font-size:0.75rem;border:none;border-radius:6px;background:var(--danger);color:white;cursor:pointer;display:block;";
+                            delBtn.onclick = () =>
+                                deleteCourseLogoFromModal(course.id);
+                            thumb.insertAdjacentElement("afterend", delBtn);
+                        }
                         document.querySelector(
                             'button[onclick="addLesson()"]',
                         ).style.display = "none";
@@ -3805,6 +4343,7 @@
                     const response = await fetch(`/api/admin/courses/${id}`, {
                         method: "DELETE",
                         credentials: "include",
+                        headers: { "X-XSRF-TOKEN": getCsrfToken() },
                     });
                     const data = await response.json();
 
@@ -3904,6 +4443,12 @@
                     const courseId = formData.get("id");
                     formData.delete("action");
 
+                    // Build plain object for PUT (no binary fields)
+                    const courseData = {};
+                    for (const [key, val] of formData.entries()) {
+                        if (key !== "course_logo") courseData[key] = val;
+                    }
+
                     try {
                         const response = await fetch(
                             `/api/admin/courses/${courseId}`,
@@ -3911,11 +4456,10 @@
                                 method: "PUT",
                                 headers: {
                                     "Content-Type": "application/json",
+                                    "X-XSRF-TOKEN": getCsrfToken(),
                                 },
                                 credentials: "include",
-                                body: JSON.stringify(
-                                    Object.fromEntries(formData),
-                                ),
+                                body: JSON.stringify(courseData),
                             },
                         );
 
@@ -3932,19 +4476,56 @@
                             return;
                         }
 
-                        if (result.success) {
-                            showNotification(
-                                "تم تحديث معلومات الكورس بنجاح",
-                                "success",
-                            );
-                            closeCourseModal();
-                            loadCourses(); // Reload the list
-                        } else {
+                        if (!result.success) {
                             showNotification(
                                 result.message || "فشل في حفظ الكورس",
                                 "error",
                             );
+                            return;
                         }
+
+                        // Upload logo if a file was selected
+                        const logoFile =
+                            document.getElementById("courseLogoEdit").files[0];
+                        if (logoFile) {
+                            const logoData = new FormData();
+                            logoData.append("logo", logoFile);
+                            try {
+                                const logoRes = await fetch(
+                                    `/api/admin/courses/${courseId}/upload-logo`,
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "X-XSRF-TOKEN": getCsrfToken(),
+                                        },
+                                        credentials: "include",
+                                        body: logoData,
+                                    },
+                                );
+                                const logoResult = await logoRes.json();
+                                if (!logoResult.success) {
+                                    showNotification(
+                                        logoResult.message ||
+                                            "فشل في رفع الشعار",
+                                        "error",
+                                    );
+                                    return;
+                                }
+                            } catch (logoErr) {
+                                showNotification(
+                                    "حدث خطأ أثناء رفع الشعار",
+                                    "error",
+                                );
+                                return;
+                            }
+                        }
+
+                        showNotification(
+                            "تم تحديث معلومات الكورس بنجاح",
+                            "success",
+                        );
+                        closeCourseModal();
+                        loadCourses(); // Reload the list
                     } catch (error) {
                         console.error("Error saving course:", error);
                         showNotification("حدث خطأ في الاتصال", "error");
@@ -3953,6 +4534,9 @@
 
             // Close course modal
             function closeCourseModal() {
+                // Remove current logo thumbnail on close
+                const thumb = document.getElementById("currentLogoThumb");
+                if (thumb) thumb.remove();
                 document.getElementById("courseModal").style.display = "none";
             }
 
@@ -4151,6 +4735,7 @@
                     const xhr = new XMLHttpRequest();
                     xhr.open("POST", "/api/admin/upload", true);
                     xhr.withCredentials = true;
+                    xhr.setRequestHeader("X-XSRF-TOKEN", getCsrfToken());
 
                     xhr.upload.onprogress = function (evt) {
                         if (evt.lengthComputable) {
@@ -4198,7 +4783,7 @@
                             setTimeout(
                                 () =>
                                     (window.location.href =
-                                        "admin.html?tab=courses"),
+                                        "/admin?tab=courses"),
                                 2000,
                             );
                         } else {
@@ -4307,6 +4892,71 @@
                     `,
                         )
                         .join("");
+
+                    // Render Chart.js charts
+                    const chartLabels = items.map((i) => i.label);
+                    const chartValues = items.map((i) => Number(i.value));
+                    const chartColors = items.map((i) => i.color);
+
+                    // Destroy existing charts before re-rendering
+                    if (window._statsBarChart instanceof Chart)
+                        window._statsBarChart.destroy();
+                    if (window._statsPieChart instanceof Chart)
+                        window._statsPieChart.destroy();
+
+                    const barCtx = document.getElementById("statsBarChart");
+                    if (barCtx) {
+                        window._statsBarChart = new Chart(barCtx, {
+                            type: "bar",
+                            data: {
+                                labels: chartLabels,
+                                datasets: [
+                                    {
+                                        label: "الإجمالي",
+                                        data: chartValues,
+                                        backgroundColor: chartColors,
+                                        borderRadius: 6,
+                                    },
+                                ],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: { precision: 0 },
+                                    },
+                                },
+                            },
+                        });
+                    }
+
+                    const pieCtx = document.getElementById("statsPieChart");
+                    if (pieCtx) {
+                        window._statsPieChart = new Chart(pieCtx, {
+                            type: "doughnut",
+                            data: {
+                                labels: chartLabels,
+                                datasets: [
+                                    {
+                                        data: chartValues,
+                                        backgroundColor: chartColors,
+                                        borderWidth: 2,
+                                    },
+                                ],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: "bottom",
+                                        labels: { font: { size: 11 } },
+                                    },
+                                },
+                            },
+                        });
+                    }
                 } catch (e) {
                     grid.innerHTML =
                         '<div class="no-data">حدث خطأ في تحميل الإحصائيات</div>';
@@ -4323,6 +4973,8 @@
             let usersSearchTimer = null;
             let currentUserId = null;
             let currentUserIsAdmin = false;
+            let currentUserEmail = null;
+            let currentUserIsSuspended = false;
 
             function debounceUserSearch() {
                 clearTimeout(usersSearchTimer);
@@ -4452,6 +5104,8 @@
                     const u = data.user;
                     const roleNames = extractRoleNames(u.roles);
                     currentUserIsAdmin = roleNames.includes("admin");
+                    currentUserEmail = u.email || null;
+                    currentUserIsSuspended = u.is_suspended || false;
 
                     document.getElementById("userModalTitle").textContent =
                         `تفاصيل: ${u.firstName} ${u.lastName}`;
@@ -4464,6 +5118,14 @@
                     ).style.background = currentUserIsAdmin
                         ? "var(--warning)"
                         : "var(--success)";
+                    const suspendBtn =
+                        document.getElementById("userSuspendBtn");
+                    suspendBtn.textContent = currentUserIsSuspended
+                        ? "رفع التعليق"
+                        : "تعليق الحساب";
+                    suspendBtn.style.background = currentUserIsSuspended
+                        ? "var(--success)"
+                        : "var(--warning)";
 
                     // ── Avatar
                     const avatarHtml = u.avatar_path
@@ -4564,12 +5226,19 @@
                             ${assignments
                                 .map((a) => {
                                     const done = a.is_completed == 1;
-                                    const statusColors = {
-                                        submitted: "#f59e0b",
-                                        graded: "#10b981",
-                                    };
+                                    const isGradedA =
+                                        a.status === "graded" ||
+                                        a.status === "completed";
                                     const sc =
-                                        statusColors[a.status] || "#64748b";
+                                        isGradedA &&
+                                        a.score !== null &&
+                                        a.score !== undefined
+                                            ? a.is_completed == 1
+                                                ? "#10b981"
+                                                : "#ef4444"
+                                            : a.status === "submitted"
+                                              ? "#f59e0b"
+                                              : "#64748b";
                                     const scoreText =
                                         a.score !== null &&
                                         a.score !== undefined
@@ -4644,6 +5313,8 @@
             function closeUserModal() {
                 document.getElementById("userModal").style.display = "none";
                 currentUserId = null;
+                currentUserEmail = null;
+                currentUserIsSuspended = false;
             }
 
             async function toggleAdminFromModal() {
@@ -4709,6 +5380,71 @@
                 }
             }
 
+            async function toggleSuspendFromModal() {
+                if (!currentUserId) return;
+                if (
+                    !confirm(
+                        currentUserIsSuspended
+                            ? "هل تريد رفع التعليق عن هذا الحساب؟"
+                            : "هل تريد تعليق هذا الحساب؟",
+                    )
+                )
+                    return;
+                try {
+                    const res = await fetch(
+                        `/api/admin/users/${currentUserId}/toggle-suspend`,
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "X-XSRF-TOKEN": getCsrfToken() },
+                        },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification(data.message, "success");
+                        closeUserModal();
+                        loadUsers();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في تغيير حالة الحساب",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
+            async function deleteCourseLogoFromModal(courseId) {
+                if (!confirm("هل تريد حذف شعار هذا الكورس نهائياً؟")) return;
+                try {
+                    const res = await fetch(
+                        `/api/admin/courses/${courseId}/logo`,
+                        {
+                            method: "DELETE",
+                            credentials: "include",
+                            headers: { "X-XSRF-TOKEN": getCsrfToken() },
+                        },
+                    );
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification("تم حذف الشعار بنجاح", "success");
+                        const thumb =
+                            document.getElementById("currentLogoThumb");
+                        if (thumb) thumb.remove();
+                        const delBtn = document.getElementById("deleteLogoBtn");
+                        if (delBtn) delBtn.remove();
+                    } else {
+                        showNotification(
+                            data.message || "فشل في حذف الشعار",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
+            }
+
             // =============================================
             // ASSIGNMENT SUBMISSIONS & GRADING
             // =============================================
@@ -4720,9 +5456,13 @@
             const _gradeCodes = {}; // challenge_id -> code string
             const _challengeTitles = {}; // challenge_id -> title string (safe textContent lookup)
             const _gradeLabels = {}; // submission_id -> display label for openGradeModal
+            const _assignmentLabels = {}; // assignment_id -> question string (safe textContent lookup)
 
-            async function openSubmissionsModal(assignmentId, assignmentTitle) {
+            async function openSubmissionsModal(assignmentId) {
                 currentSubmissionsAssignmentId = assignmentId;
+                const assignmentTitle =
+                    (_assignmentLabels[assignmentId] || "").substring(0, 40) ||
+                    String(assignmentId);
                 document.getElementById("submissionsModalTitle").textContent =
                     `تسليمات: ${assignmentTitle}`;
                 document.getElementById("submissionsTableBody").innerHTML =
@@ -4763,13 +5503,26 @@
                 };
                 tbody.innerHTML = submissions
                     .map((s, i) => {
-                        const statusLabel = escapeHtml(
-                            statusMap[s.status] || s.status || "-",
-                        );
-                        const statusColor =
-                            s.status === "graded" || s.status === "completed"
+                        const isGraded =
+                            s.status === "graded" || s.status === "completed";
+                        const scoreNum =
+                            s.score !== null && s.score !== undefined
+                                ? s.score
+                                : null;
+                        const passed = isGraded && s.is_completed == 1;
+                        const statusLabel =
+                            isGraded && scoreNum !== null
+                                ? passed
+                                    ? "ناجح ✓"
+                                    : "راسب ✗"
+                                : escapeHtml(
+                                      statusMap[s.status] || s.status || "-",
+                                  );
+                        const statusColor = isGraded
+                            ? passed
                                 ? "var(--success)"
-                                : "var(--warning)";
+                                : "var(--danger)"
+                            : "var(--warning)";
                         const submittedDate = s.submitted_at
                             ? new Date(s.submitted_at).toLocaleDateString(
                                   "ar-EG",
@@ -4975,6 +5728,383 @@
             function getCsrfToken() {
                 const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
                 return match ? decodeURIComponent(match[1]) : "";
+            }
+
+            // =============================================
+            // ASSIGNMENT SEARCH / FILTER / BULK
+            // =============================================
+            function filterAssignments() {
+                const q = (
+                    document.getElementById("assignmentSearchInput").value || ""
+                ).toLowerCase();
+                const diff = document.getElementById(
+                    "assignmentDifficultyFilter",
+                ).value;
+                const status = document.getElementById(
+                    "assignmentStatusFilter",
+                ).value;
+                let filtered = _cachedAssignments.filter((a) => {
+                    const matchQ =
+                        !q ||
+                        (a.question || "").toLowerCase().includes(q) ||
+                        (a.course_title || "").toLowerCase().includes(q);
+                    const matchD = !diff || String(a.difficulty) === diff;
+                    const isActive = a.is_active == 1 || a.is_active === true;
+                    const matchS =
+                        !status || (status === "active" ? isActive : !isActive);
+                    return matchQ && matchD && matchS;
+                });
+                displayAssignments(filtered);
+            }
+
+            let _assignmentBulkMode = false;
+            function toggleAssignmentBulkMode() {
+                _assignmentBulkMode = !_assignmentBulkMode;
+                const bar = document.getElementById("assignmentBulkBar");
+                const btn = document.getElementById("assignmentBulkModeBtn");
+                bar.style.display = _assignmentBulkMode ? "flex" : "none";
+                btn.style.background = _assignmentBulkMode
+                    ? "#f59e0b"
+                    : "var(--primary)";
+                btn.textContent = _assignmentBulkMode
+                    ? "إلغاء وضع التحديد"
+                    : "وضع التحديد";
+                if (!_assignmentBulkMode) {
+                    document.getElementById("assignmentSelectAll").checked =
+                        false;
+                }
+                filterAssignments();
+            }
+
+            function selectAllAssignments(checked) {
+                document
+                    .querySelectorAll(".assignment-bulk-cb")
+                    .forEach((cb) => {
+                        cb.checked = checked;
+                    });
+                updateAssignmentBulkCount();
+            }
+
+            function updateAssignmentBulkCount() {
+                const count = document.querySelectorAll(
+                    ".assignment-bulk-cb:checked",
+                ).length;
+                document.getElementById("assignmentSelectedCount").textContent =
+                    count + " محدد";
+            }
+
+            async function bulkToggleAssignments(activate) {
+                const ids = [
+                    ...document.querySelectorAll(".assignment-bulk-cb:checked"),
+                ].map((cb) => Number(cb.dataset.id));
+                if (!ids.length) {
+                    showNotification("لم تختر أي تكليف", "error");
+                    return;
+                }
+                if (
+                    !confirm(
+                        `${activate ? "تفعيل" : "تعطيل"} ${ids.length} تكليف؟`,
+                    )
+                )
+                    return;
+                let done = 0;
+                for (const id of ids) {
+                    try {
+                        const res = await fetch(
+                            `/api/admin/assignments/${id}/toggle`,
+                            { method: "PATCH", credentials: "include" },
+                        );
+                        const d = await res.json();
+                        // toggle endpoint switches state; if desired state differs, call again
+                        if (d.success && d.assignment) {
+                            const nowActive =
+                                d.assignment.is_active == 1 ||
+                                d.assignment.is_active === true;
+                            if (nowActive !== activate) {
+                                await fetch(
+                                    `/api/admin/assignments/${id}/toggle`,
+                                    { method: "PATCH", credentials: "include" },
+                                );
+                            }
+                        }
+                        done++;
+                    } catch (e) {
+                        /* continue */
+                    }
+                }
+                showNotification(
+                    `تم ${activate ? "تفعيل" : "تعطيل"} ${done} تكليف`,
+                    "success",
+                );
+                loadAssignments();
+            }
+
+            // =============================================
+            // CHALLENGE SEARCH / FILTER / BULK
+            // =============================================
+            function filterChallenges() {
+                const q = (
+                    document.getElementById("challengeSearchInput").value || ""
+                ).toLowerCase();
+                const diff = document.getElementById(
+                    "challengeDifficultyFilter",
+                ).value;
+                const status = document.getElementById(
+                    "challengeStatusFilter",
+                ).value;
+                let filtered = _cachedChallenges.filter((c) => {
+                    const matchQ =
+                        !q ||
+                        (c.title || "").toLowerCase().includes(q) ||
+                        (c.category || "").toLowerCase().includes(q);
+                    const matchD =
+                        !diff || (c.difficulty || "").toLowerCase() === diff;
+                    const isActive = c.is_active == 1 || c.is_active === true;
+                    const matchS =
+                        !status || (status === "active" ? isActive : !isActive);
+                    return matchQ && matchD && matchS;
+                });
+                displayChallenges(filtered);
+            }
+
+            let _challengeBulkMode = false;
+            function toggleChallengeBulkMode() {
+                _challengeBulkMode = !_challengeBulkMode;
+                const bar = document.getElementById("challengeBulkBar");
+                const btn = document.getElementById("challengeBulkModeBtn");
+                bar.style.display = _challengeBulkMode ? "flex" : "none";
+                btn.style.background = _challengeBulkMode
+                    ? "#f59e0b"
+                    : "var(--primary)";
+                btn.textContent = _challengeBulkMode
+                    ? "إلغاء وضع التحديد"
+                    : "وضع التحديد";
+                if (!_challengeBulkMode) {
+                    document.getElementById("challengeSelectAll").checked =
+                        false;
+                }
+                filterChallenges();
+            }
+
+            function selectAllChallenges(checked) {
+                document
+                    .querySelectorAll(".challenge-bulk-cb")
+                    .forEach((cb) => {
+                        cb.checked = checked;
+                    });
+                updateChallengeBulkCount();
+            }
+
+            function updateChallengeBulkCount() {
+                const count = document.querySelectorAll(
+                    ".challenge-bulk-cb:checked",
+                ).length;
+                document.getElementById("challengeSelectedCount").textContent =
+                    count + " محدد";
+            }
+
+            async function bulkToggleChallenges(activate) {
+                const ids = [
+                    ...document.querySelectorAll(".challenge-bulk-cb:checked"),
+                ].map((cb) => Number(cb.dataset.id));
+                if (!ids.length) {
+                    showNotification("لم تختر أي تحدي", "error");
+                    return;
+                }
+                if (
+                    !confirm(
+                        `${activate ? "تفعيل" : "تعطيل"} ${ids.length} تحدي؟`,
+                    )
+                )
+                    return;
+                let done = 0;
+                for (const id of ids) {
+                    // Find cached data
+                    const ch = _cachedChallenges.find((c) => c.id === id);
+                    if (!ch) continue;
+                    const isActive = ch.is_active == 1 || ch.is_active === true;
+                    if (isActive === activate) {
+                        done++;
+                        continue;
+                    } // already in desired state
+                    try {
+                        const payload = { ...ch, is_active: activate ? 1 : 0 };
+                        const res = await fetch(`/api/admin/challenges/${id}`, {
+                            method: "PUT",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload),
+                        });
+                        const d = await res.json();
+                        if (d.success) done++;
+                    } catch (e) {
+                        /* continue */
+                    }
+                }
+                showNotification(
+                    `تم ${activate ? "تفعيل" : "تعطيل"} ${done} تحدي`,
+                    "success",
+                );
+                loadChallenges();
+            }
+
+            // =============================================
+            // AUDIT LOG
+            // =============================================
+            let _auditPage = 0;
+            const _auditLimit = 50;
+            let _auditTotal = 0;
+
+            async function loadAuditLogs(offset) {
+                _auditPage = offset;
+                const tbody = document.getElementById("auditLogsBody");
+                tbody.innerHTML =
+                    '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray);">جاري التحميل...</td></tr>';
+                try {
+                    const res = await fetch(
+                        `/api/admin/audit-logs?limit=${_auditLimit}&offset=${offset}`,
+                        { credentials: "include" },
+                    );
+                    const data = await res.json();
+                    if (!data.success) {
+                        tbody.innerHTML =
+                            '<tr><td colspan="8" style="text-align:center;color:var(--danger);">فشل في تحميل السجل</td></tr>';
+                        return;
+                    }
+                    _auditTotal = data.total || 0;
+                    const badge = document.getElementById(
+                        "auditLogsTotalBadge",
+                    );
+                    if (badge) badge.textContent = _auditTotal + " عملية";
+
+                    tbody.innerHTML = "";
+                    if (!data.logs || !data.logs.length) {
+                        tbody.innerHTML =
+                            '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--gray);">لا توجد عمليات مسجّلة بعد.</td></tr>';
+                        return;
+                    }
+                    const actionMap = {
+                        create_course: "إنشاء كورس",
+                        update_course: "تعديل كورس",
+                        delete_course: "حذف كورس",
+                        create_lesson: "إنشاء درس",
+                        update_lesson: "تعديل درس",
+                        delete_lesson: "حذف درس",
+                        create_platform: "إنشاء منصة",
+                        update_platform: "تعديل منصة",
+                        delete_platform: "حذف منصة",
+                        create_challenge: "إنشاء تحدي",
+                        update_challenge: "تعديل تحدي",
+                        delete_challenge: "حذف تحدي",
+                        create_assignment: "إنشاء تكليف",
+                        update_assignment: "تعديل تكليف",
+                        delete_assignment: "حذف تكليف",
+                        grade_assignment: "تصحيح تكليف",
+                        grade_challenge: "تصحيح تحدي",
+                        delete_user: "حذف مستخدم",
+                        toggle_admin: "تغيير صلاحية",
+                    };
+                    data.logs.forEach((log, i) => {
+                        const tr = document.createElement("tr");
+                        tr.style.borderBottom = "1px solid #f1f5f9";
+                        if (i % 2 === 0) tr.style.background = "#fafafa";
+                        const adminDisplay =
+                            log.admin_name && log.admin_name.trim() !== ""
+                                ? escapeHtml(log.admin_name.trim())
+                                : log.admin_username
+                                  ? "@" + escapeHtml(log.admin_username)
+                                  : "-";
+                        const actionLabel =
+                            actionMap[log.action] || escapeHtml(log.action);
+                        let payloadStr = "-";
+                        if (log.payload) {
+                            try {
+                                const p =
+                                    typeof log.payload === "string"
+                                        ? JSON.parse(log.payload)
+                                        : log.payload;
+                                payloadStr = Object.entries(p)
+                                    .map(
+                                        ([k, v]) =>
+                                            `${k}: ${escapeHtml(String(v).substring(0, 30))}`,
+                                    )
+                                    .join(" | ");
+                            } catch (_) {
+                                payloadStr = escapeHtml(
+                                    String(log.payload).substring(0, 60),
+                                );
+                            }
+                        }
+                        const dateStr = log.created_at
+                            ? new Date(log.created_at).toLocaleString("ar-EG")
+                            : "-";
+                        tr.innerHTML = `
+                            <td style="padding:0.6rem 1rem;font-size:0.85rem;color:var(--gray);">${log.id}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.85rem;">${adminDisplay}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.85rem;"><span style="background:#e0e7ff;color:#4338ca;padding:0.2rem 0.6rem;border-radius:10px;">${actionLabel}</span></td>
+                            <td style="padding:0.6rem 1rem;font-size:0.85rem;">${escapeHtml(log.target_type || "-")}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.85rem;">${log.target_id || "-"}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.8rem;color:var(--gray);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${payloadStr}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.8rem;color:var(--gray);">${escapeHtml(log.ip || "-")}</td>
+                            <td style="padding:0.6rem 1rem;font-size:0.8rem;color:var(--gray);">${dateStr}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Pagination
+                    const pag = document.getElementById("auditLogsPagination");
+                    pag.innerHTML = "";
+                    const totalPages = Math.ceil(_auditTotal / _auditLimit);
+                    const curPage = Math.floor(offset / _auditLimit);
+                    for (let p = 0; p < totalPages; p++) {
+                        const btn = document.createElement("button");
+                        btn.textContent = p + 1;
+                        btn.style.cssText = `padding:0.4rem 0.8rem;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;background:${p === curPage ? "var(--primary)" : "white"};color:${p === curPage ? "white" : "var(--dark)"};`;
+                        btn.onclick = () => loadAuditLogs(p * _auditLimit);
+                        pag.appendChild(btn);
+                    }
+                } catch (e) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="8" style="text-align:center;color:var(--danger);">حدث خطأ في الاتصال</td></tr>';
+                }
+            }
+
+            // =============================================
+            // ADMIN PASSWORD RESET
+            // =============================================
+            async function adminResetPassword() {
+                if (!currentUserId || !currentUserEmail) {
+                    showNotification("لا توجد بيانات مستخدم", "error");
+                    return;
+                }
+                if (
+                    !confirm(
+                        `إرسال رابط إعادة تعيين كلمة المرور إلى ${currentUserEmail}؟`,
+                    )
+                )
+                    return;
+                try {
+                    const res = await fetch("/api/forgot-password", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: currentUserEmail }),
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification(
+                            "تم إرسال رابط إعادة التعيين بنجاح",
+                            "success",
+                        );
+                    } else {
+                        showNotification(
+                            data.message || "فشل في إرسال الرابط",
+                            "error",
+                        );
+                    }
+                } catch (e) {
+                    showNotification("حدث خطأ في الاتصال", "error");
+                }
             }
         </script>
     </body>

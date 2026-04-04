@@ -95,17 +95,30 @@ class AdminChallengeController extends Controller
 
         $completed = $score >= 70 ? 1 : 0;
 
-        // updateOrInsert is atomic — avoids TOCTOU race if two admins grade
-        // the same user concurrently (same pattern as F6 in AiController).
-        DB::table('user_challenges')->updateOrInsert(
-            ['user_id' => $userId, 'challenge_id' => $challengeId],
-            [
-                'best_score'     => $score,
-                'completed'      => $completed,
-                'last_attempted' => now(),
-                'attempts'       => DB::raw('COALESCE(attempts, 0) + 1'),
-            ]
-        );
+        DB::transaction(function () use ($userId, $challengeId, $score, $completed) {
+            // Sync the summary row (create if this is the first manual grade ever).
+            // NOTE: attempts is intentionally NOT incremented — an admin grade is not
+            // a user attempt. attempts only increments when the user submits code.
+            DB::table('user_challenges')->updateOrInsert(
+                ['user_id' => $userId, 'challenge_id' => $challengeId],
+                [
+                    'best_score'     => $score,
+                    'completed'      => $completed,
+                    'last_attempted' => now(),
+                ]
+            );
+
+            // Keep challenge_attempts in sync with the admin decision.
+            // Only update an existing row — don't create a phantom attempt if
+            // the user never actually submitted code.
+            DB::table('challenge_attempts')
+                ->where('user_id', $userId)
+                ->where('challenge_id', $challengeId)
+                ->update([
+                    'completed'    => $completed,
+                    'completed_at' => $completed ? now() : null,
+                ]);
+        });
 
         AuditLogger::log($request, 'grade_challenge', 'Challenge', (int) $challengeId, [
             'user_id' => (int) $userId,

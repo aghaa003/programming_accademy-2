@@ -15,13 +15,16 @@ class User extends Authenticatable
     protected $fillable = [
         'firstName', 'lastName', 'email', 'username', 'password',
         'phone', 'country', 'experience', 'goal', 'interest',
-        'preferred_language', 'avatar_path',
+        'preferred_language', 'avatar_path', 'provider', 'provider_id',
         // NOTE: 'is_admin' is intentionally excluded — set only via AdminUserController::toggleAdmin()
+        // NOTE: 'is_suspended' is intentionally excluded — set only via AdminUserController::toggleSuspend()
     ];
 
     protected $hidden = ['password'];
 
-    protected $casts = [];
+    protected $casts = [
+        'is_suspended' => 'boolean',
+    ];
 
     public $timestamps = false;
 

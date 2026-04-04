@@ -20,7 +20,10 @@ class AdminPlatformController extends Controller
         $offset = max((int) $request->query('offset', 0), 0);
         $total  = Platform::count();
 
-        $platforms = Platform::orderBy('id', 'desc')->skip($offset)->take($limit)->get();
+        $platforms = Platform::withCount('bookmarks as bookmark_count')
+            ->withCount('ratings as ratings_count')
+            ->withAvg('ratings as avg_user_rating', 'rating')
+            ->orderBy('id', 'desc')->skip($offset)->take($limit)->get();
 
         return response()->json(['success' => true, 'platforms' => $platforms, 'total' => $total]);
     }

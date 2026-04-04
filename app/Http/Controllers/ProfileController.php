@@ -159,6 +159,13 @@ class ProfileController extends Controller
         }
 
         $file = $request->file('avatar');
+
+        // N-AUD1: Enforce file size limit (2 MB) — OWASP File Upload CS: "Ensure the uploaded file
+        // is not larger than a defined maximum file size."
+        if ($file->getSize() > 2 * 1024 * 1024) {
+            return response()->json(['success' => false, 'message' => 'حجم الملف يتجاوز 2 ميجابايت.'], 400);
+        }
+
         $mimeType = $file->getMimeType();
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -266,11 +273,15 @@ class ProfileController extends Controller
             return response()->json(['success' => false, 'message' => 'حقل الوقت المخصص طويل جداً.'], 422);
         }
 
+        // Map English canonical values → Arabic display values for DB storage.
+        $levelMap = ['beginner' => 'مبتدئ', 'intermediate' => 'متوسط', 'advanced' => 'متقدم', '' => ''];
+        $languageMap = ['ar' => 'العربية', 'en' => 'الإنجليزية', '' => ''];
+
         UserPreference::updateOrCreate(
             ['user_id' => $userId],
             [
-                'preferred_level' => $level,
-                'preferred_language' => $language,
+                'preferred_level' => $levelMap[$level],
+                'preferred_language' => $languageMap[$language],
                 'goals' => $goals,
                 'time_commitment' => $timeCommitment,
             ]

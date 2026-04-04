@@ -13,14 +13,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Exclude OAuth callback URLs from CSRF verification
+        $middleware->validateCsrfTokens(except: [
+            'auth/*/callback',
+        ]);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
 
-        // Ensure session + Sanctum SPA auth are available for API routes
+        // Ensure session + Sanctum SPA auth are available for API routes.
+        // EnsureFrontendRequestsAreStateful internally runs EncryptCookies → StartSession
+        // → VerifyCsrfToken in the correct order for stateful (SPA) requests.
+        // Do NOT prepend a standalone StartSession here — it would run before
+        // EncryptCookies, reading the encrypted cookie as a raw session ID and
+        // opening an empty session, breaking auth for all API requests.
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            \Illuminate\Session\Middleware\StartSession::class,
         ]);
 
         // Return 401 JSON instead of redirecting to a "login" route for API requests

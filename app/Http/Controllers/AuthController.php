@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -38,6 +39,11 @@ class AuthController extends Controller
         if (! $user || ! Hash::check($password, $user->password)) {
             Cache::put($lockKey, Cache::get($lockKey, 0) + 1, now()->addMinutes(15));
             return response()->json(['success' => false, 'message' => 'بيانات الاعتماد غير صحيحة.'], 401);
+        }
+
+        // Block suspended accounts — same generic message to avoid account enumeration
+        if ($user->is_suspended) {
+            return response()->json(['success' => false, 'message' => 'تم تعليق هذا الحساب. يرجى التواصل مع الإدارة.'], 403);
         }
 
         // M7: Clear lockout counter on successful login
@@ -224,6 +230,11 @@ class AuthController extends Controller
 
         $user->password = Hash::make($password);
         $user->save();
+
+        // N-AUD2: Invalidate all existing sessions for this user — OWASP Forgot Password CS:
+        // "Ask the user if they want to invalidate all of their existing sessions,
+        // or invalidate the sessions automatically."
+        DB::table('sessions')->where('user_id', $user->id)->delete();
 
         $reset->delete();
 

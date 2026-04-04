@@ -16,9 +16,9 @@ class AdminCourseController extends Controller
     public function index(Request $request)
     {
         // M4: Paginate admin course list
-        $limit  = min((int) $request->query('limit', 20), 100);
+        $limit = min((int) $request->query('limit', 20), 100);
         $offset = max((int) $request->query('offset', 0), 0);
-        $total  = Course::count();
+        $total = Course::count();
 
         $courses = Course::withCount('lessons')->orderBy('id', 'desc')->skip($offset)->take($limit)->get();
 
@@ -73,36 +73,41 @@ class AdminCourseController extends Controller
             return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
         }
 
-        // Collect file paths before the transaction so we can delete them after
+        // Collect file paths before the transaction so we can delete them after commit
         $lessons = Lesson::where('course_id', $id)->select('video_path')->get();
         $videoPaths = $lessons->filter(fn ($l) => $l->video_path)
             ->map(fn ($l) => storage_path('app/'.str_replace('\\', '/', $l->video_path)))
             ->all();
         $logoPath = $course->logo_path ? public_path(ltrim($course->logo_path, '/')) : null;
+        $courseTitle = $course->title;
 
-        DB::transaction(function () use ($id) {
-            // Remove user_assignments first (RESTRICT FK blocks cascade delete of assignments)
-            $assignmentIds = DB::table('assignments')->where('course_id', $id)->pluck('id');
-            if ($assignmentIds->isNotEmpty()) {
-                DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
-            }
-            // Explicitly delete assignments to avoid RESTRICT FK failure on course delete
-            DB::table('assignments')->where('course_id', $id)->delete();
+        try {
+            DB::transaction(function () use ($id) {
+                // Delete child records manually to avoid FK RESTRICT violations on assignments
+                $assignmentIds = DB::table('assignments')->where('course_id', $id)->pluck('id');
+                if ($assignmentIds->isNotEmpty()) {
+                    DB::table('user_assignments')->whereIn('assignment_id', $assignmentIds)->delete();
+                }
+                DB::table('assignments')->where('course_id', $id)->delete();
 
-            // Remove user progress records for lessons and course
-            $lessonIds = DB::table('lessons')->where('course_id', $id)->pluck('id');
-            if ($lessonIds->isNotEmpty()) {
-                DB::table('user_lesson_progress')->whereIn('lesson_id', $lessonIds)->delete();
-            }
-            DB::table('user_course_progress')->where('course_id', $id)->delete();
+                // Delete lesson progress records before deleting lessons
+                $lessonIds = DB::table('lessons')->where('course_id', $id)->pluck('id');
+                if ($lessonIds->isNotEmpty()) {
+                    DB::table('user_lesson_progress')->whereIn('lesson_id', $lessonIds)->delete();
+                }
+                DB::table('user_course_progress')->where('course_id', $id)->delete();
+                DB::table('lessons')->where('course_id', $id)->delete();
 
-            // Explicitly delete lessons to avoid RESTRICT FK failure on course delete
-            DB::table('lessons')->where('course_id', $id)->delete();
+                // Hard-delete the course row so the record is truly removed (not just soft-deleted).
+                // Using DB::table avoids a second Course::find() call inside the transaction which
+                // would return null if the model was already soft-deleted by a previous failed attempt.
+                DB::table('courses')->where('id', $id)->delete();
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'فشل في حذف الكورس: '.$e->getMessage()], 500);
+        }
 
-            Course::find($id)->delete();
-        });
-
-        // Delete files only after DB transaction succeeded
+        // Delete files only after the DB transaction committed successfully
         foreach ($videoPaths as $videoPath) {
             if (is_file($videoPath)) {
                 @unlink($videoPath);
@@ -112,7 +117,12 @@ class AdminCourseController extends Controller
             @unlink($logoPath);
         }
 
-        AuditLogger::log(request(), 'delete_course', 'Course', (int) $id, ['title' => $course->title]);
+        // Audit log is non-fatal — a logging failure must not hide a successful delete
+        try {
+            AuditLogger::log(request(), 'delete_course', 'Course', (int) $id, ['title' => $courseTitle]);
+        } catch (\Throwable) {
+            // Intentionally swallowed — transaction already committed
+        }
 
         return response()->json(['success' => true, 'message' => 'تم حذف الكورس بنجاح']);
     }
@@ -161,6 +171,14 @@ class AdminCourseController extends Controller
         $mimeType = $file->getMimeType();
 
         $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
+        // Fallback: Windows/XAMPP finfo may return application/octet-stream for valid MP4/WebM files
+        if (! in_array($mimeType, $allowedVideoMimes)) {
+            $extToMime = ['mp4' => 'video/mp4', 'webm' => 'video/webm', 'mov' => 'video/quicktime', 'avi' => 'video/x-msvideo', 'mpeg' => 'video/mpeg', 'mpg' => 'video/mpeg'];
+            $clientExt = strtolower($file->getClientOriginalExtension());
+            if (isset($extToMime[$clientExt])) {
+                $mimeType = $extToMime[$clientExt];
+            }
+        }
         if (! in_array($mimeType, $allowedVideoMimes)) {
             return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
         }
@@ -168,7 +186,7 @@ class AdminCourseController extends Controller
         $ext = $videoMimeToExt[$mimeType] ?? 'mp4';
 
         $course = Course::find($courseId);
-        $catDir = $course ? $course->category : 'misc';
+        $catDir = $course ? preg_replace('/[^\p{L}\p{N}_\- ]/u', '_', $course->category) : 'misc';
         $dest = storage_path('app/videos/'.$catDir.'/'.$courseId);
         if (! is_dir($dest)) {
             mkdir($dest, 0755, true);
@@ -215,6 +233,14 @@ class AdminCourseController extends Controller
             $mimeType = $file->getMimeType();
 
             $allowedVideoMimes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'];
+            // Fallback: Windows/XAMPP finfo may return application/octet-stream for valid MP4/WebM files
+            if (! in_array($mimeType, $allowedVideoMimes)) {
+                $extToMime = ['mp4' => 'video/mp4', 'webm' => 'video/webm', 'mov' => 'video/quicktime', 'avi' => 'video/x-msvideo', 'mpeg' => 'video/mpeg', 'mpg' => 'video/mpeg'];
+                $clientExt = strtolower($file->getClientOriginalExtension());
+                if (isset($extToMime[$clientExt])) {
+                    $mimeType = $extToMime[$clientExt];
+                }
+            }
             if (! in_array($mimeType, $allowedVideoMimes)) {
                 return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ MP4, WebM, MOV, AVI فقط.'], 400);
             }
@@ -222,7 +248,7 @@ class AdminCourseController extends Controller
             $ext = $videoMimeToExt[$mimeType] ?? 'mp4';
 
             $course = Course::find($lesson->course_id);
-            $catDir = $course ? $course->category : 'misc';
+            $catDir = $course ? preg_replace('/[^\p{L}\p{N}_\- ]/u', '_', $course->category) : 'misc';
             $dest = storage_path('app/videos/'.$catDir.'/'.$lesson->course_id);
             if (! is_dir($dest)) {
                 mkdir($dest, 0755, true);
@@ -338,6 +364,23 @@ class AdminCourseController extends Controller
         $mimeType = $file->getMimeType();
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+        // Extension fallback: Windows/XAMPP finfo may return application/octet-stream
+        // for valid image files. Use the client-supplied extension ONLY to select a MIME
+        // from a hardcoded whitelist — we never trust the extension itself.
+        if (! in_array($mimeType, $allowed)) {
+            $extMimeMap = [
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+            ];
+            $clientExt = strtolower($file->getClientOriginalExtension());
+            if (isset($extMimeMap[$clientExt])) {
+                $mimeType = $extMimeMap[$clientExt];
+            }
+        }
+
         if (! in_array($mimeType, $allowed)) {
             return response()->json(['success' => false, 'message' => 'نوع الملف غير مدعوم. يُسمح بـ JPEG, PNG, GIF, WebP فقط.'], 400);
         }
@@ -369,5 +412,31 @@ class AdminCourseController extends Controller
         }
 
         return response()->json(['success' => true, 'logo_path' => $course->logo_path]);
+    }
+
+    /** DELETE /api/admin/courses/{id}/logo */
+    public function deleteLogo($id)
+    {
+        $course = Course::find($id);
+        if (! $course) {
+            return response()->json(['success' => false, 'message' => 'الدورة غير موجودة'], 404);
+        }
+
+        if (! $course->logo_path) {
+            return response()->json(['success' => false, 'message' => 'لا يوجد شعار لهذه الدورة'], 404);
+        }
+
+        // Clear DB first; delete file after
+        $oldPath = public_path(ltrim(str_replace('\\', '/', $course->logo_path), '/'));
+        $course->logo_path = null;
+        $course->save();
+
+        if ($oldPath && is_file($oldPath)) {
+            @unlink($oldPath);
+        }
+
+        AuditLogger::log(request(), 'delete_course_logo', 'Course', $course->id, []);
+
+        return response()->json(['success' => true]);
     }
 }

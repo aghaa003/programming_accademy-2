@@ -143,6 +143,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Stats
     Route::get('/stats', [AdminController::class, 'stats']);
+    Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
 
     // Courses & Lessons
     Route::get('/courses', [AdminCourseController::class, 'index']);
@@ -152,6 +153,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/courses/{id}', [AdminCourseController::class, 'destroy']);
     Route::get('/courses/{id}/lessons', [AdminCourseController::class, 'lessons']);
     Route::post('/courses/{id}/upload-logo', [AdminCourseController::class, 'uploadLogo']);
+    Route::delete('/courses/{id}/logo', [AdminCourseController::class, 'deleteLogo']);
 
     Route::post('/lessons', [AdminCourseController::class, 'storeLesson']);
     Route::put('/lessons/{id}', [AdminCourseController::class, 'updateLesson']);
@@ -197,5 +199,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/users', [AdminUserController::class, 'index']);
     Route::get('/users/{id}', [AdminUserController::class, 'show']);
     Route::post('/users/{id}/toggle-admin', [AdminUserController::class, 'toggleAdmin']);
+    Route::post('/users/{id}/toggle-suspend', [AdminUserController::class, 'toggleSuspend']);
     Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 });

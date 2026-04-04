@@ -5,7 +5,6 @@
  * 1) Every mutating fetch() call automatically gets CSRF handling.
  * 2) CSRF is requested from the same origin as the target API URL.
  * 3) A single automatic retry is performed if a request returns 419.
- * 4) Axios is optional; if present we expose window.api with same behavior.
  */
 (function () {
     "use strict";
@@ -149,35 +148,6 @@
     window.fetch = function (input, init) {
         return fetchWithCsrf(input, init, false);
     };
-
-    // Optional axios support for future calls that want window.api.
-    if (window.axios) {
-        window.axios.defaults.withCredentials = true;
-        window.axios.defaults.headers.common.Accept = "application/json";
-
-        window.api = window.axios.create({
-            withCredentials: true,
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-        });
-
-        window.api.interceptors.request.use(function (config) {
-            var fullUrl = new URL(
-                config.url || "",
-                config.baseURL || window.location.href,
-            );
-            return ensureCsrfForOrigin(fullUrl.origin).then(function () {
-                var token = getCookie("XSRF-TOKEN");
-                config.headers = config.headers || {};
-                if (token) {
-                    config.headers["X-XSRF-TOKEN"] = token;
-                }
-                return config;
-            });
-        });
-    }
 
     // Pre-warm CSRF for the current page origin.
     ensureCsrfForOrigin(window.location.origin).catch(function () {
