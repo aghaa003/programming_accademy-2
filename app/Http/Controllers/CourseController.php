@@ -15,7 +15,7 @@ class CourseController extends Controller
     public function index(Request $request)
     {
         $category = $request->query('category');
-        $cacheKey = 'courses_' . ($category ?? 'all');
+        $cacheKey = 'courses_'.($category ?? 'all');
 
         $courses = Cache::remember($cacheKey, 60, function () use ($category) {
             $query = Course::withCount('lessons')
@@ -53,9 +53,69 @@ class CourseController extends Controller
                     'color_class' => $this->colorClass($course->title),
                 ];
             });
+        }); // <-- Fixed: Added missing closure closing brace and semicolon
+
+        return response()->json($courses);
+    }
+
+    /** GET /api/courses/{id} */
+    public function show($id)
+    {
+        $course = Course::with('lessons')->where('id', $id)->where('is_active', 1)->first();
+
+        if (! $course) {
+            return response()->json(['error' => 'Course not found.'], 404);
+        }
+
+        $logoPath = null;
+        if (! empty($course->logo_path)) {
+            $lp = ltrim(str_replace('\\', '/', $course->logo_path), '/');
+            if (file_exists(public_path($lp))) {
+                $logoPath = '/'.$lp;
+            }
+        }
+
+        $lessons = $course->lessons->map(function ($lesson) {
+            $videoUrl = null;
+            if (! empty($lesson->video_path)) {
+                $vp = ltrim(str_replace('\\', '/', $lesson->video_path), '/');
+                if (file_exists(public_path($vp))) {
+                    $videoUrl = '/'.$vp;
+                }
+            }
+
+            return [
+                'id' => $lesson->id,
+                'courseId' => $lesson->course_id,
+                'title' => $lesson->title,
+                'description' => $lesson->description,
+                'videoUrl' => $videoUrl,
+                'duration' => null,
+                'order' => $lesson->sort_order,
+                'createdAt' => $lesson->created_at,
+            ];
         });
 
-        return response()->json(['success' => true, 'courses' => $courses]);
+        return response()->json([
+            'course' => [
+                'id' => $course->id,
+                'title' => $course->title,
+                'description' => $course->description,
+                'category' => $course->category,
+                'level' => $course->level,
+                'thumbnailUrl' => $logoPath,
+                'language' => null,
+                'creatorId' => null,
+                'creatorName' => null,
+                'creatorAvatar' => null,
+                'averageRating' => (float) (DB::table('course_reviews')->where('course_id', $course->id)->avg('rating') ?? 0),
+                'totalReviews' => DB::table('course_reviews')->where('course_id', $course->id)->count(),
+                'totalLessons' => $course->lessons->count(),
+                'totalEnrollments' => $course->total_enrollments ?? DB::table('user_course_progress')->where('course_id', $course->id)->count(),
+                'createdAt' => $course->created_at,
+                'lessons' => $lessons,
+            ],
+        ]);
     }
 
     /** GET /api/user-courses  - enrolled courses for logged in user */
@@ -140,18 +200,18 @@ class CourseController extends Controller
             return $row;
         }, $courses);
 
-        return response()->json(['success' => true, 'courses' => $courses]);
+        return response()->json($courses);
     }
 
     public function deleteCourseProgress(Request $request, $courseId)
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         if (! Course::where('id', $courseId)->exists()) {
-            return response()->json(['success' => false, 'message' => 'الكورس غير موجود.'], 404);
+            return response()->json(['error' => 'الكورس غير موجود.'], 404);
         }
 
         DB::transaction(function () use ($userId, $courseId) {
@@ -167,7 +227,7 @@ class CourseController extends Controller
             UserCourseProgress::where('user_id', $userId)->where('course_id', $courseId)->delete();
         });
 
-        return response()->json(['success' => true, 'message' => 'تم حذف تقدم الكورس.']);
+        return response()->json(['message' => 'تم حذف تقدم الكورس.']);
     }
 
     private function iconClass(string $title): string

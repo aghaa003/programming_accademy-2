@@ -35,7 +35,7 @@ class ChallengeController extends Controller
             ->orderBy('c.created_at', 'desc')
             ->get();
 
-        return response()->json(['success' => true, 'challenges' => $challenges]);
+        return response()->json($challenges);
     }
 
     /** GET /api/challenge-stats */
@@ -53,13 +53,10 @@ class ChallengeController extends Controller
         }
 
         return response()->json([
-            'success' => true,
-            'stats' => [
-                'total_challenges' => $totalChallenges,
-                'active_users' => $activeUsers ?: DB::table('users')->count(),
-                'total_completions' => $totalCompletions,
-                'average_rating' => $avgRating,
-            ],
+            'total_challenges' => $totalChallenges,
+            'active_users' => $activeUsers ?: DB::table('users')->count(),
+            'total_completions' => $totalCompletions,
+            'average_rating' => $avgRating,
         ]);
     }
 
@@ -68,7 +65,7 @@ class ChallengeController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'showLogin' => true]);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $attemptedChallenges = DB::table('user_challenges')->where('user_id', $userId)->count();

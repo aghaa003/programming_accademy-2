@@ -17,14 +17,14 @@ class ProfileController extends Controller
         $userId = auth()->id();
 
         if (! $userId) {
-            return response()->json(['success' => false], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $user = User::select('id', 'username', 'firstName', 'lastName', 'email', 'avatar_path', 'preferred_language')
             ->find($userId);
 
         if (! $user) {
-            return response()->json(['success' => false]);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
@@ -34,7 +34,6 @@ class ProfileController extends Controller
         $roles = $user->roles()->pluck('name')->toArray();
 
         return response()->json([
-            'success' => true,
             'roles' => $roles,
             'user' => [
                 'id' => $user->id,
@@ -54,18 +53,17 @@ class ProfileController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $user = User::with('roles')->find($userId);
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         return response()->json([
-            'success' => true,
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
@@ -90,12 +88,12 @@ class ProfileController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $user = User::find($userId);
         if (! $user) {
-            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+            return response()->json(['error' => 'User not found'], 404);
         }
 
         // Check phone uniqueness (exclude current user)
@@ -104,7 +102,7 @@ class ProfileController extends Controller
                 ->where('id', '!=', $userId)
                 ->exists();
             if ($phoneExists) {
-                return response()->json(['success' => false, 'message' => 'رقم الهاتف مستخدم بالفعل من قبل حساب آخر.'], 409);
+                return response()->json(['error' => 'رقم الهاتف مستخدم بالفعل من قبل حساب آخر.'], 409);
             }
         }
 
@@ -114,7 +112,7 @@ class ProfileController extends Controller
                 ->where('id', '!=', $userId)
                 ->exists();
             if ($emailExists) {
-                return response()->json(['success' => false, 'message' => 'البريد الإلكتروني مستخدم بالفعل من قبل حساب آخر.'], 409);
+                return response()->json(['error' => 'البريد الإلكتروني مستخدم بالفعل من قبل حساب آخر.'], 409);
             }
         }
 
@@ -130,20 +128,20 @@ class ProfileController extends Controller
         $currentPassword = $request->input('currentPassword', $request->input('current_password', ''));
         if (! empty($newPassword)) {
             if (mb_strlen($newPassword) < 6) {
-                return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.'], 400);
+                return response()->json(['error' => 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.'], 400);
             }
             if (mb_strlen($newPassword) > 72) {
-                return response()->json(['success' => false, 'message' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
+                return response()->json(['error' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.'], 400);
             }
             if (! Hash::check($currentPassword, $user->password)) {
-                return response()->json(['success' => false, 'message' => 'كلمة المرور الحالية غير صحيحة.'], 400);
+                return response()->json(['error' => 'كلمة المرور الحالية غير صحيحة.'], 400);
             }
             $user->password = Hash::make($newPassword);
         }
 
         $user->save();
 
-        return response()->json(['success' => true, 'message' => 'تم تحديث الملف الشخصي بنجاح.']);
+        return response()->json(['message' => 'تم تحديث الملف الشخصي بنجاح.']);
     }
 
     /** POST /api/upload-avatar */

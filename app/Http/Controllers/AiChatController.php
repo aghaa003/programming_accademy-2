@@ -27,7 +27,7 @@ class AiChatController extends Controller
                 ];
             });
 
-        return response()->json(['success' => true, 'conversations' => $conversations]);
+        return response()->json($conversations);
     }
 
     /** POST /api/ai/conversations */
@@ -38,10 +38,7 @@ class AiChatController extends Controller
             'title' => null,
         ]);
 
-        return response()->json(['success' => true, 'conversation' => [
-            'id' => $conv->id,
-            'title' => 'محادثة جديدة',
-        ]], 201);
+        return response()->json($conv, 201);
     }
 
     /** GET /api/ai/conversations/{id} */
@@ -54,11 +51,8 @@ class AiChatController extends Controller
         $messages = $conv->messages()->get(['id', 'role', 'content', 'has_images', 'created_at']);
 
         return response()->json([
-            'success' => true,
-            'conversation' => [
-                'id' => $conv->id,
-                'title' => $conv->title ?: 'محادثة جديدة',
-            ],
+            'id' => $conv->id,
+            'title' => $conv->title ?: 'محادثة جديدة',
             'messages' => $messages,
         ]);
     }
@@ -72,7 +66,7 @@ class AiChatController extends Controller
 
         $conv->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['message' => 'Conversation deleted']);
     }
 
     /** PATCH /api/ai/conversations/{id}/title */
@@ -84,13 +78,13 @@ class AiChatController extends Controller
 
         $title = trim((string) $request->input('title', ''));
         if ($title === '') {
-            return response()->json(['success' => false, 'message' => 'العنوان لا يمكن أن يكون فارغاً.'], 422);
+            return response()->json(['error' => 'العنوان لا يمكن أن يكون فارغاً.'], 422);
         }
 
         $conv->title = mb_substr($title, 0, 255);
         $conv->save();
 
-        return response()->json(['success' => true, 'title' => $conv->title]);
+        return response()->json(['title' => $conv->title]);
     }
 
     /** POST /api/ai/conversations/{id}/messages */
@@ -104,13 +98,13 @@ class AiChatController extends Controller
         $code = trim((string) $request->input('code', ''));
 
         if ($message === '') {
-            return response()->json(['success' => false, 'message' => 'يرجى إرسال الرسالة.'], 400);
+            return response()->json(['error' => 'يرجى إرسال الرسالة.'], 400);
         }
         if (strlen($message) > 2000) {
-            return response()->json(['success' => false, 'message' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
+            return response()->json(['error' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
         }
         if (strlen($code) > 100000) {
-            return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
+            return response()->json(['error' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
         // Accept images as proper file uploads — avoids base64 text-field size limits

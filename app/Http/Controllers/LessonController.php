@@ -17,16 +17,16 @@ class LessonController extends Controller
         $courseId = $request->query('course_id');
 
         if (!$userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         if (!$courseId) {
-            return response()->json(['success' => false, 'message' => 'Missing course_id'], 400);
+            return response()->json(['error' => 'Missing course_id'], 400);
         }
 
         $course = Course::where('id', $courseId)->where('is_active', 1)->first();
         if (!$course) {
-            return response()->json(['success' => false, 'message' => 'Course not found'], 404);
+            return response()->json(['error' => 'Course not found'], 404);
         }
 
         $points = array_values(array_filter(array_map('trim', explode("\n", $course->main_points ?? ''))));
@@ -86,7 +86,6 @@ class LessonController extends Controller
             ->first();
 
         return response()->json([
-            'success'  => true,
             'course'   => $courseData,
             'lessons'  => $enriched,
             'progress' => [

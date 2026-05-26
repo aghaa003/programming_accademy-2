@@ -48,15 +48,15 @@ class AiController extends Controller
         $hasImages = count($validImages) > 0;
 
         if ($message === '') {
-            return response()->json(['success' => false, 'message' => 'يرجى إرسال الرسالة.'], 400);
+            return response()->json(['error' => 'يرجى إرسال الرسالة.'], 400);
         }
 
         if (strlen($message) > 2000) {
-            return response()->json(['success' => false, 'message' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
+            return response()->json(['error' => 'الرسالة طويلة جداً، يرجى تقليلها.'], 413);
         }
 
         if (strlen($code) > 100000) {
-            return response()->json(['success' => false, 'message' => 'الكود طويل جداً، يرجى تقليله.'], 413);
+            return response()->json(['error' => 'الكود طويل جداً، يرجى تقليله.'], 413);
         }
 
         $visionModel = config('ai.ollama_vision_model', 'qwen3-vl:235b-cloud');

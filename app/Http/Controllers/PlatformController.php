@@ -98,7 +98,6 @@ class PlatformController extends Controller
         $total = $countQuery->count();
 
         return response()->json([
-            'success'    => true,
             'platforms'  => $platforms,
             'pagination' => [
                 'total'    => $total,
@@ -114,24 +113,24 @@ class PlatformController extends Controller
     {
         $userId = auth()->id();
         if (!$userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $platformId = $request->input('platform_id');
         if (!$platformId || !\App\Models\Platform::where('id', $platformId)->exists()) {
-            return response()->json(['success' => false, 'message' => 'المنصة غير موجودة.'], 404);
+            return response()->json(['error' => 'المنصة غير موجودة.'], 404);
         }
 
         $existing = PlatformBookmark::where('user_id', $userId)->where('platform_id', $platformId)->first();
 
         if ($existing) {
             $existing->delete();
-            return response()->json(['success' => true, 'bookmarked' => false, 'message' => 'تم إزالة الإشارة المرجعية']);
+            return response()->json(['bookmarked' => false, 'message' => 'تم إزالة الإشارة المرجعية']);
         }
 
         // insertOrIgnore guards against duplicate inserts from concurrent requests (UNIQUE key is the final guard)
         DB::table('platform_bookmarks')->insertOrIgnore(['user_id' => $userId, 'platform_id' => $platformId]);
-        return response()->json(['success' => true, 'bookmarked' => true, 'message' => 'تمت إضافة الإشارة المرجعية']);
+        return response()->json(['bookmarked' => true, 'message' => 'تمت إضافة الإشارة المرجعية']);
     }
 
     /** POST /api/rate-platform */
@@ -139,14 +138,14 @@ class PlatformController extends Controller
     {
         $userId = auth()->id();
         if (!$userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $platformId = $request->input('platform_id');
         $rating     = (int) $request->input('rating');
 
         if (!$platformId || !\App\Models\Platform::where('id', $platformId)->exists()) {
-            return response()->json(['success' => false, 'message' => 'المنصة غير موجودة.'], 404);
+            return response()->json(['error' => 'المنصة غير موجودة.'], 404);
         }
 
         if ($rating < 1 || $rating > 5) {

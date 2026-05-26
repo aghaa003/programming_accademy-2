@@ -34,11 +34,10 @@ class PathController extends Controller
     public function show(string $path)
     {
         if (!array_key_exists($path, self::PATHS)) {
-            return response()->json(['success' => false, 'message' => 'Path not found'], 404);
+            return response()->json(['error' => 'Path not found'], 404);
         }
 
         return response()->json([
-            'success' => true,
             'path'    => $path,
             'config'  => self::PATHS[$path],
         ]);
@@ -47,6 +46,6 @@ class PathController extends Controller
     /** GET /api/paths */
     public function index()
     {
-        return response()->json(['success' => true, 'paths' => self::PATHS]);
+        return response()->json(self::PATHS);
     }
 }

@@ -46,7 +46,6 @@ class LeaderboardController extends Controller
         });
 
         return response()->json([
-            'success' => true,
             'leaderboard' => $leaderboard,
             'total_participants' => count($leaderboard),
         ]);

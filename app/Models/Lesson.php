@@ -22,4 +22,14 @@ class Lesson extends Model
     {
         return $this->hasMany(UserLessonProgress::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(LessonComment::class);
+    }
+
+    public function likes_relation()
+    {
+        return $this->hasMany(LessonLike::class);
+    }
 }

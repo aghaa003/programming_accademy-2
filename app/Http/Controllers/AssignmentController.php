@@ -13,12 +13,12 @@ class AssignmentController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $courseId = $request->query('course');
         if (! $courseId) {
-            return response()->json(['success' => false, 'message' => 'Course is required'], 400);
+            return response()->json(['error' => 'Course is required'], 400);
         }
 
         $assignments = DB::table('assignments as a')
@@ -34,7 +34,7 @@ class AssignmentController extends Controller
             ->orderBy('a.assignment_order')
             ->get();
 
-        return response()->json(['success' => true, 'assignments' => $assignments]);
+        return response()->json($assignments);
     }
 
     /** GET /api/courses-with-assignments?category=X */
@@ -42,7 +42,7 @@ class AssignmentController extends Controller
     {
         $category = $request->query('category');
         if (! $category) {
-            return response()->json(['success' => false, 'message' => 'Category is required'], 400);
+            return response()->json(['error' => 'Category is required'], 400);
         }
 
         $userId = auth()->id();
@@ -61,7 +61,7 @@ class AssignmentController extends Controller
 
         $courses = $query->get();
 
-        return response()->json(['success' => true, 'courses' => $courses]);
+        return response()->json($courses);
     }
 
     /** POST /api/assignments/submit */
@@ -69,22 +69,22 @@ class AssignmentController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $assignmentId = $request->input('assignment_id');
         $solution = $request->input('solution');
 
         if (! $assignmentId || ! $solution) {
-            return response()->json(['success' => false, 'message' => 'Assignment ID and solution are required'], 400);
+            return response()->json(['error' => 'Assignment ID and solution are required'], 400);
         }
 
         if (strlen($solution) > 10000) {
-            return response()->json(['success' => false, 'message' => 'الحل طويل جداً، يرجى تقليله.'], 413);
+            return response()->json(['error' => 'الحل طويل جداً، يرجى تقليله.'], 413);
         }
 
         if (! Assignment::where('id', $assignmentId)->where('is_active', 1)->exists()) {
-            return response()->json(['success' => false, 'message' => 'التكليف غير موجود.'], 404);
+            return response()->json(['error' => 'التكليف غير موجود.'], 404);
         }
 
         // Simulate scoring — range 0-100 so the 70-point threshold can actually fail

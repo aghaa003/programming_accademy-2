@@ -24,7 +24,7 @@ class AiInputValidationTest extends TestCase
     {
         $response = $this->actingAsUser()->postJson('/api/ai/helper', ['message' => '']);
         $response->assertStatus(400)
-                 ->assertJson(['success' => false]);
+                 ->assertJsonStructure(['error']);
     }
 
     public function test_ai_general_rejects_oversized_message(): void
@@ -33,7 +33,7 @@ class AiInputValidationTest extends TestCase
             'message' => str_repeat('a', 2001),
         ]);
         $response->assertStatus(413)
-                 ->assertJson(['success' => false]);
+                 ->assertJsonStructure(['error']);
     }
 
     public function test_ai_general_rejects_oversized_code(): void
@@ -43,7 +43,7 @@ class AiInputValidationTest extends TestCase
             'code'    => str_repeat('x', 100001),
         ]);
         $response->assertStatus(413)
-                 ->assertJson(['success' => false]);
+                 ->assertJsonStructure(['error']);
     }
 
     public function test_ai_challenges_requires_authentication(): void

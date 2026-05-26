@@ -15,7 +15,7 @@ class ProgressController extends Controller
     {
         $userId = auth()->id();
         if (! $userId) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
+            return response()->json(['error' => 'Not authenticated'], 401);
         }
 
         $lessonId = $request->input('lesson_id');
@@ -23,12 +23,12 @@ class ProgressController extends Controller
         $position = (int) $request->input('position', 0);
 
         if (! $lessonId || ! $action) {
-            return response()->json(['success' => false, 'message' => 'Missing required parameters'], 400);
+            return response()->json(['error' => 'Missing required parameters'], 400);
         }
 
         $lesson = Lesson::find($lessonId);
         if (! $lesson) {
-            return response()->json(['success' => false, 'message' => 'Lesson not found'], 404);
+            return response()->json(['error' => 'Lesson not found'], 404);
         }
 
         $courseId = $lesson->course_id;
@@ -103,7 +103,7 @@ class ProgressController extends Controller
             } else {
                 DB::rollBack();
 
-                return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
+                return response()->json(['error' => 'Invalid action'], 400);
             }
 
             // Recalculate course percentage
@@ -143,7 +143,6 @@ class ProgressController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true,
                 'message' => $message,
                 'progress' => [
                     'completed_lessons' => $completedLessons,

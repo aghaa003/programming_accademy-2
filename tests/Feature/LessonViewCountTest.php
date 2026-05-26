@@ -68,7 +68,7 @@ class LessonViewCountTest extends TestCase
         $user = $this->makeUser();
         $lessonId = $this->makeLesson();
 
-        $this->postProgress($user, $lessonId, 'update_position')->assertJsonPath('success', true);
+        $this->postProgress($user, $lessonId, 'update_position')->assertStatus(200);
 
         $this->assertSame(1, $this->viewCount($lessonId));
     }
@@ -92,7 +92,7 @@ class LessonViewCountTest extends TestCase
         $lessonId = $this->makeLesson();
 
         // User clicks complete without watching (no update_position first)
-        $this->postProgress($user, $lessonId, 'mark_complete')->assertJsonPath('success', true);
+        $this->postProgress($user, $lessonId, 'mark_complete')->assertStatus(200);
 
         $this->assertSame(1, $this->viewCount($lessonId));
     }

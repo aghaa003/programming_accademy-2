@@ -66,8 +66,7 @@ class AiConversationTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/ai/conversations');
 
         $response->assertStatus(201)
-            ->assertJsonPath('success', true)
-            ->assertJsonStructure(['success', 'conversation' => ['id', 'title']]);
+            ->assertJsonStructure(['id', 'title', 'user_id', 'created_at', 'updated_at']);
 
         $this->assertDatabaseHas('ai_conversations', ['user_id' => $user->id]);
     }
@@ -82,9 +81,9 @@ class AiConversationTest extends TestCase
 
         $response = $this->actingAs($user1)->getJson('/api/ai/conversations');
 
-        $response->assertStatus(200)->assertJsonPath('success', true);
-        $this->assertCount(1, $response->json('conversations'));
-        $this->assertEquals('محادثة المستخدم الأول', $response->json('conversations.0.title'));
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json('*'));
+        $this->assertEquals('محادثة المستخدم الأول', $response->json('0.title'));
     }
 
     public function test_show_conversation_returns_messages(): void
@@ -97,7 +96,6 @@ class AiConversationTest extends TestCase
         $response = $this->actingAs($user)->getJson("/api/ai/conversations/{$conv->id}");
 
         $response->assertStatus(200)
-            ->assertJsonPath('success', true)
             ->assertJsonCount(2, 'messages');
     }
 
@@ -117,7 +115,8 @@ class AiConversationTest extends TestCase
         $conv = AiConversation::create(['user_id' => $user->id, 'title' => 'تُحذف']);
 
         $this->actingAs($user)->deleteJson("/api/ai/conversations/{$conv->id}")
-            ->assertStatus(200)->assertJsonPath('success', true);
+            ->assertStatus(200)
+            ->assertJson(['message' => 'Conversation deleted']);
 
         $this->assertDatabaseMissing('ai_conversations', ['id' => $conv->id]);
     }
@@ -130,7 +129,6 @@ class AiConversationTest extends TestCase
         $this->actingAs($user)
             ->patchJson("/api/ai/conversations/{$conv->id}/title", ['title' => 'عنوان جديد'])
             ->assertStatus(200)
-            ->assertJsonPath('success', true)
             ->assertJsonPath('title', 'عنوان جديد');
 
         $this->assertDatabaseHas('ai_conversations', ['id' => $conv->id, 'title' => 'عنوان جديد']);
@@ -144,7 +142,7 @@ class AiConversationTest extends TestCase
         $this->actingAs($user)
             ->patchJson("/api/ai/conversations/{$conv->id}/title", ['title' => ''])
             ->assertStatus(422)
-            ->assertJsonPath('success', false);
+            ->assertJsonStructure(['error']);
     }
 
     /* ── Input validation for sendMessage ─────────────────────────────────── */
@@ -157,7 +155,7 @@ class AiConversationTest extends TestCase
         $this->actingAs($user)
             ->postJson("/api/ai/conversations/{$conv->id}/messages", ['message' => ''])
             ->assertStatus(400)
-            ->assertJsonPath('success', false);
+            ->assertJsonStructure(['error']);
     }
 
     public function test_send_message_rejects_oversized_message(): void
@@ -170,7 +168,7 @@ class AiConversationTest extends TestCase
                 'message' => str_repeat('أ', 2001),
             ])
             ->assertStatus(413)
-            ->assertJsonPath('success', false);
+            ->assertJsonStructure(['error']);
     }
 
     public function test_send_message_to_nonexistent_conversation_returns_404(): void

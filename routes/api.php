@@ -12,15 +12,23 @@ use App\Http\Controllers\AiController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\CommunityCommentController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ExampleController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\LessonCommentController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\LessonLikeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PathController;
 use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\RepoLikeController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\VideoStreamController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +40,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
 });
 Route::middleware('throttle:20,1')->post('/check-availability', [AuthController::class, 'checkAvailability']);
 Route::middleware('throttle:5,1')->group(function () {
@@ -42,6 +52,8 @@ Route::middleware('throttle:5,1')->group(function () {
 // Public listings (rate-limited: 100 requests per minute per IP)
 Route::middleware('throttle:100,1')->group(function () {
     Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/courses/{id}', [CourseController::class, 'show']);
+    Route::get('/courses/{courseId}/reviews', [ReviewController::class, 'courseIndex']);
     Route::get('/platforms', [PlatformController::class, 'index']);
     Route::get('/challenges', [ChallengeController::class, 'index']);
     Route::get('/challenge-stats', [ChallengeController::class, 'stats']);
@@ -75,15 +87,19 @@ Route::middleware('throttle:100,1')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/me', [ProfileController::class, 'show']);
 
     // User status
     Route::get('/user/status', [ProfileController::class, 'status']);
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
+    Route::get('/users/profile', [ProfileController::class, 'show']);
     Route::middleware('throttle:15,1')->group(function () {
         Route::post('/profile', [ProfileController::class, 'update']);
         Route::put('/profile', [ProfileController::class, 'update']);
+        Route::post('/users/profile', [ProfileController::class, 'update']);
         Route::delete('/profile', [ProfileController::class, 'destroy']);
         Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);
         Route::post('/update-language', [ProfileController::class, 'updateLanguage']);
@@ -111,6 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Reviews
+    Route::middleware('throttle:20,1')->post('/courses/{courseId}/reviews', [ReviewController::class, 'storeForCourse']);
     Route::middleware('throttle:20,1')->post('/reviews', [ReviewController::class, 'store']);
 
     // Challenges (rate-limited: max 30 submissions per minute)
@@ -119,6 +136,69 @@ Route::middleware('auth:sanctum')->group(function () {
     // Assignments
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::middleware('throttle:20,1')->post('/assignments/submit', [AssignmentController::class, 'submit']);
+
+    // Repositories (rate-limited: 30 per minute for submissions/likes)
+    Route::middleware('throttle:100,1')->group(function () {
+        Route::get('/repositories', [RepositoryController::class, 'index']);
+        Route::get('/repositories/{id}', [RepositoryController::class, 'show']);
+    });
+    Route::middleware('throttle:20,1')->post('/repositories', [RepositoryController::class, 'store']);
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::put('/repositories/{id}', [RepositoryController::class, 'update']);
+        Route::delete('/repositories/{id}', [RepositoryController::class, 'destroy']);
+        Route::post('/repositories/{id}/like', [RepositoryController::class, 'like']);
+    });
+
+    // Community Posts (rate-limited: 20 per minute for writes)
+    Route::middleware('throttle:100,1')->group(function () {
+        Route::get('/community/posts', [CommunityController::class, 'index']);
+        Route::get('/community/posts/{id}', [CommunityController::class, 'show']);
+    });
+    Route::middleware('throttle:20,1')->post('/community/posts', [CommunityController::class, 'store']);
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::put('/community/posts/{id}', [CommunityController::class, 'update']);
+        Route::delete('/community/posts/{id}', [CommunityController::class, 'destroy']);
+        Route::post('/community/posts/{id}/like', [CommunityController::class, 'like']);
+    });
+
+    // Community Comments (rate-limited: 30 per minute)
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/community/posts/{postId}/comments', [CommunityCommentController::class, 'store']);
+        Route::put('/community/posts/{postId}/comments/{commentId}', [CommunityCommentController::class, 'update']);
+        Route::delete('/community/posts/{postId}/comments/{commentId}', [CommunityCommentController::class, 'destroy']);
+    });
+
+    // Lesson Comments (rate-limited: 30 per minute)
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/lessons/{lessonId}/comments', [LessonCommentController::class, 'store']);
+        Route::put('/lessons/{lessonId}/comments/{commentId}', [LessonCommentController::class, 'update']);
+        Route::delete('/lessons/{lessonId}/comments/{commentId}', [LessonCommentController::class, 'destroy']);
+    });
+
+    // Lesson Likes (rate-limited: 30 per minute)
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/lessons/{lessonId}/like', [LessonLikeController::class, 'toggle']);
+        Route::get('/lessons/{lessonId}/likes', [LessonLikeController::class, 'getLikes']);
+    });
+
+    // Notifications (rate-limited: 100 per minute for reads)
+    Route::middleware('throttle:100,1')->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount']);
+    });
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{id}', [NotificationController::class, 'delete']);
+        Route::delete('/notifications', [NotificationController::class, 'deleteAll']);
+    });
+
+    // File Uploads (rate-limited: 20 per minute, 50MB max per file)
+    Route::middleware('throttle:20,1')->post('/uploads', [UploadController::class, 'store']);
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::delete('/uploads/{id}', [UploadController::class, 'destroy']);
+        Route::get('/uploads', [UploadController::class, 'getUserUploads']);
+    });
 
     // AI — per-endpoint limits tuned to Ollama cost per call
     Route::middleware('throttle:10,1')->post('/ai/helper', [AiController::class, 'general']);           // general chat: lightweight, 10/min

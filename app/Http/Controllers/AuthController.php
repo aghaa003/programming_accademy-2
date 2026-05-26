@@ -6,16 +6,17 @@ use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Mail\PasswordResetMail;
 use App\Models\PasswordReset;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use App\Mail\PasswordResetMail;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -23,27 +24,28 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $identifier = $request->input('identifier', '');
-        $password   = $request->input('password', '');
-        $remember   = (bool) $request->input('remember', false);
+        $password = $request->input('password', '');
+        $remember = (bool) $request->input('remember', false);
 
         // Empty check now handled by LoginRequest validation above
 
         // M7: Brute-force lockout — 10 attempts per identifier+IP per 15 minutes
-        $lockKey = 'login_fails_' . sha1($identifier . '|' . $request->ip());
+        $lockKey = 'login_fails_'.sha1($identifier.'|'.$request->ip());
         if (Cache::get($lockKey, 0) >= 10) {
-            return response()->json(['success' => false, 'message' => 'تم تجاوز الحد المسموح من المحاولات. يرجى المحاولة بعد 15 دقيقة.'], 429);
+            return response()->json(['error' => 'تم تجاوز الحد المسموح من المحاولات. يرجى المحاولة بعد 15 دقيقة.'], 429);
         }
 
         $user = User::where('username', $identifier)->orWhere('email', $identifier)->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
             Cache::put($lockKey, Cache::get($lockKey, 0) + 1, now()->addMinutes(15));
-            return response()->json(['success' => false, 'message' => 'بيانات الاعتماد غير صحيحة.'], 401);
+
+            return response()->json(['error' => 'بيانات الاعتماد غيرصحيحة.'], 401);
         }
 
         // Block suspended accounts — same generic message to avoid account enumeration
         if ($user->is_suspended) {
-            return response()->json(['success' => false, 'message' => 'تم تعليق هذا الحساب. يرجى التواصل مع الإدارة.'], 403);
+            return response()->json(['error' => 'تم تعليق هذا الحساب. يرجى التواصل مع الإدارة.'], 403);
         }
 
         // M7: Clear lockout counter on successful login
@@ -62,14 +64,13 @@ class AuthController extends Controller
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         $response = response()->json([
-            'success'   => true,
-            'message'   => 'تم تسجيل الدخول بنجاح!',
-            'id'        => $user->id,
-            'username'  => $user->username,
+            'message' => 'تم تسجيل الدخول بنجاح!',
+            'id' => $user->id,
+            'username' => $user->username,
             'firstName' => $user->firstName,
-            'lastName'  => $user->lastName,
-            'email'     => $user->email,
-            'avatar'    => $avatar,
+            'lastName' => $user->lastName,
+            'email' => $user->email,
+            'avatar' => $avatar,
         ]);
 
         if ($remember) {
@@ -103,7 +104,7 @@ class AuthController extends Controller
         }
 
         if ($query->exists()) {
-            return response()->json(['success' => false, 'message' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
+            return response()->json(['error' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
         }
 
         try {
@@ -120,9 +121,9 @@ class AuthController extends Controller
                 'interest' => $data['interest'] ?? null,
                 'joinDate' => now(),
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             if ($e->errorInfo[1] === 1062) {
-                return response()->json(['success' => false, 'message' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
+                return response()->json(['error' => 'اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف مسجل بالفعل.'], 409);
             }
             throw $e;
         }
@@ -130,7 +131,7 @@ class AuthController extends Controller
         // Assign default 'student' role (role_id=1)
         $user->roles()->attach(1);
 
-        return response()->json(['success' => true, 'message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
+        return response()->json(['message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
     }
 
     public function logout(Request $request)
@@ -139,7 +140,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['success' => true, 'message' => 'تم تسجيل الخروج بنجاح.'])
+        return response()->json(['message' => 'تم تسجيل الخروج بنجاح.'])
             ->withCookie(Cookie::forget('remember_user'));
     }
 

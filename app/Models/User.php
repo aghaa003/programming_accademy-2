@@ -68,6 +68,51 @@ class User extends Authenticatable
         return $this->hasOne(UserPreference::class);
     }
 
+    public function repositories()
+    {
+        return $this->hasMany(Repository::class);
+    }
+
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    public function communityComments()
+    {
+        return $this->hasMany(CommunityPostComment::class);
+    }
+
+    public function lessonComments()
+    {
+        return $this->hasMany(LessonComment::class);
+    }
+
+    public function repositoryLikes()
+    {
+        return $this->hasMany(RepoLike::class);
+    }
+
+    public function communityLikes()
+    {
+        return $this->hasMany(CommunityPostLike::class);
+    }
+
+    public function lessonLikes()
+    {
+        return $this->hasMany(LessonLike::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function uploads()
+    {
+        return $this->hasMany(Upload::class);
+    }
+
     public function hasRole(string $role): bool
     {
         return $this->roles()->where('name', $role)->exists();

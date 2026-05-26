@@ -62,7 +62,7 @@ class ExampleController extends Controller
         }
         $total = $totalQuery->count();
 
-        return response()->json(['success' => true, 'examples' => $examples, 'total' => $total]);
+        return response()->json(['examples' => $examples, 'total' => $total]);
     }
 
     /** GET /api/examples/{id} */
@@ -70,7 +70,7 @@ class ExampleController extends Controller
     {
         $example = Example::where('id', $id)->where('is_active', 1)->first();
         if (! $example) {
-            return response()->json(['success' => false, 'message' => 'Example not found'], 404);
+            return response()->json(['error' => 'Example not found'], 404);
         }
         $arr = $example->toArray();
         // technologies is already cast to array by the model
@@ -80,6 +80,6 @@ class ExampleController extends Controller
             $arr['technologies'] = [];
         }
 
-        return response()->json(['success' => true, 'example' => $arr]);
+        return response()->json(['example' => $arr]);
     }
 }

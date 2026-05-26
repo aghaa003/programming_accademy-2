@@ -10,7 +10,7 @@ class Course extends Model
     use HasFactory;
     protected $fillable = [
         'title', 'description', 'main_points', 'category',
-        'logo_path', 'level', 'is_active',
+        'logo_path', 'level', 'is_active', 'total_enrollments',
     ];
 
     protected $casts = ['is_active' => 'boolean'];
