@@ -303,4 +303,41 @@ class CourseController extends Controller
 
         return 'default-icon';
     }
+
+    /** GET /api/courses/{courseId}/viewers - Users viewing/enrolled in course */
+    public function viewers($courseId, Request $request)
+    {
+        $limit  = min((int) $request->query('limit', 50), 200);
+        $offset = max((int) $request->query('offset', 0), 0);
+
+        if (! Course::where('id', $courseId)->exists()) {
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        $viewers = DB::table('user_course_progress as ucp')
+            ->select(
+                'u.id',
+                'u.username',
+                'u.firstName',
+                'u.lastName',
+                'u.avatar_path',
+                'ucp.progress_percentage',
+                'ucp.is_complete',
+                'ucp.updated_at as last_activity'
+            )
+            ->join('users as u', 'u.id', '=', 'ucp.user_id')
+            ->where('ucp.course_id', $courseId)
+            ->orderByDesc('ucp.updated_at')
+            ->skip($offset)->take($limit)
+            ->get()
+            ->map(function ($viewer) {
+                $viewer->avatar_url = ! empty($viewer->avatar_path) ? asset($viewer->avatar_path) : null;
+                unset($viewer->avatar_path);
+                return $viewer;
+            });
+
+        $total = DB::table('user_course_progress')->where('course_id', $courseId)->count();
+
+        return response()->json(['success' => true, 'viewers' => $viewers, 'total' => $total]);
+    }
 }

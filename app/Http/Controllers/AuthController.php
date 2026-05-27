@@ -23,7 +23,8 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $identifier = $request->input('identifier', '');
+        // Accept both 'identifier' (legacy) and 'emailAddress' (React) field names
+        $identifier = $request->input('emailAddress') ?? $request->input('identifier', '');
         $password = $request->input('password', '');
         $remember = (bool) $request->input('remember', false);
 
@@ -64,6 +65,7 @@ class AuthController extends Controller
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
 
         $response = response()->json([
+            'success' => true,
             'message' => 'تم تسجيل الدخول بنجاح!',
             'id' => $user->id,
             'username' => $user->username,
@@ -146,7 +148,8 @@ class AuthController extends Controller
 
     public function checkAvailability(Request $request)
     {
-        $email = trim($request->input('email', ''));
+        // Accept both 'email' (legacy) and 'emailAddress' (React) field names
+        $email = trim($request->input('emailAddress') ?? $request->input('email', ''));
         $username = trim($request->input('username', ''));
         $phone = trim($request->input('phone', ''));
 

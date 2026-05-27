@@ -113,4 +113,28 @@ class AssignmentController extends Controller
             'score' => $score,
         ]);
     }
+
+    /** GET /api/assignments/review - Paginated assignments for admin review */
+    public function review(Request $request)
+    {
+        $limit  = min((int) $request->query('limit', 50), 200);
+        $offset = max((int) $request->query('offset', 0), 0);
+
+        $assignments = DB::table('assignments as a')
+            ->select(
+                'a.id',
+                'a.title',
+                'c.title as course_title',
+                'a.description',
+                'a.created_at'
+            )
+            ->join('courses as c', 'c.id', '=', 'a.course_id')
+            ->orderByDesc('a.created_at')
+            ->skip($offset)->take($limit)
+            ->get();
+
+        $total = DB::table('assignments')->count();
+
+        return response()->json(['success' => true, 'assignments' => $assignments, 'total' => $total]);
+    }
 }

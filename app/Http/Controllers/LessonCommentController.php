@@ -63,4 +63,18 @@ class LessonCommentController extends Controller
 
         return response()->json(['message' => 'Comment deleted successfully']);
     }
+
+    /** DELETE /api/admin/comments/{id} - Admin delete any comment */
+    public function adminDestroy($commentId)
+    {
+        $comment = DB::table('lesson_comments')->where('id', $commentId)->first();
+
+        if (! $comment) {
+            return response()->json(['error' => 'Comment not found'], 404);
+        }
+
+        DB::table('lesson_comments')->where('id', $commentId)->delete();
+
+        return response()->json(['success' => true, 'message' => 'تم حذف التعليق بنجاح.']);
+    }
 }

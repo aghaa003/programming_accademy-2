@@ -80,6 +80,9 @@ Route::middleware('throttle:100,1')->group(function () {
     Route::get('/courses-with-assignments', [AssignmentController::class, 'coursesWithAssignments']);
 });
 
+// Public user profile endpoint
+Route::get('/users/{userId}', [ProfileController::class, 'publicProfile']);
+
 // ============================================================
 // AUTHENTICATED ROUTES (Sanctum SPA auth)
 // ============================================================
@@ -108,6 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Courses (user-specific)
     Route::get('/user-courses', [CourseController::class, 'userCourses']);
+    Route::get('/courses/{courseId}/viewers', [CourseController::class, 'viewers']);
     Route::delete('/course-progress/{courseId}', [CourseController::class, 'deleteCourseProgress']);
 
     // Lessons
@@ -134,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('throttle:30,1')->post('/challenges/submit', [ChallengeController::class, 'submit']);
 
     // Assignments
+    Route::get('/assignments/review', [AssignmentController::class, 'review']);
     Route::get('/assignments', [AssignmentController::class, 'index']);
     Route::middleware('throttle:20,1')->post('/assignments/submit', [AssignmentController::class, 'submit']);
 
@@ -224,6 +229,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Stats
     Route::get('/stats', [AdminController::class, 'stats']);
     Route::get('/audit-logs', [AdminController::class, 'auditLogs']);
+    Route::get('/logs', [AdminController::class, 'auditLogs']);  // Alias for frontend
+    Route::get('/engagements', [AdminController::class, 'engagements']);
+    Route::get('/comments', [AdminController::class, 'comments']);
+    Route::get('/reviews', [AdminController::class, 'reviews']);
+    Route::post('/reviews/{id}/approve', [AdminController::class, 'approveReview']);
+    Route::post('/reviews/{id}/reject', [AdminController::class, 'rejectReview']);
 
     // Courses & Lessons
     Route::get('/courses', [AdminCourseController::class, 'index']);
@@ -272,8 +283,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/assignments/{id}/submissions', [AdminAssignmentController::class, 'submissions']);
     Route::post('/assignments/{submissionId}/grade', [AdminAssignmentController::class, 'grade']);
 
+
     // Upload (courses + lessons with videos)
     Route::post('/upload', [AdminUploadController::class, 'upload']);
+
+    // Admin comment deletion
+    Route::delete('/comments/{id}', [LessonCommentController::class, 'adminDestroy']);
 
     // Users
     Route::get('/users', [AdminUserController::class, 'index']);

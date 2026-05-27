@@ -332,4 +332,31 @@ class ProfileController extends Controller
 
         return response()->json(['success' => true, 'message' => 'تم حذف الحساب بنجاح.']);
     }
+
+    /** GET /api/users/{userId} - Public user profile (no auth required) */
+    public function publicProfile($userId)
+    {
+        $user = User::select('id', 'username', 'firstName', 'lastName', 'email', 'avatar_path', 'created_at')
+            ->find($userId);
+
+        if (! $user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
+        $roles = $user->roles()->pluck('name')->toArray();
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'email' => $user->email,
+                'avatar' => $avatar,
+                'joinDate' => $user->created_at,
+                'roles' => $roles,
+            ],
+        ]);
+    }
 }
