@@ -137,6 +137,12 @@ class AuthController extends Controller
         $user->roles()->attach(1);
 
         return response()->json(['message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
+        Auth::login($user);
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        return response()->json(['success' => true, 'message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
     }
 
     public function logout(Request $request)

@@ -5,7 +5,6 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
 const apiBase = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? "";
-
 const INPUT: React.CSSProperties = {
   width: "100%",
   padding: "0.85rem 2.75rem 0.85rem 1rem",
@@ -31,6 +30,7 @@ export default function SignUpPage() {
   const [showCPw,    setShowCPw]    = useState(false);
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState("");
+const [username, setUsername] = useState("");
 
   const { refreshUser } = useCurrentUser();
   const [, navigate] = useLocation();
@@ -52,7 +52,7 @@ export default function SignUpPage() {
     if (!email.trim() || !email.includes("@")) { setError("يرجى إدخال بريد إلكتروني صحيح."); return; }
     if (!password)                             { setError("يرجى إدخال كلمة المرور."); return; }
     if (password !== confirmPw)                { setError("كلمتا المرور غير متطابقتين."); return; }
-
+if (!username.trim() || username.length < 3) { setError("يرجى إدخال اسم مستخدم (3 أحرف على الأقل)."); return; }
     setLoading(true);
     try {
       const res = await fetch(`${apiBase}/api/auth/register`, {
@@ -60,6 +60,7 @@ export default function SignUpPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
+            username: username.trim(),
           firstName: firstName.trim(),
           lastName:  lastName.trim() || undefined,
           emailAddress: email.trim().toLowerCase(),
@@ -127,7 +128,16 @@ export default function SignUpPage() {
                 </div>
               ))}
             </div>
+            {/* UserName row */}
 
+<div style={{ position:"relative" }}>
+  <span style={{ position:"absolute", right:"12px", top:"50%", transform:"translateY(-50%)", color:"#94a3b8", pointerEvents:"none" }}><User size={15}/></span>
+  <input
+    type="text" placeholder="اسم المستخدم *" value={username} autoComplete="username"
+    onChange={e => setUsername(e.target.value)}
+    style={INPUT} onFocus={focus} onBlur={blur}
+  />
+</div>
             {/* Email */}
             <div style={{ position:"relative" }}>
               <span style={{ position:"absolute", right:"12px", top:"50%", transform:"translateY(-50%)", color:"#94a3b8", pointerEvents:"none" }}><Mail size={15}/></span>

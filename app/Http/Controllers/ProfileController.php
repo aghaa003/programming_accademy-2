@@ -78,7 +78,9 @@ class ProfileController extends Controller
                 'preferred_language' => $user->preferred_language,
                 'joinDate' => $user->joinDate,
                 'avatar' => $avatar,
+                'imageUrl' => $avatar,
                 'roles' => $user->roles->pluck('name'),
+                'role' => $user->roles->first()?->name ?? 'user',  // ← add this
             ],
         ]);
     }

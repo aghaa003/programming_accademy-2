@@ -37,4 +37,11 @@ class RegisterRequest extends ApiFormRequest
             'password.max' => 'كلمة المرور يجب أن لا تتجاوز 72 حرفاً.',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('emailAddress') && ! $this->has('email')) {
+            $this->merge(['email' => $this->input('emailAddress')]);
+        }
+    }
 }
