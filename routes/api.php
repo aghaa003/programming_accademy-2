@@ -26,7 +26,6 @@ use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\RepositoryController;
-use App\Http\Controllers\RepoLikeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\VideoStreamController;
@@ -71,7 +70,7 @@ Route::middleware('throttle:100,1')->group(function () {
     Route::get('/platform-recommendations', [PlatformController::class, 'recommendations']);
 
     // Reviews (GET is public, POST requires auth)
-    Route::get('/reviews', [ReviewController::class, 'index']);
+    Route::get('/home-reviews', [ReviewController::class, 'index']);
 
     // Public avatar endpoint for profile/review images
     Route::get('/avatar/{userId}', [ProfileController::class, 'getAvatar']);
@@ -282,7 +281,6 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::patch('/assignments/{id}/toggle', [AdminAssignmentController::class, 'toggle']);
     Route::get('/assignments/{id}/submissions', [AdminAssignmentController::class, 'submissions']);
     Route::post('/assignments/{submissionId}/grade', [AdminAssignmentController::class, 'grade']);
-
 
     // Upload (courses + lessons with videos)
     Route::post('/upload', [AdminUploadController::class, 'upload']);

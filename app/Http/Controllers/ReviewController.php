@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReviewRequest;
 use App\Models\Review;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ReviewController extends Controller
@@ -19,9 +18,13 @@ class ReviewController extends Controller
             ->limit(6)
             ->get()
             ->map(function ($review) {
-                $review->avatar_url = ! empty($review->avatar_path) ? asset($review->avatar_path) : null;
-
-                return $review;
+                return [
+                    'id' => $review->id,
+                    'rating' => (int) $review->rating,
+                    'comment' => $review->review_text,  // Map review_text to comment
+                    'reviewerName' => $review->username, // Map username to reviewerName
+                    'avatar_url' => ! empty($review->avatar_path) ? asset($review->avatar_path) : null,
+                ];
             });
 
         return response()->json($reviews);
@@ -47,14 +50,14 @@ class ReviewController extends Controller
             ->get()
             ->map(function ($review) {
                 return [
-                    'id'         => $review->id,
-                    'courseId'   => $review->course_id,
-                    'userId'     => (string) $review->user_id,
-                    'userName'   => $review->username,
+                    'id' => $review->id,
+                    'courseId' => $review->course_id,
+                    'userId' => (string) $review->user_id,
+                    'userName' => $review->username,
                     'userAvatar' => ! empty($review->avatar_path) ? asset($review->avatar_path) : null,
-                    'rating'     => (int) $review->rating,
-                    'comment'    => $review->comment,
-                    'createdAt'  => $review->created_at,
+                    'rating' => (int) $review->rating,
+                    'comment' => $review->comment,
+                    'createdAt' => $review->created_at,
                 ];
             });
 
@@ -64,8 +67,8 @@ class ReviewController extends Controller
     /** POST /api/courses/{courseId}/reviews */
     public function storeForCourse($courseId, ReviewRequest $request)
     {
-        $userId  = auth()->id();
-        $rating  = (int) $request->validated()['rating'];
+        $userId = auth()->id();
+        $rating = (int) $request->validated()['rating'];
         $comment = trim($request->validated()['comment'] ?? $request->validated()['review_text']);
 
         if (DB::table('course_reviews')->where(['course_id' => $courseId, 'user_id' => $userId])->exists()) {
@@ -74,33 +77,33 @@ class ReviewController extends Controller
 
         $now = now();
         $reviewId = DB::table('course_reviews')->insertGetId([
-            'course_id'   => $courseId,
-            'user_id'     => $userId,
-            'rating'      => $rating,
-            'comment'     => $comment,
-            'created_at'  => $now,
-            'updated_at'  => $now,
+            'course_id' => $courseId,
+            'user_id' => $userId,
+            'rating' => $rating,
+            'comment' => $comment,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         $user = DB::table('users')->select('username', 'avatar_path')->where('id', $userId)->first();
 
         return response()->json([
-            'id'         => $reviewId,
-            'courseId'   => (int) $courseId,
-            'userId'     => (string) $userId,
-            'userName'   => $user->username,
+            'id' => $reviewId,
+            'courseId' => (int) $courseId,
+            'userId' => (string) $userId,
+            'userName' => $user->username,
             'userAvatar' => ! empty($user->avatar_path) ? asset($user->avatar_path) : null,
-            'rating'     => $rating,
-            'comment'    => $comment,
-            'createdAt'  => $now,
+            'rating' => $rating,
+            'comment' => $comment,
+            'createdAt' => $now,
         ], 201);
     }
 
     /** POST /api/reviews */
     public function store(ReviewRequest $request)
     {
-        $userId     = auth()->id();
-        $rating     = (int) $request->validated()['rating'];
+        $userId = auth()->id();
+        $rating = (int) $request->validated()['rating'];
         $reviewText = trim($request->validated()['review_text'] ?? $request->validated()['comment']);
 
         // Prevent duplicate reviews from the same user (PHP-level check)

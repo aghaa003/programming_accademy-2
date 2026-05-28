@@ -136,13 +136,27 @@ class AuthController extends Controller
         // Assign default 'student' role (role_id=1)
         $user->roles()->attach(1);
 
-        return response()->json(['message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
+        // Log the user in automatically after successful registration
         Auth::login($user);
         if ($request->hasSession()) {
             $request->session()->regenerate();
         }
 
-        return response()->json(['success' => true, 'message' => 'تم التسجيل بنجاح!', 'user_id' => $user->id], 201);
+        // Build avatar
+        $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم التسجيل بنجاح!',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'email' => $user->email,
+                'avatar' => $avatar,
+            ]
+        ], 201);
     }
 
     public function logout(Request $request)
