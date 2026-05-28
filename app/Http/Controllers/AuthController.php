@@ -59,7 +59,10 @@ class AuthController extends Controller
         $roles = $user->roles()->pluck('name')->toArray();
 
         // Regenerate session ID to prevent session fixation attacks
-        $request->session()->regenerate();
+        // Only regenerate if session store is available (for stateful SPA requests)
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
 
         // Build avatar
         $avatar = ! empty($user->avatar_path) ? asset($user->avatar_path) : null;
