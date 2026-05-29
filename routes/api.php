@@ -94,6 +94,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User status
     Route::get('/user/status', [ProfileController::class, 'status']);
+    // Add this in the authenticated routes section
+    Route::get('/user-stats/{userId}', [ProfileController::class, 'userStats']);
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
@@ -106,6 +108,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/upload-avatar', [ProfileController::class, 'uploadAvatar']);
         Route::post('/update-language', [ProfileController::class, 'updateLanguage']);
         Route::post('/save-user-preferences', [ProfileController::class, 'savePreferences']);
+        Route::post('/upload', [UploadController::class, 'store']);
+        Route::middleware(['auth:sanctum'])->group(function () {});
     });
 
     // Courses (user-specific)
@@ -145,6 +149,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('throttle:100,1')->group(function () {
         Route::get('/repositories', [RepositoryController::class, 'index']);
         Route::get('/repositories/{id}', [RepositoryController::class, 'show']);
+        Route::get('/featured-repositories', [RepositoryController::class, 'featured']);
+        Route::get('/users/{userId}/repositories', [RepositoryController::class, 'userRepositories']);
+
     });
     Route::middleware('throttle:20,1')->post('/repositories', [RepositoryController::class, 'store']);
     Route::middleware('throttle:30,1')->group(function () {
@@ -202,6 +209,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('throttle:30,1')->group(function () {
         Route::delete('/uploads/{id}', [UploadController::class, 'destroy']);
         Route::get('/uploads', [UploadController::class, 'getUserUploads']);
+        Route::post('/upload/multiple', [UploadController::class, 'storeMultiple']);
+
     });
 
     // AI — per-endpoint limits tuned to Ollama cost per call

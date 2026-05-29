@@ -361,4 +361,17 @@ class ProfileController extends Controller
             ],
         ]);
     }
+
+    /** GET /api/user-stats/{userId} */
+    public function userStats($userId)
+    {
+        // You'll need to implement the actual logic based on your database structure
+        // This is just an example
+        return response()->json([
+            'points' => 1250,
+            'coursesCompleted' => 3,
+            'challengesSolved' => 15,
+            'totalSubmissions' => 22,
+        ]);
+    }
 }

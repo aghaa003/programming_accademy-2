@@ -65,6 +65,15 @@ export default function ProfilePage() {
 
   const userId = user?.id ?? "";
 
+  // Add CSRF cookie setup
+  useEffect(() => {
+    // Ensure CSRF cookie is set for Sanctum authentication
+    fetch('/sanctum/csrf-cookie')
+      .catch(() => {
+        // Silent fail - cookie might already be set
+      });
+  }, []);
+
   const { data: statsData } = useGetUserStats(userId, {
     query: { queryKey: ["user-stats", userId], enabled: !!userId },
   });
@@ -157,7 +166,11 @@ export default function ProfilePage() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", credentials: "include", body: form });
+      const res = await fetch("/api/upload-avatar", {
+        method: "POST",
+        credentials: "include",
+        body: form,
+      });
       if (!res.ok) throw new Error("upload failed");
       const data = await res.json() as { file?: { url: string }; url?: string };
       // API returns { file: { url } }; fall back to top-level url for safety
@@ -190,7 +203,9 @@ export default function ProfilePage() {
     if (!user?.id) return;
     setReposLoading(true);
     try {
-      const res = await fetch(`/api/repositories?userId=${encodeURIComponent(user.id)}&limit=50`, { credentials: "include" });
+      const res = await fetch(`/api/users/${encodeURIComponent(user.id)}/repositories`, {
+        credentials: "include",
+      });
       if (res.ok) {
         const data = await res.json() as { repositories?: any[] };
         setRepos(data.repositories ?? []);
@@ -229,6 +244,9 @@ export default function ProfilePage() {
     setUploadingFiles(true);
 
     try {
+      // Ensure CSRF cookie is available
+      await fetch('/sanctum/csrf-cookie').catch(() => {});
+
       if (codeFiles.length) {
         const codeExts = ['js', 'ts', 'py', 'java', 'cpp', 'c', 'html', 'css', 'zip', 'tar', 'gz', 'rar'];
         const codeError = validateFiles(codeFiles, codeExts);
@@ -294,7 +312,9 @@ export default function ProfilePage() {
       const repoRes = await fetch("/api/repositories", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           title: newRepoTitle.trim(),
           description: newRepoDesc.trim(),
@@ -313,6 +333,8 @@ export default function ProfilePage() {
         const errorData = await repoRes.json().catch(() => ({ message: "خطأ غير معروف" }));
         throw new Error(`فشل حفظ المشروع: ${errorData.message || repoRes.status}`);
       }
+
+      const createdRepo = await repoRes.json();
 
       setNewRepoTitle("");
       setNewRepoDesc("");

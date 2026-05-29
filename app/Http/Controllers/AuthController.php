@@ -155,7 +155,7 @@ class AuthController extends Controller
                 'lastName' => $user->lastName,
                 'email' => $user->email,
                 'avatar' => $avatar,
-            ]
+            ],
         ], 201);
     }
 
