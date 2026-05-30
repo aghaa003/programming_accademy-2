@@ -51,6 +51,7 @@ const [username, setUsername] = useState("");
     if (!firstName.trim())                     { setError("يرجى إدخال الاسم الأول."); return; }
     if (!email.trim() || !email.includes("@")) { setError("يرجى إدخال بريد إلكتروني صحيح."); return; }
     if (!password)                             { setError("يرجى إدخال كلمة المرور."); return; }
+    if (password.length < 8) { setError("كلمة المرور يجب أن تكون 8 أحرف على الأقل."); return; }
     if (password !== confirmPw)                { setError("كلمتا المرور غير متطابقتين."); return; }
 if (!username.trim() || username.length < 3) { setError("يرجى إدخال اسم مستخدم (3 أحرف على الأقل)."); return; }
     setLoading(true);

@@ -32,23 +32,24 @@ export default function SignInPage() {
   const [, navigate] = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    if (!email.trim())  { setError("يرجى إدخال البريد الإلكتروني."); return; }
-    if (!password)      { setError("يرجى إدخال كلمة المرور."); return; }
+  if (!email.trim())  { setError("يرجى إدخال البريد الإلكتروني أو اسم المستخدم."); return; }
+  if (!password)      { setError("يرجى إدخال كلمة المرور."); return; }
 
-    setLoading(true);
-    try {
-      const res = await fetch(`${apiBase}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          emailAddress: email.trim().toLowerCase(),
-          password,
-        }),
-      });
+  setLoading(true);
+  try {
+    const res = await fetch(`${apiBase}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        // Send as identifier to support both email and username
+        identifier: email.trim(),
+        password,
+      }),
+    });
 
       const data = await res.json() as { success?: boolean; user?: object; error?: string };
 
