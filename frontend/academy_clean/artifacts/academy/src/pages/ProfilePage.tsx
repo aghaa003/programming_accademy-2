@@ -74,7 +74,7 @@ export default function ProfilePage() {
       });
   }, []);
 
-  const { data: statsData } = useGetUserStats(userId, {
+  const { data: statsData } = useGetUserStats(`/api/user-stats/${userId}`, {
     query: { queryKey: ["user-stats", userId], enabled: !!userId },
   });
   const { data: leaderboardData } = useGetLeaderboard({});
@@ -95,14 +95,22 @@ export default function ProfilePage() {
   const inProgressChallenges = Math.max(0, stats.totalSubmissions - stats.challengesSolved);
 
   const initials = (user?.firstName?.charAt(0) ?? "") + (user?.lastName?.charAt(0) ?? "");
-  const email = user?.emailAddresses[0]?.emailAddress ?? "";
-  const joinDate = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("ar-SA", { year: "numeric", month: "long" })
+
+  // --- BACKEND MIGRATION FIX: SAFELY MAP NODE.JS OR LARAVEL FIELDS ---
+  const safeUser = user as any;
+  const email = safeUser?.email ?? safeUser?.emailAddresses?.[0]?.emailAddress ?? "";
+  const dateStr = safeUser?.joinDate || safeUser?.createdAt || safeUser?.created_at;
+  const joinDate = dateStr
+    ? new Date(dateStr).toLocaleDateString("ar-SA", { year: "numeric", month: "long" })
     : "أكتوبر 2025";
 
   const userEmail = email;
   const isAdmin =
-    userEmail.includes("admin") || user?.publicMetadata?.role === "admin";
+    userEmail.includes("admin") ||
+    safeUser?.roles?.includes("admin") ||
+    safeUser?.role === "admin" ||
+    safeUser?.publicMetadata?.role === "admin";
+  // --- END OF MIGRATION FIX ---
 
   useEffect(() => {
     setAvatarUrl(user?.imageUrl ?? "");
@@ -129,7 +137,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     try {
-      const res = await fetch("/api/users/profile", {
+      const res = await fetch("/api/profile", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -180,8 +188,8 @@ export default function ProfilePage() {
       const stamp = Date.now();
       setAvatarStamp(stamp);
       // Immediately persist the new avatar URL to the database
-      await fetch("/api/users/profile", {
-        method: "POST",
+      await fetch("/api/users", {
+        method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatarUrl: uploadedUrl }),
@@ -1083,9 +1091,11 @@ export default function ProfilePage() {
 
                   <div className="p-4 border border-gray-100 rounded-xl">
                     <div className="flex items-center justify-between">
+                      {/* --- BACKEND MIGRATION FIX: SAFELY CAST TO STRING TO AVOID INTEGER SLICE CRASH --- */}
                       <span className="text-xs font-mono bg-gray-100 px-3 py-1.5 rounded-lg text-gray-500">
-                        {user?.id?.slice(0, 20)}...
+                        {String(user?.id || "").slice(0, 20)}...
                       </span>
+                      {/* --- END FIX --- */}
                       <span className="text-sm text-gray-700 font-medium">معرّف الحساب (ID)</span>
                     </div>
                   </div>

@@ -148,6 +148,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Repositories (rate-limited: 30 per minute for submissions/likes)
     Route::middleware('throttle:100,1')->group(function () {
         Route::get('/repositories', [RepositoryController::class, 'index']);
+        Route::post('/repositories', [RepositoryController::class, 'store']);
+
         Route::get('/repositories/{id}', [RepositoryController::class, 'show']);
         Route::get('/featured-repositories', [RepositoryController::class, 'featured']);
         Route::get('/users/{userId}/repositories', [RepositoryController::class, 'userRepositories']);

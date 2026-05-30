@@ -48,6 +48,7 @@ class RepositoryController extends Controller
         return response()->json($repository);
     }
 
+    /** POST /api/repositories */
     public function store(Request $request)
     {// Handle both frontend and backend field names
         $validated = $request->validate([
